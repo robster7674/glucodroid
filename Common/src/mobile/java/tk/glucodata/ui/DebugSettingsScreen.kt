@@ -232,7 +232,7 @@ fun DebugSettingsScreen(navController: NavController) {
             ) {
                 Text(
                     text = logContent,
-                    color = (MaterialTheme.colorScheme.onSecondaryContainer),
+                    color = Color(0xFFCCCCCC),
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp,
                     lineHeight = 14.sp,
