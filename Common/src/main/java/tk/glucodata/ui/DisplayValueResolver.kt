@@ -13,13 +13,16 @@ data class DisplayValues(
 )
 
 object DisplayValueResolver {
+    // Use Locale.US to guarantee '.' as decimal separator for TTS output.
+    // TTS reads "15.7" correctly regardless of device locale (de, fr, etc. use ',').
+    private val TTS_SAFE_LOCALE = Locale.US
     private val SPEECH_SAFE_LOCALE = Locale.US
 
     private fun format(value: Float, isMmol: Boolean): String {
         return if (isMmol) {
-            String.format(Locale.getDefault(), "%.1f", value)
+            String.format(TTS_SAFE_LOCALE, "%.1f", value)
         } else {
-            String.format(Locale.getDefault(), "%.0f", value)
+            String.format(TTS_SAFE_LOCALE, "%.0f", value)
         }
     }
 
