@@ -82,7 +82,12 @@ private enum class NightscoutMode { OFF, UPLOAD, FOLLOW }
 private sealed class TestState {
     object Idle : TestState()
     object Testing : TestState()
-    data class Ok(val code: Int) : TestState()
+    data class Result(
+        val serverCode: Int,
+        val entriesCode: Int,
+        val lastUploadCode: Int,
+        val lastUploadTime: Long,
+    ) : TestState()
     data class Err(val message: String) : TestState()
 }
 
@@ -179,22 +184,46 @@ fun NightscoutSettingsScreen(navController: NavController) {
 
     fun testConnection() {
         if (!requireUrl()) return
+        val capturedUploadCode = lastResponseCode
+        val capturedUploadTime = lastAttemptTime
         testState = TestState.Testing
         coroutineScope.launch {
             testState = withContext(Dispatchers.IO) {
                 try {
-                    val baseUrl = NightscoutFollowerRegistry.normalizeUrl(url)
-                    val endpoint = "$baseUrl/api/v1/status.json"
-                    val conn = (java.net.URL(endpoint).openConnection() as java.net.HttpURLConnection).apply {
+                    val base = NightscoutFollowerRegistry.normalizeUrl(url)
+                    val sec = secret.trim()
+
+                    // Phase 1: server reachability (no auth required on most servers)
+                    val serverCode = (java.net.URL("$base/api/v1/status.json").openConnection()
+                            as java.net.HttpURLConnection).run {
                         connectTimeout = 10_000
                         readTimeout = 10_000
                         requestMethod = "GET"
                         setRequestProperty("Accept", "application/json")
+                        val code = responseCode
+                        disconnect()
+                        code
                     }
-                    applyNightscoutTestAuth(conn, baseUrl, secret, isV3)
-                    val code = conn.responseCode
-                    conn.disconnect()
-                    if (code in 200..299) TestState.Ok(code) else TestState.Err("HTTP $code")
+
+                    // Phase 2: entries endpoint with auth — proves the actual upload path works
+                    val entriesCode = (java.net.URL("$base/api/v1/entries/sgv.json?count=1").openConnection()
+                            as java.net.HttpURLConnection).run {
+                        connectTimeout = 10_000
+                        readTimeout = 10_000
+                        requestMethod = "GET"
+                        setRequestProperty("Accept", "application/json")
+                        NightscoutFollowerRegistry.applyAuth(this, sec)
+                        val code = responseCode
+                        disconnect()
+                        code
+                    }
+
+                    TestState.Result(
+                        serverCode = serverCode,
+                        entriesCode = entriesCode,
+                        lastUploadCode = capturedUploadCode,
+                        lastUploadTime = capturedUploadTime,
+                    )
                 } catch (e: Exception) {
                     TestState.Err(e.localizedMessage?.take(80) ?: context.getString(R.string.status_connection_failed))
                 }
@@ -403,17 +432,49 @@ fun NightscoutSettingsScreen(navController: NavController) {
                         }
                     }
                     when (val s = testState) {
-                        is TestState.Ok -> Text(
-                            text = stringResource(R.string.nightscout_test_ok, s.code),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        )
+                        is TestState.Result -> {
+                            val serverOk = s.serverCode in 200..299
+                            val entriesOk = s.entriesCode in 200..299
+                            Column(
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                Text(
+                                    text = if (serverOk)
+                                        stringResource(R.string.nightscout_test_server_ok, s.serverCode)
+                                    else
+                                        stringResource(R.string.nightscout_test_server_err, s.serverCode),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (serverOk) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                )
+                                Text(
+                                    text = when {
+                                        entriesOk -> stringResource(R.string.nightscout_test_entries_ok, s.entriesCode)
+                                        s.entriesCode == 401 || s.entriesCode == 403 ->
+                                            stringResource(R.string.nightscout_test_entries_auth_err, s.entriesCode)
+                                        else -> stringResource(R.string.nightscout_test_entries_err, s.entriesCode)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (entriesOk) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                )
+                                if (mode == NightscoutMode.UPLOAD && s.lastUploadTime > 0L && s.lastUploadCode != 0) {
+                                    val uploadOk = s.lastUploadCode in 200..299
+                                    Text(
+                                        text = if (uploadOk)
+                                            stringResource(R.string.nightscout_test_last_upload_ok, formatStatusTime(s.lastUploadTime), s.lastUploadCode)
+                                        else
+                                            stringResource(R.string.nightscout_test_last_upload_err, formatStatusTime(s.lastUploadTime), s.lastUploadCode),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (uploadOk) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            }
+                        }
                         is TestState.Err -> Text(
                             text = stringResource(R.string.nightscout_test_error, s.message),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(horizontal = 4.dp)
+                            modifier = Modifier.padding(horizontal = 4.dp),
                         )
                         else -> {}
                     }
