@@ -146,7 +146,7 @@ object NightscoutFollowerRegistry {
         }
         connection.setRequestProperty(
             "api-secret",
-            if (trimmed.matches(Regex("^[0-9a-fA-F]{40}$"))) trimmed else sha1(trimmed)
+            if (trimmed.matches(Regex("^[0-9a-fA-F]{40}$"))) trimmed else sha1(trimmed),
         )
     }
 
