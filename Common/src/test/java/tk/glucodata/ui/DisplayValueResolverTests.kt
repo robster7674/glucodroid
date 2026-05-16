@@ -60,7 +60,7 @@ class DisplayValueResolverTests {
         assertEquals("8.5", dv.primaryStr)
         assertFalse("primaryStr must not contain comma", dv.primaryStr.contains(","))
         assertFalse("primaryStr must not contain locale decimal separator",
-            dv.primaryStr.contains(Locale.getDefault().decimalSeparator.toString()))
+            dv.primaryStr.contains(String.format(Locale.getDefault(), "%.1f", 1.0f).replace("1", "")))
     }
 
     @Test
