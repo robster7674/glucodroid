@@ -48,7 +48,7 @@
     <string name="delete">Delete</string>
     <string name="specifyreceiveordata">Specify \'Receive from\' or data to send to other device</string>
     <string name="specifyip">You should specify an IP</string>
-    <string name="portrange">Network ports should be between 1024 and 65535</string>
+    <string name="portrange">Network ports should be between 1 and 65535</string>
     <string name="mirror_portrange">Mirror ports should be between 1 and 65535</string>
     <string name="start">Start</string>
     <string name="now">Now</string>
