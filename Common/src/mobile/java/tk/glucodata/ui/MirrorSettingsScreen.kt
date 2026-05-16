@@ -856,8 +856,8 @@ fun MirrorEditSheet(pos: Int, sheetState: SheetState, onDismiss: () -> Unit) {
                         if (localActiveOnly || !autoDetect) {
                             OutlinedTextField(
                                 value = hostname, onValueChange = { hostname = it },
-                                label = { Text(stringResource(R.string.mirror_ip_address)) },
-                                supportingText = { Text(stringResource(R.string.mirror_ip_address_desc)) },
+                                label = { Text(stringResource(R.string.mirror_hostname_ip_address)) },
+                                supportingText = { Text(stringResource(R.string.mirror_hostname_ip_desc)) },
                                 modifier = Modifier.fillMaxWidth(), singleLine = true
                             )
                         }
