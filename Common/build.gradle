@@ -360,6 +360,25 @@ buildTypes {
 
                 }
         }
+        releaser {
+            versionNameSuffix 'R'
+        applicationIdSuffix ".r"
+            resValue "string", "app_name", "JugglucoNG R"
+            signingConfig signingConfigs.alg
+            minifyEnabled true
+        shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'proguard-rules.my', 'proguard-rules.log'
+            jniDebuggable false
+            debuggable false
+
+        buildConfigField 'int', 'doLog', '1'
+            buildConfigField 'int', 'isRelease', '1'
+        buildConfigField 'int', 'isReleaseID', '1'
+            externalNativeBuild.cmake {
+                cppFlags "$CPPSTD","-DRELEASEID=1","-DRELEASE=1","-DNORAWSTREAM=1" , "-DRELEASEDIR=1", "-DAPPSUFFIX=\"quotes($applicationIdSuffix)\" "
+                cFlags "-DRELEASEID=1","-DRELEASE=1","-DNORAWSTREAM=1" , "-DRELEASEDIR=1", "-DAPPSUFFIX=\"quotes($applicationIdSuffix)\" "
+                }
+        }
         debugdub {
          manifestPlaceholders["requireWatch"] = "false"
          manifestPlaceholders["debuggable"] = "true"
