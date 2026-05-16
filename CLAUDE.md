@@ -18,7 +18,7 @@ The file must always be named exactly `JugglucoNG-R.apk` — nothing else, ever.
 Build command:
 
 ```
-./gradlew assembleMobileLibre3SiDexGoogleReleaser -Pno_x86 -Pno_x86_64
+./gradlew assembleMobileLibre3SiDexGoogleRelease -Pno_x86 -Pno_x86_64
 ```
 
 The APK will be under `Common/build/outputs/apk/`.
