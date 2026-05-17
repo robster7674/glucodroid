@@ -86,7 +86,7 @@ android {
 
     //    buildConfigField 'int', 'noZXing', '1'
         //compileSdk 36
-        applicationId "tk.glucodata.ng"
+        applicationId "com.glucodroid"
 
          versionName '1.0.1-Alpha'
 //    multiDexEnabled true
