@@ -534,7 +534,11 @@ public abstract class SuperGattCallback extends BluetoothGattCallback {
 
         if (!DontTalk) {
             if (dotalk && !alarmSpeechStarted) {
-                talker.selspeak(sglucose.value);
+                long readingAgeMs = System.currentTimeMillis() - timmsec;
+                String toSpeak = readingAgeMs > Notify.glucosetimeout
+                        ? Applic.app.getString(R.string.tts_missed_readings)
+                        : sglucose.value;
+                talker.selspeak(toSpeak);
             }
         }
         if (isWearable) {
