@@ -2,6 +2,7 @@ package tk.glucodata
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.util.Calendar
 
 /**
  * Unit tests for Talker audio stream selection logic (applyComposeSettings).

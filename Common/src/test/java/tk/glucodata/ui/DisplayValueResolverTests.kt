@@ -2,6 +2,7 @@ package tk.glucodata.ui
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 /**
