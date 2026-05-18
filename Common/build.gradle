@@ -363,7 +363,7 @@ buildTypes {
         releaser {
             versionNameSuffix 'R'
         applicationIdSuffix ".r"
-            resValue "string", "app_name", "JugglucoNG R"
+            resValue "string", "app_name", "GlucoDroid"
             signingConfig signingConfigs.alg
             minifyEnabled true
         shrinkResources true

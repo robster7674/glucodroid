@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Nfc
@@ -172,6 +173,17 @@ fun SensorSelectionCards(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 onClick = { onSensorSelected(SensorType.CARESENS_AIR) },
+                compact = compact
+            )
+
+            // Nightscout Follower
+            SensorCard(
+                icon = Icons.Default.Cloud,
+                title = stringResource(R.string.nightscout_follow_title),
+                subtitle = stringResource(R.string.nightscout_sensor_desc),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                onClick = { onSensorSelected(SensorType.NIGHTSCOUT) },
                 compact = compact
             )
         }

@@ -101,6 +101,7 @@ private fun DashboardRoute(
         onNavigateToCalibrations = { navController.navigate("calibrations") },
         onNavigateToHistory = { navController.navigate("history") },
         onNavigateToMqAccount = { navController.navigate("settings/mq-account") },
+        onNavigateToNightscout = { navController.navigate("settings/nightscout") },
         onNavigateToReadiness = { navController.navigate("settings/cgm-readiness") },
         onTriggerCalibration = onTriggerCalibration
     )
@@ -683,6 +684,7 @@ fun MainApp(themeMode: ThemeMode, onThemeChanged: (ThemeMode) -> Unit) {
                     composable("sensors") {
                         SensorScreen(
                             onNavigateToMqAccount = { navController.navigate("settings/mq-account") },
+                            onNavigateToNightscout = { navController.navigate("settings/nightscout") },
                             onNavigateToReadiness = { navController.navigate("settings/cgm-readiness") }
                         )
                     }
@@ -825,6 +827,7 @@ fun MainApp(themeMode: ThemeMode, onThemeChanged: (ThemeMode) -> Unit) {
                 composable("sensors") {
                     SensorScreen(
                         onNavigateToMqAccount = { navController.navigate("settings/mq-account") },
+                        onNavigateToNightscout = { navController.navigate("settings/nightscout") },
                         onNavigateToReadiness = { navController.navigate("settings/cgm-readiness") }
                     )
                 }
