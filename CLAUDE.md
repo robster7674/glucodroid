@@ -1,8 +1,10 @@
-# JugglucoNG — Claude Code Instructions
+# GlucoDroid — Claude Code Instructions
+
+App package: `cloud.glucosedroid`
 
 ## Git workflow
 
-After completing any fix or feature on the `feat-rob` branch, always commit and push the changes immediately.
+After completing any fix or feature on the `glucodroid` branch, always commit and push the changes immediately.
 Use a clear commit message, then run `git push`.
 
 ## Build
@@ -10,10 +12,10 @@ Use a clear commit message, then run `git push`.
 After a successful build, copy the output APK to:
 
 ```
-~/Downloads/JugglucoNG-R.apk
+~/Downloads/GlucoDroid-R.apk
 ```
 
-The file must always be named exactly `JugglucoNG-R.apk` — nothing else, ever.
+The file must always be named exactly `GlucoDroid-R.apk` — nothing else, ever.
 
 Build command:
 
