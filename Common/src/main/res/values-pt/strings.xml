@@ -521,7 +521,7 @@
     <string name="ICE">ICE</string>
     <string name="USE_ALARM">Alarm is alarm</string>
     <string name="aaps_broadcast">Glucodata broadcast</string>
-    <string name="about_text">GPL-3.0 • Fork of Juggluco</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
     <string name="accuchek_scan_instruction">Digitalize a matriz de dados no seu sensor Accu-Chek SmartGuide</string>
     <string name="accuchek_sensor">Accu-Chek SmartGuide</string>
     <string name="accuchek_sensor_desc">Digitalizar matriz de dados + Bluetooth</string>

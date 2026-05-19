@@ -699,7 +699,7 @@ Als je op OK drukt, wordt er een verbinding gemaakt op deze telefoon en wordt er
     <string name="ICE">ICE</string>
     <string name="USE_ALARM">Alarm is alarm</string>
     <string name="aaps_broadcast">Glucodata</string>
-    <string name="about_text">GPL-3.0 • Fork of Juggluco</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
     <string name="accuchek_scan_instruction">Scan de datamatrix op uw Accu-Chek SmartGuide-sensor</string>
     <string name="accuchek_sensor">Accu-Chek SmartGuide</string>
     <string name="accuchek_sensor_desc">Scandatamatrix + Bluetooth</string>

@@ -673,7 +673,7 @@ Tamam\'a basmak bağlantı için QR kod görüntüleyecektir. QR kodu diğer tel
     <string name="volume_vibration_profile">Ses/titresim profili</string>
     <string name="ICE">ICE</string>
     <string name="aaps_broadcast">Glucodata</string>
-    <string name="about_text">GPL-3.0 • Fork of Juggluco</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
     <string name="accuchek_scan_instruction">Accu-Chek SmartGuide sensörünüzdeki veri matrisini tarayın</string>
     <string name="accuchek_sensor">Accu-Chek SmartGuide</string>
     <string name="accuchek_sensor_desc">Veri Matrisini Tara + Bluetooth</string>

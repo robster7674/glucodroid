@@ -888,7 +888,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="reset_everything_button">RESET EVERYTHING</string>
     
     <string name="alert_sound">Alert Sound</string>
-    <string name="about_text">GPL-3.0 • Fork of Juggluco</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
     <string name="refreshing">Refreshing...</string>
     <!-- Missing UI Strings -->
     <string name="auto_calibration_mode">Auto-calibration mode</string>
