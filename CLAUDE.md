@@ -12,10 +12,10 @@ Use a clear commit message, then run `git push`.
 After a successful build, copy the output APK to:
 
 ```
-~/Downloads/GlucoDroid-R.apk
+~/Downloads/glucodroid.apk
 ```
 
-The file must always be named exactly `GlucoDroid-R.apk` — nothing else, ever.
+The file must always be named exactly `glucodroid.apk` — nothing else, ever.
 
 Build command:
 
