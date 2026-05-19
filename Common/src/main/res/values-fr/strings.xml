@@ -567,7 +567,7 @@
     <string name="volume_vibration_profile">Profil volume/vibration</string>
     <string name="ICE">ICE</string>
     <string name="aaps_broadcast">Glucodata</string>
-    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG • glucodroid.cloud</string>
     <string name="accuchek_scan_instruction">Scannez la matrice de données sur votre capteur Accu-Chek SmartGuide</string>
     <string name="accuchek_sensor">Guide intelligent Accu-Chek</string>
     <string name="accuchek_sensor_desc">Scan Data Matrix + Bluetooth</string>

@@ -632,7 +632,7 @@
     <string name="volume_vibration_profile">音量/振动配置</string>
     <string name="ICE">ICE</string>
     <string name="aaps_broadcast">Glucodata</string>
-    <string name="about_text">GPL-3.0 • Fork of JugglucoNG</string>
+    <string name="about_text">GPL-3.0 • Fork of JugglucoNG • glucodroid.cloud</string>
     <string name="accuchek_scan_instruction">扫描 Accu-Chek SmartGuide 传感器上的数据矩阵</string>
     <string name="accuchek_sensor">Accu-Chek 智能指南</string>
     <string name="accuchek_sensor_desc">扫描数据矩阵+蓝牙</string>
