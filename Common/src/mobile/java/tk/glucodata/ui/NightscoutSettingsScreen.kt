@@ -334,7 +334,9 @@ fun NightscoutSettingsScreen(navController: NavController) {
                             keyboardActions = KeyboardActions(onDone = {
                                 persistSettings()
                                 keyboardController?.hide()
-                                navController.popBackStack()
+                                if (mode != NightscoutMode.OFF && NightscoutFollowerRegistry.normalizeUrl(url).isNotBlank()) {
+                                    navController.popBackStack()
+                                }
                             }),
                             trailingIcon = {
                                 IconButton(onClick = { showSecret = !showSecret }) {
