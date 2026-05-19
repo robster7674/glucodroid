@@ -596,15 +596,22 @@ fun MainApp(themeMode: ThemeMode, onThemeChanged: (ThemeMode) -> Unit) {
     val onNavigate = { route: String ->
         val parentOfCurrent = getParentRoute(currentRoute)
         val isOnSubpageOf = parentOfCurrent == route
+        val startRoute = navController.graph.findStartDestination().route
 
         when {
             // If we're on a subpage of the clicked nav item, pop back to it
             isOnSubpageOf -> navController.popBackStack(route, inclusive = false)
-            // If we're on a different top-level or subpage, navigate normally
-            currentRoute != route -> navController.navigate(route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
+            currentRoute != route -> if (route == startRoute) {
+                // Navigating to the start destination (dashboard): pop cleanly.
+                // navigate() + launchSingleTop is a no-op when dashboard is already
+                // the top of the stack after popUpTo, so use popBackStack instead.
+                navController.popBackStack(route, inclusive = false, saveState = true)
+            } else {
+                navController.navigate(route) {
+                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
             // Already on the destination, do nothing
         }

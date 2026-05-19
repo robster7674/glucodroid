@@ -377,6 +377,7 @@ fun NightscoutSettingsScreen(navController: NavController) {
                             SegmentedButton(
                                 selected = mode == NightscoutMode.OFF,
                                 onClick = {
+                                    keyboardController?.hide()
                                     focusManager.clearFocus()
                                     if (mode == NightscoutMode.FOLLOW) NightscoutFollowerRegistry.disableFollowerSensor(context)
                                     mode = NightscoutMode.OFF
@@ -388,6 +389,7 @@ fun NightscoutSettingsScreen(navController: NavController) {
                             SegmentedButton(
                                 selected = mode == NightscoutMode.UPLOAD,
                                 onClick = {
+                                    keyboardController?.hide()
                                     focusManager.clearFocus()
                                     if (!requireUrl()) return@SegmentedButton
                                     if (mode == NightscoutMode.FOLLOW) NightscoutFollowerRegistry.disableFollowerSensor(context)
@@ -405,6 +407,7 @@ fun NightscoutSettingsScreen(navController: NavController) {
                             SegmentedButton(
                                 selected = mode == NightscoutMode.FOLLOW,
                                 onClick = {
+                                    keyboardController?.hide()
                                     focusManager.clearFocus()
                                     if (!requireUrl()) return@SegmentedButton
                                     mode = NightscoutMode.FOLLOW
