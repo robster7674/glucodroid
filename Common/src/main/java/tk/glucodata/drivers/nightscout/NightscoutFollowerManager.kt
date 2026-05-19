@@ -11,6 +11,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import tk.glucodata.Applic
 import tk.glucodata.Log
+import tk.glucodata.Natives
 import tk.glucodata.R
 import tk.glucodata.SensorIdentity
 import tk.glucodata.SuperGattCallback
@@ -57,6 +58,7 @@ class NightscoutFollowerManager(
     @Volatile private var latestReadingTimeMs: Long = 0L
     @Volatile private var latestReadingMgdl: Float = Float.NaN
     @Volatile private var latestRateMgdlPerMin: Float = 0f
+    @Volatile private var nativeMirroredUpToMs: Long = 0L
 
     init {
         mActiveDeviceAddress = url
@@ -217,6 +219,7 @@ class NightscoutFollowerManager(
             }
             importHistory(readings)
             publishLatest(readings)
+            mirrorToNative(readings)
             setStatus(Phase.FOLLOWING, localizedString(R.string.nightscout_follow_status_following, "Following Nightscout"))
             Log.i(
                 TAG,
@@ -340,6 +343,21 @@ class NightscoutFollowerManager(
         } finally {
             connection.disconnect()
         }
+    }
+
+    private fun mirrorToNative(readings: List<VirtualGlucoseSensorBridge.Reading>) {
+        if (readings.isEmpty() || SerialNumber.isBlank()) return
+        val newReadings = readings.filter { it.timestampMs > nativeMirroredUpToMs }
+        if (newReadings.isEmpty()) return
+        runCatching {
+            val startSec = readings.minOf { it.timestampMs } / 1000L
+            Natives.ensureSensorShell(SerialNumber, startSec)
+            newReadings.forEach { reading ->
+                Natives.addGlucoseStream(reading.timestampMs / 1000L, reading.glucoseMgdl / 10f, SerialNumber)
+            }
+            nativeMirroredUpToMs = newReadings.maxOf { it.timestampMs }
+            Natives.wakebackup()
+        }.onFailure { Log.stack(TAG, "mirrorToNative", it) }
     }
 
     private fun parseEntry(entry: JSONObject?): VirtualGlucoseSensorBridge.Reading? {
