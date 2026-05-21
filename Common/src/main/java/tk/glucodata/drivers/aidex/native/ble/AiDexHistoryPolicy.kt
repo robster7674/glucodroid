@@ -34,17 +34,8 @@ internal object AiDexHistoryPolicy {
             )
         }
 
-        val effectiveRawNextIndex = if (
-            persistedBriefNextIndex > 0 &&
-            persistedRawNextIndex > persistedBriefNextIndex
-        ) {
-            persistedBriefNextIndex
-        } else {
-            persistedRawNextIndex
-        }
-
         val rawNextIndex = normalizePersistedIndex(
-            persistedIndex = effectiveRawNextIndex,
+            persistedIndex = persistedRawNextIndex,
             startIndex = rawStart,
             newest = newest,
         )
@@ -125,7 +116,7 @@ internal object AiDexHistoryPolicy {
     ): Int {
         var normalized = maxOf(persistedIndex, startIndex)
         // If persisted index is too far ahead of newest, rewind to start
-        if (normalized > newest) {
+        if (normalized > newest + 10) {
             normalized = startIndex
         }
         return normalized
