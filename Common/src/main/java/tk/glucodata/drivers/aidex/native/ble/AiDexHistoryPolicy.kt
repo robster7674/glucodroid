@@ -124,7 +124,8 @@ internal object AiDexHistoryPolicy {
         newest: Int,
     ): Int {
         var normalized = maxOf(persistedIndex, startIndex)
-        if (normalized > newest + 10) {
+        // If persisted index is too far ahead of newest, rewind to start
+        if (normalized > newest) {
             normalized = startIndex
         }
         return normalized
