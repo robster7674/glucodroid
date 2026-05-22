@@ -2300,11 +2300,11 @@ entered on watch”.</p>
 <p><a href="https://www.juggluco.nl/Jugglucohelp/be/talkhelp.html">be</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/de/talkhelp.html">de</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/fr/talkhelp.html">fr</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/nl/talkhelp.html">nl</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/pl/talkhelp.html">pl</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/ru/talkhelp.html">ru</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/tr/talkhelp.html">tr</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/uk/talkhelp.html">uk</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/zh/talkhelp.html">zh</a>&emsp;&emsp;<a href="https://www.juggluco.nl/Jugglucohelp/talkhelp.html?lang=en">en</a>&emsp;&emsp;</p><h1>Talk</h1>
 <h2 class="western">Speak glucose</h2>
 <p>Speaks glucose values when they arrive.</p>
-<p><b>Seconds between</b>: Specifies how many seconds Juggluco should
-wait before saying the next glucose value. Glucose values are always
-spoken immediately when they arrive. When a large value is specified,
-Juggluco will skip glucose values that arrive before this time period
-has elapsed.</p>
+<p><b>Seconds between</b>: Specifies how many seconds must elapse
+before the next glucose value is spoken. The minimum is 1 second.
+Glucose values are spoken as soon as they arrive; if another value
+arrives before this interval has elapsed it is skipped. Set a larger
+value to reduce the frequency of announcements.</p>
 <p><b>Voice</b>: Selects a speaker out of a list of possible
 speakers.</p>
 <p><b>Speed</b>: a higher number means faster talking.</p>
@@ -2349,21 +2349,30 @@ and Talk are specific for the active profile.
 <h2 class="western"><a href="https://www.juggluco.nl/Jugglucohelp/schedulehelp.html">Schedules</a></h2>
 <p>You can configure Juggluco to activate a profile at a certain time
 of day.</p>
-<h2 class="western">Volume</h2>
-<p>You can increase or decrease the volume of talk sound in Android
-settings under sound. If <span lang="en-US"><b>MEDIA</b></span><span lang="en-US">
-is switch </span><span lang="en-US"><b>off</b></span><span lang="en-US">,
-</span>I can do it on my phone with the <i>Notification</i> sound
-lever, on my WearOS watch with the <i>System</i> sound lever. It
-shouldn’t be heard when “<i>Do not disturb</i>” is turned on.
-When <b>MEDIA</b><span style="font-weight: normal"> is set, the media
-volume lever is used and on most phones it will be heard during </span><span lang="en-US"><span style="font-weight: normal">“</span></span><span lang="en-US"><i><span style="font-weight: normal">Do
-not disturb</span></i></span><span lang="en-US"><span style="font-weight: normal">”</span></span></p>
-<p style="line-height: 100%; margin-bottom: 0in"><i>Speak alarms</i>
-is different. Alarms are spoken with the “<i>Alarms</i>” category
-when “<i>Alarm is Alarm</i>” is set on. On my phone the volume is
-regulated with the Alarm-lever, on my watch with the Notification
-lever.</p>
+<h2 class=”western”>Volume</h2>
+<p>The <b>Media</b> and <b>Override silent mode</b> toggles are
+mutually exclusive — enabling one automatically disables the other.
+Together they control which Android audio stream is used for spoken
+glucose announcements:</p>
+<ul>
+	<li><p><b>Both off</b> (default): Uses the <i>Notification</i>
+	audio stream. Adjust volume with the Notification sound lever. On
+	WearOS watches the System lever is used instead.</p></li>
+	<li><p><b>Media on</b>: Uses the <i>Media</i> audio stream. Adjust
+	volume with the Media sound lever. On most devices speech is still
+	heard during “<i>Do not disturb</i>”.</p></li>
+	<li><p><b>Override silent mode on</b>: Uses the <i>Alarm</i> audio
+	stream. Adjust volume with the Alarm lever. Speech plays even when
+	the phone is in silent mode or “<i>Do not disturb</i>” is
+	active.</p></li>
+</ul>
+<p>The <b>Test</b> button always plays through the Media stream so it
+is audible regardless of the current stream setting.</p>
+<p><i>Speak alarms</i> follows a separate audio path. When
+“<i>Alarm is Alarm</i>” is enabled in Alarm settings, spoken alarms
+use the Alarm stream and their volume is controlled by the
+Alarm lever (Notification lever on WearOS watches), independently of
+the Media / Override silent mode toggles above.</p>
 <p><br/>
 <br/>
 
