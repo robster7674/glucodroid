@@ -570,6 +570,11 @@ buildTypes {
         aidl true
         compose true
     }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15" // Compatible with Kotlin 2.0.21 used in project? Actually project uses 2.0.21, so compose compiler is built-in.
         // Wait, for Kotlin 2.0+, we don't need kotlinCompilerExtensionVersion here if using the new plugin, but this project uses 'org.jetbrains.kotlin.android'.
@@ -771,6 +776,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2"
     testImplementation 'app.cash.turbine:turbine:1.2.0'
+    testImplementation 'org.json:json:20231013'
 
 configurations {
 mobileLibre3SiDexGoogleImplementation {}

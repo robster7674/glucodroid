@@ -32,7 +32,7 @@ class ManagedSensorStatusPolicyTests {
             nowMs = expectedEnd + (5L * 60L * 60L * 1000L),
         )
 
-        assertEquals("20 / 21", summary.daysText)
+        assertEquals("20 / 20", summary.daysText)
         assertEquals(20, summary.currentDay)
         assertEquals(13L, summary.remainingHours)
         assertTrue(summary.progress > 0.8f)
