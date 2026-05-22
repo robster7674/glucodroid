@@ -1610,10 +1610,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         Log.stack(LOG_ID, e);
                         return;
                     }
-                    if (requestCode == REQUEST_SAVE_LOG)
-                        Natives.saveLog(fd);
-                    else
-                        Natives.saveLogcat(fd);
+                    boolean ok = (requestCode == REQUEST_SAVE_LOG)
+                            ? Natives.saveLog(fd)
+                            : Natives.saveLogcat(fd);
+                    if (!ok)
+                        Toast.makeText(this, R.string.savefailed, Toast.LENGTH_SHORT).show();
                 } else {
                     Log.i(LOG_ID, "savelog: resultCode=" + resultCode);
                 }

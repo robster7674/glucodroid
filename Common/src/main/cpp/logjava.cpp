@@ -130,7 +130,10 @@ static bool copyfile(const char *infile, int out) {
   char buf[65536];
   ssize_t total = 0;
   ssize_t n;
-  while ((n = read(in, buf, sizeof(buf))) > 0) {
+  for (;;) {
+    n = read(in, buf, sizeof(buf));
+    if (n < 0 && errno == EINTR) continue;
+    if (n <= 0) break;
     ssize_t written = 0;
     while (written < n) {
       ssize_t w = write(out, buf + written, n - written);
