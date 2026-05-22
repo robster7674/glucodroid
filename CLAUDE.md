@@ -1,6 +1,6 @@
 # GlucoDroid — Claude Code Instructions
 
-App package: `cloud.glucosedroid`
+App package: `cloud.glucodroid`
 
 ## Git workflow
 
