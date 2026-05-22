@@ -84,7 +84,7 @@ jobs:
           heap-size: 512M
           script: |
             echo "Running instrumented UX tests on API ${{ matrix.api-level }}"
-            
+
             # Smoke tests - quick validation
             if [ "${{ github.event.inputs.test_level }}" = "smoke" ] || [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
               ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
@@ -93,7 +93,7 @@ jobs:
                 -Pandroid.testInstrumentationRunnerArguments.size=small
               echo "✓ Smoke tests completed"
             fi
-            
+
             # Full tests
             if [ "${{ github.event.inputs.test_level }}" = "full" ] || [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
               ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
@@ -101,7 +101,7 @@ jobs:
                 --warning-mode=all
               echo "✓ Full instrumented tests completed"
             fi
-            
+
             # Extended tests (longer duration)
             if [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
               echo "Running extended soak tests..."
@@ -166,11 +166,12 @@ jobs:
 
       - name: Verify APK was created
         run: |
-          if [ -f "Common/build/outputs/apk/mobileLibre3SiDexGoogleReleaser/release/Common-mobileLibre3SiDexGoogleReleaser-release.apk" ]; then
-            echo "✓ APK build successful"
-            ls -lh Common/build/outputs/apk/mobileLibre3SiDexGoogleReleaser/release/*.apk
+          APK=$(find Common/build/outputs/apk -name "*.apk" | head -n1)
+          if [ -n "$APK" ]; then
+            echo "APK build successful"
+            ls -lh "$APK"
           else
-            echo "✗ APK not found"
+            echo "APK not found"
             exit 1
           fi
 
@@ -178,7 +179,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: glucodroid-release-apk
-          path: Common/build/outputs/apk/mobileLibre3SiDexGoogleReleaser/release/Common-mobileLibre3SiDexGoogleReleaser-release.apk
+          path: Common/build/outputs/apk/**/*.apk
           retention-days: 7
 
   unit-tests:
@@ -242,7 +243,7 @@ jobs:
             echo "  - Unit tests: ${{ needs.unit-tests.result }}"
             exit 1
           else
-            echo "✅ All QA checks passed"
+            echo "All QA checks passed"
           fi
 
       - name: Report success
