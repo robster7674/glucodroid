@@ -88,7 +88,7 @@ android {
         //compileSdk 36
         applicationId "cloud.glucodroid"
 
-         versionName '1.0.1-Alpha'
+         versionName '0.2.0-Alpha'
 //    multiDexEnabled true
 
         buildConfigField 'String', 'BUILD_TIME', 'new java.text.SimpleDateFormat("HH:mm:ss dd-MMM-yyyy").format(new java.util.Date(' + System.currentTimeMillis() + 'L))'
@@ -179,7 +179,7 @@ flavorDimensions = ['wearos','libreVersion','SiBionics', 'DexCom','Google']
 //       minSdk 23
             dimension 'libreVersion'
         versionNameSuffix '-li3'
-        versionCode 1001 //LIBRE3
+        versionCode 821 //LIBRE3
     //******  Zet op rollout op 100% ******
 
                buildConfigField 'int', 'libreVersion', '3'
@@ -194,7 +194,7 @@ flavorDimensions = ['wearos','libreVersion','SiBionics', 'DexCom','Google']
         si {
       dimension 'SiBionics'
         versionNameSuffix '-si'
-        versionCode 1001
+        versionCode 821
        buildConfigField 'int', 'SiBionics', '1'
        externalNativeBuild.cmake {
          cppFlags "   -DSIBIONICS=1 "
