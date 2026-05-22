@@ -94,7 +94,6 @@ void startlogcat() {
   }
 }
 
-#include <sys/sendfile.h>
 
 decltype(std::declval<struct stat>().st_size) filesize(int handle) {
   if (handle == -1) {
@@ -124,14 +123,29 @@ static bool copyfile(const char *infile, int out) {
   destruct _2([in] { close(in); });
   auto len = filesize(in);
   if (len <= 0) {
-    LOGGER("size %s=%d\n", infile, len);
+    LOGGER("size %s=%lld\n", infile, (long long)len);
     return false;
   }
-  auto outlen = sendfile(out, in, nullptr, len);
-  bool suc = outlen == len;
+  // sendfile(2) requires out to be a regular file; SAF may return a pipe fd.
+  char buf[65536];
+  ssize_t total = 0;
+  ssize_t n;
+  while ((n = read(in, buf, sizeof(buf))) > 0) {
+    ssize_t written = 0;
+    while (written < n) {
+      ssize_t w = write(out, buf + written, n - written);
+      if (w < 0) {
+        flerror("write(%d)=%zd errno=%d total=%zd", out, w, errno, total);
+        return false;
+      }
+      written += w;
+    }
+    total += n;
+  }
+  bool suc = (total == len);
   if (!suc) {
-    flerror("sendfile(%d,%d (%s) ,null,%lld)=%zd", out, in, infile, len,
-            outlen);
+    flerror("copyfile(%s): wrote %zd expected %lld", infile, total,
+            (long long)len);
   }
   return suc;
 #else
