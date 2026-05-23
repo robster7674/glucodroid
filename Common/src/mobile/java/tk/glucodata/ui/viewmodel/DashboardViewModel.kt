@@ -42,11 +42,30 @@ import tk.glucodata.ui.util.resolveDashboardSensorStatus
 import kotlin.math.roundToInt
 
 internal object DashboardHistoryCollectionPolicy {
+    const val HISTORY_RECOVERY_TOLERANCE_MS = 5L * 60L * 1000L
+    const val HISTORY_RECOVERY_TAIL_TOLERANCE_MS = 2L * 60L * 1000L
+
     fun usesMergedCrossSensorHistory(mode: DashboardViewModel.CollectionMode): Boolean =
         mode == DashboardViewModel.CollectionMode.FULL_HISTORY
 
     fun shouldCoalesceEmission(mode: DashboardViewModel.CollectionMode, hasSeenHistoryEmission: Boolean): Boolean =
         mode == DashboardViewModel.CollectionMode.DASHBOARD && hasSeenHistoryEmission
+
+    fun shouldRequestHistoryRecovery(
+        startTimeMs: Long,
+        history: List<tk.glucodata.ui.GlucosePoint>,
+        serial: String?,
+        currentTimeMs: Long,
+        currentSensorMatchesSerial: Boolean
+    ): Boolean {
+        if (history.isEmpty()) return true
+        val oldestTimestamp = history.firstOrNull()?.timestamp ?: return true
+        if (startTimeMs > 0L && oldestTimestamp > (startTimeMs + HISTORY_RECOVERY_TOLERANCE_MS)) return true
+        val latestTimestamp = history.lastOrNull()?.timestamp ?: return true
+        if (currentTimeMs <= 0L || serial.isNullOrBlank()) return false
+        if (!currentSensorMatchesSerial) return false
+        return currentTimeMs > (latestTimestamp + HISTORY_RECOVERY_TAIL_TOLERANCE_MS)
+    }
 }
 
 class DashboardViewModel(
@@ -54,16 +73,6 @@ class DashboardViewModel(
     private val journalRepository: JournalRepository = JournalRepository(),
     private val historyRepository: tk.glucodata.data.HistoryRepository = tk.glucodata.data.HistoryRepository()
 ) : ViewModel() {
-    private data class HistoryEdgeSignature(
-        val size: Int,
-        val firstTimestamp: Long,
-        val lastTimestamp: Long,
-        val sampleHash: Int,
-        val lastValueBits: Int,
-        val lastRawBits: Int,
-        val lastSerial: String?
-    )
-
     private data class DashboardHistoryCacheKey(
         val signature: HistoryEdgeSignature,
         val unit: String
@@ -73,8 +82,6 @@ class DashboardViewModel(
         const val TARGET_RANGE_DEFAULTS_MIGRATION_KEY = "target_range_defaults_v2"
         const val UI_RECOVERY_SYNC_MIN_INTERVAL_MS = 30_000L
         const val DASHBOARD_HISTORY_COALESCE_MS = 300L
-        const val HISTORY_RECOVERY_TOLERANCE_MS = 5L * 60L * 1000L
-        const val HISTORY_RECOVERY_TAIL_TOLERANCE_MS = 2L * 60L * 1000L
         const val JOURNAL_DOSE_CALCULATOR_KEY = "dashboard_journal_dose_calculator_enabled"
         const val JOURNAL_NAVIGATION_TAB_KEY = "dashboard_journal_navigation_tab_enabled"
         const val JOURNAL_FOOD_MACROS_KEY = "dashboard_journal_food_macros_enabled"
@@ -772,35 +779,6 @@ class DashboardViewModel(
     }
 
 
-    private fun historyEdgeSignature(points: List<tk.glucodata.ui.GlucosePoint>): HistoryEdgeSignature {
-        val first = points.firstOrNull()
-        val last = points.lastOrNull()
-        return HistoryEdgeSignature(
-            size = points.size,
-            firstTimestamp = first?.timestamp ?: 0L,
-            lastTimestamp = last?.timestamp ?: 0L,
-            sampleHash = sparseHistorySampleHash(points),
-            lastValueBits = java.lang.Float.floatToRawIntBits(last?.value ?: 0f),
-            lastRawBits = java.lang.Float.floatToRawIntBits(last?.rawValue ?: 0f),
-            lastSerial = last?.sensorSerial
-        )
-    }
-
-    private fun sparseHistorySampleHash(points: List<tk.glucodata.ui.GlucosePoint>): Int {
-        if (points.isEmpty()) return 0
-        val sampleCount = minOf(points.size, 8)
-        var hash = 1
-        for (sampleIndex in 0 until sampleCount) {
-            val pointIndex = ((points.lastIndex.toLong() * sampleIndex) / (sampleCount - 1).coerceAtLeast(1)).toInt()
-            val point = points[pointIndex]
-            hash = 31 * hash + point.timestamp.hashCode()
-            hash = 31 * hash + java.lang.Float.floatToRawIntBits(point.value)
-            hash = 31 * hash + java.lang.Float.floatToRawIntBits(point.rawValue)
-            hash = 31 * hash + (point.sensorSerial?.hashCode() ?: 0)
-        }
-        return hash
-    }
-
     private fun stopCollectionJobs() {
         currentReadingJob?.cancel()
         currentReadingJob = null
@@ -1288,21 +1266,15 @@ class DashboardViewModel(
         serial: String?,
         current: CurrentDisplaySource.Snapshot?
     ): Boolean {
-        if (history.isEmpty()) {
-            return true
-        }
-        val oldestTimestamp = history.firstOrNull()?.timestamp ?: return true
-        if (startTimeMs > 0L && oldestTimestamp > (startTimeMs + HISTORY_RECOVERY_TOLERANCE_MS)) {
-            return true
-        }
-        val latestTimestamp = history.lastOrNull()?.timestamp ?: return true
-        if (current == null || current.timeMillis <= 0L || serial.isNullOrBlank()) {
-            return false
-        }
-        if (!current.sensorId.isNullOrBlank() && !SensorIdentity.matches(current.sensorId, serial)) {
-            return false
-        }
-        return current.timeMillis > (latestTimestamp + HISTORY_RECOVERY_TAIL_TOLERANCE_MS)
+        val sensorMatches = current?.sensorId.isNullOrBlank() ||
+            SensorIdentity.matches(current!!.sensorId, serial)
+        return DashboardHistoryCollectionPolicy.shouldRequestHistoryRecovery(
+            startTimeMs = startTimeMs,
+            history = history,
+            serial = serial,
+            currentTimeMs = current?.timeMillis ?: 0L,
+            currentSensorMatchesSerial = sensorMatches
+        )
     }
 
     private fun resolveCurrentForHistoryRecovery(serial: String?): CurrentDisplaySource.Snapshot? {
