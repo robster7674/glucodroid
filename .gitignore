@@ -43,6 +43,12 @@ lint/generated/
 # Crash logs
 hs_err_pid*
 
+# Hetzner device-test credentials (copy from scripts/.env.hetzner.example)
+scripts/.env.hetzner
+
+# Device test results (local artefacts, not for version control)
+device-test-results/
+
 .kotlin/errors
 
 # --- Misc ---
