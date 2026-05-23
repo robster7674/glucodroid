@@ -86,7 +86,7 @@ jobs:
             echo "Running instrumented UX tests on API ${{ matrix.api-level }}"
             
             # Smoke tests - quick validation
-            if [[ "${{ github.event.inputs.test_level }}" == "smoke" || "${{ github.event_name }}" != "workflow_dispatch" ]]; then
+            if [ "${{ github.event.inputs.test_level }}" = "smoke" ] || [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
               ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
                 --no-daemon \
                 --warning-mode=all \
@@ -95,7 +95,7 @@ jobs:
             fi
             
             # Full tests
-            if [[ "${{ github.event.inputs.test_level }}" == "full" || "${{ github.event.inputs.test_level }}" == "extended" ]]; then
+            if [ "${{ github.event.inputs.test_level }}" = "full" ] || [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
               ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
                 --no-daemon \
                 --warning-mode=all
@@ -103,7 +103,7 @@ jobs:
             fi
             
             # Extended tests (longer duration)
-            if [[ "${{ github.event.inputs.test_level }}" == "extended" ]]; then
+            if [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
               echo "Running extended soak tests..."
               ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
                 --no-daemon \
@@ -233,9 +233,9 @@ jobs:
     steps:
       - name: Check test results
         run: |
-          if [[ "${{ needs.instrumented-tests.result }}" != "success" ]] || \
-             [[ "${{ needs.build-and-smoke-test.result }}" != "success" ]] || \
-             [[ "${{ needs.unit-tests.result }}" != "success" ]]; then
+          if [ "${{ needs.instrumented-tests.result }}" != "success" ] || \
+             [ "${{ needs.build-and-smoke-test.result }}" != "success" ] || \
+             [ "${{ needs.unit-tests.result }}" != "success" ]; then
             echo "❌ QA checks failed"
             echo "  - Instrumented tests: ${{ needs.instrumented-tests.result }}"
             echo "  - Build & smoke tests: ${{ needs.build-and-smoke-test.result }}"
