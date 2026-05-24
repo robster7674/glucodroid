@@ -39,6 +39,7 @@ server_ip() {
 ssh_to() {
     local ip="$1"; shift
     ssh -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
         -o BatchMode=yes \
         -o ConnectTimeout=15 \
         -o ServerAliveInterval=30 \
@@ -49,12 +50,12 @@ ssh_to() {
 
 # scp_up IP local_path remote_path
 scp_up() {
-    scp -q -o StrictHostKeyChecking=no -i "$TEST_SSH_KEY" "$2" "root@$1:$3"
+    scp -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "$TEST_SSH_KEY" "$2" "root@$1:$3"
 }
 
 # scp_down IP remote_path local_path
 scp_down() {
-    scp -q -r -o StrictHostKeyChecking=no -i "$TEST_SSH_KEY" "root@$1:$2" "$3"
+    scp -q -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "$TEST_SSH_KEY" "root@$1:$2" "$3"
 }
 
 # wait_for_ssh IP
@@ -62,8 +63,8 @@ wait_for_ssh() {
     local ip="$1"
     log "Waiting for SSH on $ip …"
     local deadline=$(( $(date +%s) + 180 ))
-    until ssh -o StrictHostKeyChecking=no -o BatchMode=yes \
-              -o ConnectTimeout=5 -i "$TEST_SSH_KEY" \
+    until ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              -o BatchMode=yes -o ConnectTimeout=5 -i "$TEST_SSH_KEY" \
               "root@$ip" true 2>/dev/null; do
         (( $(date +%s) < deadline )) \
             || die "SSH on $ip not available after 3 minutes"
