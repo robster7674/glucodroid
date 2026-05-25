@@ -91,6 +91,7 @@ private data class VendorMessage(
  * 3. Decryption (AES-128 CFB with Dynamic IV).
  * 4. Official parser first, deterministic fallback when needed.
  */
+@SuppressLint("MissingPermission")
 class AiDexSensor(context: Context, serial: String, dataptr: Long) : SuperGattCallback(serial, dataptr, 0), AiDexDriver {
 
     companion object {

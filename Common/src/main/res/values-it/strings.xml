@@ -993,7 +993,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="gvi_description">Misura la stabilità del glucosio e i modelli di variabilità</string>
     <string name="psg_title">Stato glicemico personale</string>
     <string name="psg_description">Stato glicemico personale: il tuo livello basale tipico di glucosio in questo intervallo, con contesto di affidabilità e tendenza.</string>
-    <string name="iqr_description">Intervallo interquartile: l\'ampiezza del 50% centrale delle letture di glucosio (P25-P75). Valori più bassi indicano un intervallo di glucosio più stretto e stabile.</string>
+    <string name="iqr_description">Intervallo interquartile: l\'ampiezza del 50%% centrale delle letture di glucosio (P25-P75). Valori più bassi indicano un intervallo di glucosio più stretto e stabile.</string>
     <string name="range_3d">3D</string>
     <string name="time_12am">12:00</string>
     <string name="time_6am">6 del mattino</string>

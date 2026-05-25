@@ -47,6 +47,7 @@ import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@SuppressLint("MissingPermission")
 class MeterScanner  {
    List<BluetoothDevice> devices=new ArrayList<BluetoothDevice>();
    List<String> deviceNames=new ArrayList<String>();

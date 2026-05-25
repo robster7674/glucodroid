@@ -52,8 +52,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import android.annotation.SuppressLint;
 import java.util.concurrent.TimeUnit;
 
+@SuppressLint("MissingPermission")
 public  class GlucoseMeterGatt  extends BluetoothGattCallback {
     MeterList.MeterView view=null;
     final static private String LOG_ID="GlucoseMeterGatt";

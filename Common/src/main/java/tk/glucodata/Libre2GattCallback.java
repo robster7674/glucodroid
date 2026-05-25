@@ -62,7 +62,7 @@ import static tk.glucodata.Natives.getstreamingAuthenticationData;
 import static tk.glucodata.Natives.hasalarmloss;
 import static tk.glucodata.Natives.processTooth;
 
-
+@SuppressLint("MissingPermission")
 public class Libre2GattCallback extends SuperGattCallback {
 	private int conphase = 0;
 

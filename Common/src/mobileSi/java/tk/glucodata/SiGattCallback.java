@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.glucodata.util.sleep;
 
+@SuppressLint("MissingPermission")
 public class SiGattCallback extends SuperGattCallback {
 
    static private final String LOG_ID = "SiGattCallback";
@@ -278,7 +279,7 @@ public class SiGattCallback extends SuperGattCallback {
          des.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
          BluetoothGattCharacteristic characteristic = des.getCharacteristic();
          int writeType = characteristic.getWriteType();
-         characteristic.setWriteType(2);
+         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
          boolean writeDescriptor = bluetoothGatt.writeDescriptor(des);
          characteristic.setWriteType(writeType);
          if (!writeDescriptor) {

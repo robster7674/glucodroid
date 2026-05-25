@@ -1009,7 +1009,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="aidex_detected_via_ff30">%1$s • selecionável via detecção FF30</string>
     <string name="psg_title">Estado glicêmico pessoal</string>
     <string name="psg_description">Estado glicêmico pessoal: sua linha de base típica de glicose neste intervalo, com contexto de confiança e tendência.</string>
-    <string name="iqr_description">Amplitude interquartil: a dispersão dos 50% centrais das leituras de glicose (P25-P75). Valores mais baixos indicam uma faixa de glicose mais estreita e estável.</string>
+    <string name="iqr_description">Amplitude interquartil: a dispersão dos 50%% centrais das leituras de glicose (P25-P75). Valores mais baixos indicam uma faixa de glicose mais estreita e estável.</string>
     <string name="range_3d">3D</string>
     <string name="time_12am">12h</string>
     <string name="time_6am">6h</string>

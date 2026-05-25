@@ -1008,7 +1008,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="aidex_selectable_unrecognized">%1$s • valbar enhet i AiDex-familjen</string>
     <string name="aidex_detected_via_ff30">%1$s • valbar via FF30-detektering</string>
     <string name="psg_description">Personligt glykemiskt tillstånd: din typiska glukosbaslinje i detta intervall, med kontext för tillförlitlighet och trend.</string>
-    <string name="iqr_description">Interkvartilavstånd: spridningen för de mittersta 50 % av glukosavläsningarna (P25-P75). Lägre värden betyder ett snävare och stabilare glukosintervall.</string>
+    <string name="iqr_description">Interkvartilavstånd: spridningen för de mittersta 50 %% av glukosavläsningarna (P25-P75). Lägre värden betyder ett snävare och stabilare glukosintervall.</string>
     <string name="range_3d">3D</string>
     <string name="time_12am">12.00</string>
     <string name="time_6am">6 AM</string>

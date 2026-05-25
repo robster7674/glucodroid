@@ -103,12 +103,6 @@
 
         </activity>
         
-        <activity
-            android:name=".ui.ComposeUIActivity"
-            android:label="Search"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
-
   <activity-alias
       android:name="ViewPermissionUsageActivity"
       android:exported="true"

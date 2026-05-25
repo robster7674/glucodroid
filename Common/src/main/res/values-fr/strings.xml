@@ -1014,7 +1014,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="gvi_description">Mesure la stabilité et la variabilité du glucose</string>
     <string name="psg_title">État glycémique personnel</string>
     <string name="psg_description">État glycémique personnel : votre niveau de base glycémique typique sur cette période, avec contexte de confiance et de tendance.</string>
-    <string name="iqr_description">Écart interquartile : l\'étendue des 50 % centraux des lectures de glucose (P25-P75). Des valeurs plus faibles indiquent une plage de glucose plus resserrée et plus stable.</string>
+    <string name="iqr_description">Écart interquartile : l\'étendue des 50 %% centraux des lectures de glucose (P25-P75). Des valeurs plus faibles indiquent une plage de glucose plus resserrée et plus stable.</string>
     <string name="range_3d">3D</string>
     <string name="time_12am">00h00</string>
     <string name="time_6am">6 heures du matin</string>

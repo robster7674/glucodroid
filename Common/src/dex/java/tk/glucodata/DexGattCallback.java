@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.glucodata.util.sleep;
 
+@SuppressLint("MissingPermission")
 public class DexGattCallback extends SuperGattCallback {
 private static final long DEXCOM_WARMUP_MSEC = 30L * 60L * 1000L;
 private static final long DEXCOM_WARMUP_RETRY_SLACK_MSEC = 15_000L;

@@ -54,6 +54,7 @@ import static tk.glucodata.Log.showbytes;
 import static tk.glucodata.Natives.thresholdchange;
 import static tk.glucodata.SensorBluetooth.blueone;
 
+@SuppressLint("MissingPermission")
 public abstract class SuperGattCallback extends BluetoothGattCallback {
     volatile protected boolean stop = false;
     public static boolean doWearInt = false;
@@ -482,7 +483,7 @@ public abstract class SuperGattCallback extends BluetoothGattCallback {
         previousglucose = sglucose;
         previousglucosevalue = gl;
         previousglucosesensorid = SerialNumber;
-        Applic.app.sendBroadcast(new Intent("tk.glucodata.action.AOD_IMMEDIATE_REFRESH"));
+        Applic.app.sendBroadcast(new Intent("tk.glucodata.action.AOD_IMMEDIATE_REFRESH").setPackage(Applic.app.getPackageName()));
         final var fview = Floating.floatview;
         // MainActivity.showmessage=null;
         final boolean alarmSpeechStarted = glucoseAlertStarted && !DontTalk && Natives.speakalarms();
