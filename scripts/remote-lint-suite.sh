@@ -78,11 +78,12 @@ cd "$SRC"
 # Remove any heap limits baked into the checked-in gradle.properties so our
 # settings (appended below) are the only ones in effect.
 sed -i '/^org\.gradle\.jvmargs/d; /^kotlin\.daemon\.jvmargs/d' gradle.properties
-export GRADLE_OPTS="-Xmx5g -Xms512m -XX:MaxMetaspaceSize=512m"
+# cpx32 has 8 GB. Cap build JVM at 4g to leave room for OS + lint analysis.
+# in-process means Kotlin compiles inside the build JVM (no separate daemon).
+export GRADLE_OPTS="-Xmx4g -Xms512m -XX:MaxMetaspaceSize=512m"
 cat >> gradle.properties << 'GPROPS'
 kotlin.compiler.execution.strategy=in-process
-org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=512m
-kotlin.daemon.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
+org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
 GPROPS
 
 ./gradlew :Common:tasks --group verification \
