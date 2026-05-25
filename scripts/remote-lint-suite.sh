@@ -51,11 +51,12 @@ yes | "$SDK_MGR" --licenses > /dev/null 2>&1 || true
 # Lint does not invoke cmake so the stub is sufficient.
 step "Creating NDK stub for version 29.0.14206865"
 NDK_STUB="$ANDROID_HOME/ndk/29.0.14206865"
-mkdir -p "$NDK_STUB/platforms" "$NDK_STUB/toolchains" "$NDK_STUB/build/cmake"
+mkdir -p "$NDK_STUB"
 cat > "$NDK_STUB/source.properties" << 'NDKPROPS'
 Pkg.Desc = Android NDK
 Pkg.Revision = 29.0.14206865
 NDKPROPS
+# Only source.properties is needed — adding platforms/ triggers CXX1200 ABI check.
 
 # ── 6. Extract source ─────────────────────────────────────────────────────────
 step "Extracting source"
