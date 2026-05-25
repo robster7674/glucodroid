@@ -108,14 +108,19 @@ if [[ -z "$XML_FILE" ]]; then
 fi
 
 log "Parsing $XML_FILE"
+REPORT_DATE="$(date -u +%Y-%m-%d)"
 
-python3 << PYEOF
+# Write Python to a temp file (single-quoted heredoc = no bash expansion inside).
+# All bash values are passed via environment variables.
+cat > /tmp/file-lint-issues.py << 'PYEOF'
 import xml.etree.ElementTree as ET
 import subprocess, sys, textwrap, os
+from collections import defaultdict
 
-xml_path = "$XML_FILE"
-repo     = "$GITHUB_REPO"
-results  = "$RESULTS_DIR"
+xml_path    = os.environ["LINT_XML"]
+repo        = os.environ["GITHUB_REPO"]
+report_date = os.environ["REPORT_DATE"]
+gradle_cmd  = "./gradlew :Common:lintMobileLibre3SiDexGoogleReleaser"
 
 try:
     tree = ET.parse(xml_path)
@@ -123,20 +128,17 @@ except ET.ParseError as e:
     print(f"[parse error] {e}")
     sys.exit(0)
 
-root = tree.getroot()
+root   = tree.getroot()
 issues = root.findall("issue")
 
-# Group by severity+category
-from collections import defaultdict
 by_cat = defaultdict(list)
 for iss in issues:
-    sev  = iss.get("severity", "?")
-    cat  = iss.get("category", "?")
+    sev = iss.get("severity", "?")
+    cat = iss.get("category",  "?")
     by_cat[(sev, cat)].append(iss)
 
 errors   = [(k, v) for k, v in by_cat.items() if k[0] == "Error"]
 warnings = [(k, v) for k, v in by_cat.items() if k[0] == "Warning"]
-infos    = [(k, v) for k, v in by_cat.items() if k[0] not in ("Error", "Warning")]
 
 total_e = sum(len(v) for _, v in errors)
 total_w = sum(len(v) for _, v in warnings)
@@ -147,10 +149,8 @@ created = []
 def gh_issue(title, body):
     res = subprocess.run(
         ["gh", "issue", "create",
-         "--repo", repo,
-         "--title", title,
-         "--label", "lint",
-         "--body", body],
+         "--repo", repo, "--title", title,
+         "--label", "lint", "--body", body],
         capture_output=True, text=True
     )
     if res.returncode == 0:
@@ -163,65 +163,55 @@ def gh_issue(title, body):
 def fmt_issues(iss_list, max_items=20):
     lines = []
     for iss in iss_list[:max_items]:
-        msg  = iss.get("message", "")[:200]
-        loc  = iss.find("location")
-        file_ = os.path.basename(loc.get("file", "?")) if loc is not None else "?"
-        line_ = loc.get("line", "?") if loc is not None else "?"
-        lines.append(f"- **{file_}:{line_}** — {msg}")
+        msg   = iss.get("message", "")[:200]
+        loc   = iss.find("location")
+        fname = os.path.basename(loc.get("file", "?")) if loc is not None else "?"
+        lnum  = loc.get("line", "?") if loc is not None else "?"
+        lines.append(f"- **{fname}:{lnum}** — {msg}")
     if len(iss_list) > max_items:
-        lines.append(f"- … and {len(iss_list) - max_items} more (see attached XML report)")
+        lines.append(f"- … and {len(iss_list) - max_items} more (see full XML report)")
     return "\n".join(lines)
 
 # One issue per error category
 for (sev, cat), iss_list in sorted(errors, key=lambda x: -len(x[1])):
     summary = iss_list[0].get("summary", cat)
     title = f"[Lint Error] {cat}: {summary} ({len(iss_list)} instance(s))"
-    body = textwrap.dedent(f"""
-        ## Android Lint — {sev}: {cat}
-
-        **Summary:** {summary}
-        **Count:** {len(iss_list)}
-        **Reported by:** \`./gradlew :Common:lintMobileLibre3SiDexGoogleReleaser\`
-        **Report date:** $(date -u +%Y-%m-%d)
-
-        ### Locations
-
-        {fmt_issues(iss_list)}
-
-        ---
-        Full report: \`{os.path.basename(xml_path)}\` in this run's results directory.
-    """).strip()
+    body = (
+        f"## Android Lint — {sev}: {cat}\n\n"
+        f"**Summary:** {summary}\n"
+        f"**Count:** {len(iss_list)}\n"
+        f"**Reported by:** `{gradle_cmd}`\n"
+        f"**Report date:** {report_date}\n\n"
+        f"### Locations\n\n"
+        f"{fmt_issues(iss_list)}\n\n"
+        f"---\nFull report: `{os.path.basename(xml_path)}`"
+    )
     gh_issue(title, body)
 
-# One omnibus issue for warnings (grouped by category, max 10 categories)
+# One omnibus issue for warnings (top 10 categories)
 if warnings:
-    body_parts = [
+    parts = [
         "## Android Lint — Warnings Summary",
         "",
         f"**Total warnings:** {total_w} across {len(warnings)} category(ies)",
-        f"**Reported by:** `./gradlew :Common:lintMobileLibre3SiDexGoogleReleaser`",
-        f"**Report date:** $(date -u +%Y-%m-%d)",
+        f"**Reported by:** `{gradle_cmd}`",
+        f"**Report date:** {report_date}",
         "",
     ]
     for (sev, cat), iss_list in sorted(warnings, key=lambda x: -len(x[1]))[:10]:
         summary = iss_list[0].get("summary", cat)
-        body_parts.append(f"### {cat} — {len(iss_list)} instance(s)")
-        body_parts.append(f"*{summary}*")
-        body_parts.append(fmt_issues(iss_list, max_items=5))
-        body_parts.append("")
-    if not errors and not warnings:
-        print("No errors or warnings — no issues to file.")
-    else:
-        gh_issue(f"[Lint] {total_w} warning(s) across {len(warnings)} category(ies)", "\n".join(body_parts))
+        parts += [f"### {cat} — {len(iss_list)} instance(s)", f"*{summary}*",
+                  fmt_issues(iss_list, max_items=5), ""]
+    gh_issue(f"[Lint] {total_w} warning(s) across {len(warnings)} category(ies)",
+             "\n".join(parts))
 
-# If lint produced no findings at all, file a success note
 if not by_cat:
-    gh_issue(
-        "[Lint] Clean — no issues found",
-        f"Android lint ran on the \`MobileLibre3SiDexGoogleReleaser\` variant and reported zero issues.\n\nReport date: $(date -u +%Y-%m-%d)"
-    )
+    gh_issue("[Lint] Clean — no issues found",
+             f"Android lint reported zero issues on `{gradle_cmd}`.\n\nReport date: {report_date}")
 
 print(f"\nFiled {len(created)} GitHub issue(s) on {repo}")
 PYEOF
+
+LINT_XML="$XML_FILE" GITHUB_REPO="$GITHUB_REPO" REPORT_DATE="$REPORT_DATE" python3 /tmp/file-lint-issues.py
 
 log "Done. Results: $RESULTS_DIR"
