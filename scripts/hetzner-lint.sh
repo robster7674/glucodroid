@@ -59,6 +59,7 @@ log "Created $SERVER_NAME (id=$SERVER_ID, ip=$SERVER_IP)"
 # ── 3. Wait for SSH ───────────────────────────────────────────────────────────
 step "Waiting for SSH"
 wait_for_ssh "$SERVER_IP"
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$SERVER_IP" 2>/dev/null || true
 
 # ── 4. Upload files ───────────────────────────────────────────────────────────
 step "Uploading source and remote script"
@@ -81,7 +82,9 @@ log "Results saved to $RESULTS_DIR"
 
 # ── 7. Delete server ──────────────────────────────────────────────────────────
 step "Deleting server"
-hcloud server delete "$SERVER_NAME"
+hcloud server delete "$SERVER_ID" 2>/dev/null \
+    || hcloud server delete "$SERVER_NAME" 2>/dev/null \
+    || log "WARNING: server may already be gone (OOM crash). Check: hcloud server list"
 SERVER_ID=""
 log "Server deleted."
 

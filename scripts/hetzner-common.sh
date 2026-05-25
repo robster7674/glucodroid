@@ -41,6 +41,8 @@ ssh_to() {
     ssh -o StrictHostKeyChecking=no \
         -o BatchMode=yes \
         -o ConnectTimeout=15 \
+        -o ServerAliveInterval=30 \
+        -o ServerAliveCountMax=20 \
         -i "$TEST_SSH_KEY" \
         "root@$ip" "$@"
 }
