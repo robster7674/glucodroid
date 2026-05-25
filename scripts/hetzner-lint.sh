@@ -43,11 +43,12 @@ cd "$REPO_ROOT"
 git archive HEAD | gzip > "$SRC_TARBALL"
 log "Source tarball: $SRC_TARBALL ($(du -sh "$SRC_TARBALL" | cut -f1))"
 
-# ── 2. Create CX11 server ─────────────────────────────────────────────────────
-step "Creating CX11 server (x86, Ubuntu 24.04)"
+# ── 2. Create server ─────────────────────────────────────────────────────────
+LINT_SERVER_TYPE="${LINT_SERVER_TYPE:-cpx32}"
+step "Creating $LINT_SERVER_TYPE server (x86, Ubuntu 24.04, nbg1)"
 SERVER_ID=$(hcloud server create \
     --name "$SERVER_NAME" \
-    --type cx11 \
+    --type "$LINT_SERVER_TYPE" \
     --image ubuntu-24.04 \
     --ssh-key "$HCLOUD_SSH_KEY" \
     --location nbg1 \

@@ -19,17 +19,7 @@ step() { printf '\n[%s remote] ── %s ──\n' "$(date +%H:%M:%S)" "$*"; }
 
 mkdir -p "$RESULTS"
 
-# ── 1. Add swap (CX11 has 2 GB RAM; Gradle may spike) ────────────────────────
-step "Adding 3 GB swap"
-if ! swapon --show | grep -q /swapfile; then
-    fallocate -l 3G /swapfile
-    chmod 600 /swapfile
-    mkswap /swapfile
-    swapon /swapfile
-fi
-free -h
-
-# ── 2. Install system packages ────────────────────────────────────────────────
+# ── 1. Install system packages ────────────────────────────────────────────────
 step "Installing JDK 17, wget, unzip, python3, xmllint"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
@@ -61,7 +51,7 @@ yes | "$SDK_MGR" --licenses > /dev/null 2>&1 || true
 # Lint does not invoke cmake so the stub is sufficient.
 step "Creating NDK stub for version 29.0.14206865"
 NDK_STUB="$ANDROID_HOME/ndk/29.0.14206865"
-mkdir -p "$NDK_STUB"
+mkdir -p "$NDK_STUB/platforms" "$NDK_STUB/toolchains" "$NDK_STUB/build/cmake"
 cat > "$NDK_STUB/source.properties" << 'NDKPROPS'
 Pkg.Desc = Android NDK
 Pkg.Revision = 29.0.14206865
@@ -83,7 +73,11 @@ LOCALPROPS
 # ── 8. Gradle: list verification tasks (informational) ────────────────────────
 step "Querying available lint tasks"
 cd "$SRC"
-export GRADLE_OPTS="-Xmx1400m -Xms256m -XX:MaxMetaspaceSize=512m"
+# cpx32 has 8 GB; give Gradle 3 GB and Kotlin daemon 3 GB
+export GRADLE_OPTS="-Xmx3g -Xms512m -XX:MaxMetaspaceSize=512m"
+# Kotlin compiler daemon heap (written once, read by all Kotlin tasks)
+grep -q kotlin.daemon.jvmargs gradle.properties 2>/dev/null \
+    || echo "kotlin.daemon.jvmargs=-Xmx3g" >> gradle.properties
 
 ./gradlew :Common:tasks --group verification \
     --no-daemon -Pno_x86 -Pno_x86_64 \
