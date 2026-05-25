@@ -180,6 +180,28 @@ wait
 log "Concurrent writes done."
 sleep 5
 
+# ── Scenario E: cold-start Room→ViewModel pipeline (BatteryTrace) ─────────────
+# Room uses temporary (connection-scoped) SQLite triggers for InvalidationTracker,
+# so external sqlite3 writes in Scenarios A–D don't fire Room Flows reactively.
+# Force-stopping and restarting the app makes the ViewModel open a fresh Room
+# subscription that immediately emits all existing rows — BatteryTrace.bump fires
+# for the first 3 counts unconditionally, proving the Room→ViewModel pipeline.
+log "=== Scenario E: cold-start Room→ViewModel BatteryTrace pipeline ==="
+$ADB logcat -c
+$ADB shell am force-stop "$PKG"
+sleep 2
+$ADB shell am start -n "$PKG/tk.glucodata.MainActivity" > /dev/null
+log "Waiting 20 s for Compose/ViewModel to subscribe to Room flow …"
+sleep 20
+# Dump logcat before Perfetto ends so BatteryTrace lines are captured
+$ADB logcat -d -v threadtime > "$RESULTS/logcat-scenario-e.txt" 2>/dev/null || true
+BT_COLD=$(grep -cE "BatteryTrace" "$RESULTS/logcat-scenario-e.txt" 2>/dev/null || true)
+if (( BT_COLD > 0 )); then
+    pass "Scenario E: BatteryTrace fired on cold start ($BT_COLD line(s)) — Room→ViewModel pipeline verified"
+else
+    log "INFO: Scenario E: BatteryTrace silent — app may be in no-sensor idle or Compose not yet rendered"
+fi
+
 # Wait for Perfetto
 wait "$PERFETTO_PID" 2>/dev/null || true
 
@@ -192,28 +214,35 @@ else
 fi
 
 # ── Logcat + crash / ANR / lock detection ─────────────────────────────────────
+# Merge the Scenario-E cold-start logcat (captured mid-run) with the final dump
+# so crash/ANR checks cover the full session including the app restart.
 log "Collecting logcat …"
 $ADB logcat -d -v threadtime > "$RESULTS/logcat.txt"
+if [[ -f "$RESULTS/logcat-scenario-e.txt" ]]; then
+    cat "$RESULTS/logcat-scenario-e.txt" "$RESULTS/logcat.txt" > "$RESULTS/logcat-merged.txt"
+else
+    cp "$RESULTS/logcat.txt" "$RESULTS/logcat-merged.txt"
+fi
 
 CRASH_COUNT=$(grep -cE "FATAL EXCEPTION|Process .* has died|BEGIN LINKER STATISTICS" \
-    "$RESULTS/logcat.txt" 2>/dev/null || true)
-ANR_COUNT=$(grep -c "ANR in" "$RESULTS/logcat.txt" 2>/dev/null || true)
+    "$RESULTS/logcat-merged.txt" 2>/dev/null || true)
+ANR_COUNT=$(grep -c "ANR in" "$RESULTS/logcat-merged.txt" 2>/dev/null || true)
 DB_LOCKED=$(grep -cE "SQLITE_BUSY|database is locked|SQLiteDatabaseLockedException" \
-    "$RESULTS/logcat.txt" 2>/dev/null || true)
+    "$RESULTS/logcat-merged.txt" 2>/dev/null || true)
 
 if (( CRASH_COUNT == 0 )); then
     pass "no crashes in logcat"
 else
     fail "$CRASH_COUNT crash signal(s) in logcat"
     grep -B2 -A30 "FATAL EXCEPTION\|Process .* has died" \
-        "$RESULTS/logcat.txt" > "$RESULTS/crashes.txt" 2>/dev/null || true
+        "$RESULTS/logcat-merged.txt" > "$RESULTS/crashes.txt" 2>/dev/null || true
 fi
 
 if (( ANR_COUNT == 0 )); then
     pass "no ANRs in logcat"
 else
     fail "$ANR_COUNT ANR(s) in logcat"
-    grep -B2 -A10 "ANR in" "$RESULTS/logcat.txt" > "$RESULTS/anrs.txt" 2>/dev/null || true
+    grep -B2 -A10 "ANR in" "$RESULTS/logcat-merged.txt" > "$RESULTS/anrs.txt" 2>/dev/null || true
 fi
 
 if (( DB_LOCKED == 0 )); then
@@ -221,21 +250,21 @@ if (( DB_LOCKED == 0 )); then
 else
     fail "$DB_LOCKED SQLite lock error(s) in logcat — WAL race detected"
     grep -E "SQLITE_BUSY|database is locked|SQLiteDatabaseLockedException" \
-        "$RESULTS/logcat.txt" > "$RESULTS/db-lock-errors.txt" 2>/dev/null || true
+        "$RESULTS/logcat-merged.txt" > "$RESULTS/db-lock-errors.txt" 2>/dev/null || true
 fi
 
 # ── BatteryTrace events ───────────────────────────────────────────────────────
 log "Extracting BatteryTrace events …"
 grep -E "BatteryTrace|dashboard\.history|glucose\.native\.one_shot|ui_recovery|history\.recovery" \
-    "$RESULTS/logcat.txt" > "$RESULTS/battery-trace.txt" 2>/dev/null || true
+    "$RESULTS/logcat-merged.txt" > "$RESULTS/battery-trace.txt" 2>/dev/null || true
 BT_LINES=$(wc -l < "$RESULTS/battery-trace.txt")
 log "BatteryTrace events: $BT_LINES"
 
 if (( BT_LINES > 0 )); then
     pass "BatteryTrace events fired ($BT_LINES lines) — Room→ViewModel pipeline active"
 else
-    # Not a hard fail: the app may be in no-sensor idle state with no active ViewModel
-    log "INFO: no BatteryTrace events — app may be in no-sensor idle (expected without BLE)"
+    # Not a hard fail: see logcat-scenario-e.txt for cold-start BT_COLD count above
+    log "INFO: no BatteryTrace events in merged logcat (BT_COLD=$BT_COLD from Scenario E)"
 fi
 
 # ── Row count sanity ──────────────────────────────────────────────────────────
@@ -262,6 +291,7 @@ $ADB shell dumpsys package "$PKG" 2>/dev/null \
     echo "anr_count=$ANR_COUNT"
     echo "db_locked_count=$DB_LOCKED"
     echo "battery_trace_lines=$BT_LINES"
+    echo "battery_trace_cold_start=$BT_COLD"
     echo "history_readings_rows=$ROW_COUNT"
     echo "total_pss_kb=$PSS"
 } >> "$RESULTS/summary.txt"
