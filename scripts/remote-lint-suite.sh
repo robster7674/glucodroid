@@ -74,12 +74,15 @@ LOCALPROPS
 # ── 8. Gradle: list verification tasks (informational) ────────────────────────
 step "Querying available lint tasks"
 cd "$SRC"
-# cpx32 has 8 GB; give Gradle JVM 5 GB.
-# Kotlin compiles in-process (same JVM) so it inherits this heap — no separate daemon needed.
+# cpx32 has 16 GB. Give Gradle JVM 5 GB and Kotlin daemon 4 GB.
+# Remove any heap limits baked into the checked-in gradle.properties so our
+# settings (appended below) are the only ones in effect.
+sed -i '/^org\.gradle\.jvmargs/d; /^kotlin\.daemon\.jvmargs/d' gradle.properties
 export GRADLE_OPTS="-Xmx5g -Xms512m -XX:MaxMetaspaceSize=512m"
 cat >> gradle.properties << 'GPROPS'
 kotlin.compiler.execution.strategy=in-process
 org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=512m
+kotlin.daemon.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
 GPROPS
 
 ./gradlew :Common:tasks --group verification \
