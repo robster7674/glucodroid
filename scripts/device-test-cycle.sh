@@ -168,8 +168,7 @@ NEW_ID=$(hcloud server create-image \
     --type snapshot \
     --description "$NEW_DESC" \
     --label "${SNAPSHOT_LABEL%%=*}=${SNAPSHOT_LABEL##*=}" \
-    "$SERVER_NAME" \
-    -o json | jq -r '.image.id')
+    "$SERVER_NAME" 2>&1 | grep -oE 'Image [0-9]+' | grep -oE '[0-9]+')
 log "New snapshot: $NEW_ID ($NEW_DESC)"
 log "Deleting old snapshot: $SNAPSHOT_ID"
 hcloud image delete "$SNAPSHOT_ID"

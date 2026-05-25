@@ -136,8 +136,7 @@ SNAP_ID=$(hcloud server create-image \
     --type snapshot \
     --description "$SNAP_DESC" \
     --label "${SNAPSHOT_LABEL%%=*}=${SNAPSHOT_LABEL##*=}" \
-    "$SERVER_NAME" \
-    -o json | jq -r '.image.id')
+    "$SERVER_NAME" 2>&1 | grep -oE 'Image [0-9]+' | grep -oE '[0-9]+')
 log "Snapshot created: $SNAP_ID ($SNAP_DESC)"
 
 # ── 6. Delete server ──────────────────────────────────────────────────────────
