@@ -59,7 +59,7 @@ import static tk.glucodata.Natives.intEncrypt;
 import static tk.glucodata.Log.showbytes;
 import static tk.glucodata.util.sleep;
 
-
+@SuppressLint("MissingPermission")
 public class Libre3GattCallback extends SuperGattCallback {
     static final private boolean doTEST=false; //TODO
     static private final String LOG_ID = "Libre3GattCallback";

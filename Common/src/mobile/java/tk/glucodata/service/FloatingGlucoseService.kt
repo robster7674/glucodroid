@@ -65,6 +65,7 @@ class FloatingGlucoseService : Service(), LifecycleOwner, ViewModelStoreOwner, S
     private lateinit var settingsRepository: FloatingSettingsRepository
     private val glucoseRepository = GlucoseRepository()
 
+    @SuppressLint("ForegroundServiceType")
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
@@ -246,6 +247,7 @@ class FloatingGlucoseService : Service(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     @Suppress("DEPRECATION")
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.P)
     private fun resolveCutoutData(
         anchorView: View?,
         cutout: android.view.DisplayCutout?

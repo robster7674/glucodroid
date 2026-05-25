@@ -70,9 +70,11 @@ import static tk.glucodata.help.help;
 import static tk.glucodata.help.helplight;
 import static tk.glucodata.settings.Settings.removeContentView;
 import static tk.glucodata.util.getbutton;
+import android.annotation.SuppressLint;
 import static tk.glucodata.util.getcheckbox;
 import static tk.glucodata.util.getlabel;
 
+@SuppressLint("MissingPermission")
 public class bluediag {
 
     static boolean returntoblue = false;

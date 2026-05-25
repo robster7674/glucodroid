@@ -77,6 +77,7 @@ private fun Context.hasCameraPermission(): Boolean {
 
 @Composable
 @SuppressLint("ClickableViewAccessibility")
+@androidx.camera.core.ExperimentalGetImage
 fun InlineQrScannerCard(
     modifier: Modifier = Modifier,
     scannerEnabled: Boolean = true,

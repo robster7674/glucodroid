@@ -70,6 +70,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.glucodata.util.sleep;
 
+@SuppressLint("MissingPermission")
 public class AccuGattCallback extends SuperGattCallback {
 static private final String LOG_ID="AccuGattCallback";
 //See: https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026

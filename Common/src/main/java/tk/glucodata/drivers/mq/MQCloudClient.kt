@@ -875,7 +875,9 @@ object MQCloudClient {
 
     private fun buildAgentInfo(context: Context): AgentInfo {
         val versionCode = runCatching {
-            context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode
+            val pkgInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) pkgInfo.longVersionCode
+            else @Suppress("DEPRECATION") pkgInfo.versionCode.toLong()
         }.getOrDefault(0L)
         val agent = "${Build.BRAND}_${Build.MODEL}_${Build.VERSION.RELEASE}_$versionCode"
         val imei = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
