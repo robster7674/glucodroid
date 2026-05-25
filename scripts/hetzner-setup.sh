@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
-# hetzner-setup.sh — One-time provisioning of the base Waydroid snapshot.
+# hetzner-setup.sh — One-time provisioning of the base Redroid snapshot.
 #
-# Creates a CAX31, installs Waydroid and the Android image, verifies ADB
-# connectivity, snapshots the result, and deletes the server.
+# Creates a CAX31, installs Docker and the Redroid Android 12 image, verifies
+# ADB connectivity, snapshots the result, and deletes the server.
 # Run this once before device-test-cycle.sh can be used.
-#
-# IMPORTANT: Hetzner CAX VMs expose a virtio-gpu without virgl 3D support
-# (virgl=no). SurfaceFlinger requires GPU-writable buffers and will crash
-# during shader cache priming ("output buffer not gpu writeable"). Waydroid
-# is therefore blocked on CAX VMs. This script is preserved for reference
-# and for use on cloud providers that expose virgl (e.g. GCP ARM or OCI A1).
 #
 # Usage:
 #   ./scripts/hetzner-setup.sh
@@ -56,8 +50,8 @@ log "Created $SERVER_NAME (id=$SERVER_ID, ip=$SERVER_IP)"
 step "Waiting for boot"
 wait_for_ssh "$SERVER_IP"
 
-# ── 3. Install Waydroid ───────────────────────────────────────────────────────
-step "Installing Waydroid (this takes 5–10 min, Android image is ~800 MB)"
+# ── 3. Install Docker + Redroid ───────────────────────────────────────────────
+step "Installing Docker and pulling Redroid image (~1 GB, takes 5-10 min)"
 ssh_to "$SERVER_IP" bash << 'PROVISION'
 set -euo pipefail
 log() { printf '[%s remote] %s\n' "$(date +%H:%M:%S)" "$*"; }
@@ -66,68 +60,64 @@ export DEBIAN_FRONTEND=noninteractive
 
 log "Updating packages …"
 apt-get update -q
-apt-get install -yq curl python3 adb lzip weston
+apt-get install -yq curl python3 adb jq
 
-log "Adding Waydroid repo …"
-# Do not pass -s: let the installer auto-detect jammy (ubuntu-24.04 focal pin breaks python3-gbinder)
-curl -fsSL https://repo.waydro.id | bash
-apt-get install -yq waydroid
+log "Installing Docker …"
+apt-get install -yq docker.io
+systemctl enable --now docker
 
-# Hetzner kernel ships with CONFIG_ANDROID_BINDER_DEVICES="" — the binder_linux
-# module must be loaded from linux-modules-extra and binder devices must be
-# created via binderfs (they do not auto-appear in /dev/ after modprobe).
-log "Installing linux-modules-extra for binder_linux …"
-apt-get install -yq "linux-modules-extra-$(uname -r)"
+log "Installing binder kernel module support …"
+# Hetzner CAX kernel ships with CONFIG_ANDROID_BINDER_DEVICES="" — binderfs is
+# required; binder devices are not auto-created on modprobe.
+apt-get install -yq "linux-modules-extra-$(uname -r)" 2>/dev/null \
+    || log "WARNING: linux-modules-extra not found for $(uname -r) — binder_linux may already be built-in"
 
-log "Loading binder_linux module …"
+log "Verifying binder_linux module loads …"
 modprobe binder_linux 2>/dev/null || true
-
-log "Mounting binderfs and creating /dev/binder* symlinks …"
 mkdir -p /dev/binderfs
 mount -t binder binder /dev/binderfs
-ln -sf /dev/binderfs/binder    /dev/binder
-ln -sf /dev/binderfs/hwbinder  /dev/hwbinder
-ln -sf /dev/binderfs/vndbinder /dev/vndbinder
-ls -la /dev/binder /dev/hwbinder /dev/vndbinder
-
-log "Initialising Waydroid (downloading Android image) …"
-waydroid init -s GAPPS -f
-
-log "Starting Waydroid session for ADB verification …"
-# Waydroid needs a Wayland compositor and a PulseAudio socket (even a dummy one).
-# Use weston headless backend; create a dummy pulse socket so the LXC bind-mount succeeds.
-mkdir -p /run/user/0/pulse
 python3 -c "
-import socket, time
-s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-try:
-    s.bind('/run/user/0/pulse/native')
-    s.listen(1)
-    time.sleep(7200)
-except OSError:
-    time.sleep(7200)
-" &
+import fcntl, struct, os
+BINDER_CTL_ADD = 0xC1086201
+fd = os.open('/dev/binderfs/binder-control', os.O_RDONLY)
+for name in ['binder', 'hwbinder', 'vndbinder']:
+    buf = struct.pack('256sII', name.encode(), 0, 0)
+    fcntl.ioctl(fd, BINDER_CTL_ADD, buf)
+    print('Created /dev/binderfs/' + name)
+os.close(fd)
+"
+ls -la /dev/binderfs/binder /dev/binderfs/hwbinder /dev/binderfs/vndbinder
 
-export XDG_RUNTIME_DIR=/run/user/0
-weston --backend=headless-backend.so --socket=wayland-0 --no-config &
-sleep 3
+log "Pulling Redroid Android 12 image …"
+docker pull redroid/redroid:12.0.0_64only-latest
 
-WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/0 waydroid session start &
+log "Running Redroid smoke test …"
+docker run -d \
+    --name redroid-verify \
+    --privileged \
+    -v /dev/binderfs:/dev/binderfs \
+    -p 5555:5555 \
+    redroid/redroid:12.0.0_64only-latest \
+    androidboot.redroid_gpu_mode=guest
 
+log "Waiting for Android boot (up to 5 min) …"
 deadline=$(( $(date +%s) + 300 ))
-until adb connect localhost:5555 2>&1 | grep -q "connected\|already"; do
-    (( $(date +%s) < deadline )) || { echo "Waydroid did not start in 5 min"; exit 1; }
+while true; do
+    (( $(date +%s) < deadline )) || { log "ERROR: Redroid did not boot in 5 min"; exit 1; }
+    adb connect localhost:5555 >/dev/null 2>&1 || true
+    if adb -s localhost:5555 shell getprop sys.boot_completed 2>/dev/null \
+            | tr -d '\r\n' | grep -q '^1$'; then
+        break
+    fi
+    printf '  %s still waiting…\n' "$(date +%H:%M:%S)"
     sleep 5
 done
-sleep 15
 
-log "ADB connected: $(adb -s localhost:5555 shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
-log "Waydroid install verified."
-
-# Stop the session cleanly before snapshotting
-XDG_RUNTIME_DIR=/run/user/0 waydroid session stop 2>/dev/null || true
-sleep 3
-log "Session stopped — ready for snapshot."
+log "ADB verified: $(adb -s localhost:5555 shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
+adb disconnect localhost:5555 2>/dev/null || true
+docker stop redroid-verify
+docker rm redroid-verify
+log "Redroid install verified — ready for snapshot."
 PROVISION
 
 # ── 4. Shutdown ───────────────────────────────────────────────────────────────

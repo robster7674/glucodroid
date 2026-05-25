@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # remote-test-suite.sh
 # Runs INSIDE the CAX31 server. Uploaded and executed by device-test-cycle.sh.
-# Requires Waydroid running and ADB connected on localhost:5555.
+# Requires Redroid running and ADB connected on localhost:5555.
 
 set -euo pipefail
 
@@ -31,7 +31,7 @@ $ADB shell rm -f /data/local/tmp/trace.pb /data/local/tmp/perfetto.cfg 2>/dev/nu
 
 # ── Test 1: App launch ───────────────────────────────────────────────────────
 log "Launching cloud.glucodroid …"
-$ADB shell am start -n cloud.glucodroid/.MainActivity
+$ADB shell am start -n cloud.glucodroid/tk.glucodata.MainActivity
 sleep 10
 
 if $ADB shell pidof cloud.glucodroid 2>/dev/null | grep -q '[0-9]'; then
@@ -89,7 +89,7 @@ sleep 3
 # Press back and relaunch to simulate app resume
 $ADB shell input keyevent KEYCODE_BACK
 sleep 2
-$ADB shell am start -n cloud.glucodroid/.MainActivity
+$ADB shell am start -n cloud.glucodroid/tk.glucodata.MainActivity
 sleep 4
 
 # Wait for Perfetto to finish

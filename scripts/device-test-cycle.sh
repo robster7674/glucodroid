@@ -2,7 +2,7 @@
 # device-test-cycle.sh — Phoenix VM cycle for GlucoDroid device tests.
 #
 # Recreates a Hetzner CAX31 from the latest snapshot, installs the APK,
-# runs remote-test-suite.sh via Waydroid/ADB, collects results, snapshots
+# runs remote-test-suite.sh via Redroid/ADB, collects results, snapshots
 # updated state, and destroys the server.  Total wall time: ~20 min.
 #
 # Usage:
@@ -76,35 +76,55 @@ scp_up "$SERVER_IP" "$APK_PATH"                   /tmp/glucodroid.apk
 scp_up "$SERVER_IP" "$SCRIPT_DIR/remote-test-suite.sh" /tmp/remote-test-suite.sh
 ssh_to "$SERVER_IP" chmod +x /tmp/remote-test-suite.sh
 
-# ── 5. Start Waydroid + ADB ───────────────────────────────────────────────────
-step "Starting Waydroid"
-ssh_to "$SERVER_IP" bash << 'WAYDROID'
+# ── 5. Start Redroid + ADB ────────────────────────────────────────────────────
+step "Starting Redroid"
+ssh_to "$SERVER_IP" bash << 'REDROID'
 set -euo pipefail
 log() { printf '[%s remote] %s\n' "$(date +%H:%M:%S)" "$*"; }
 
-# Load binder if not present
-ls /dev/binder* >/dev/null 2>&1 \
-    || modprobe binder_linux devices="binder,hwbinder,vndbinder" 2>/dev/null \
-    || true
+log "Setting up binderfs …"
+modprobe binder_linux 2>/dev/null || true
+mkdir -p /dev/binderfs
+mount -t binder binder /dev/binderfs 2>/dev/null || true
 
-# Stop any stale session from a previous cycle
-waydroid session stop 2>/dev/null || true
-sleep 2
+# Create binder devices if they don't exist yet (idempotent)
+python3 -c "
+import fcntl, struct, os
+BINDER_CTL_ADD = 0xC1086201
+fd = os.open('/dev/binderfs/binder-control', os.O_RDONLY)
+for name in ['binder', 'hwbinder', 'vndbinder']:
+    if not os.path.exists('/dev/binderfs/' + name):
+        buf = struct.pack('256sII', name.encode(), 0, 0)
+        fcntl.ioctl(fd, BINDER_CTL_ADD, buf)
+        print('Created /dev/binderfs/' + name)
+os.close(fd)
+"
 
-log "Starting Waydroid session …"
-waydroid session start &
+log "Starting Redroid container …"
+docker rm -f redroid 2>/dev/null || true
+docker run -d \
+    --name redroid \
+    --privileged \
+    -v /dev/binderfs:/dev/binderfs \
+    -p 5555:5555 \
+    redroid/redroid:12.0.0_64only-latest \
+    androidboot.redroid_gpu_mode=guest
 
-# Wait for ADB to become available (up to 3 min)
-deadline=$(( $(date +%s) + 180 ))
-until adb connect localhost:5555 2>&1 | grep -q "connected\|already"; do
-    (( $(date +%s) < deadline )) || { echo "Waydroid/ADB did not become ready"; exit 1; }
+log "Waiting for ADB and Android boot_completed (up to 5 min) …"
+deadline=$(( $(date +%s) + 300 ))
+while true; do
+    (( $(date +%s) < deadline )) || { log "Timeout: Redroid did not boot"; exit 1; }
+    adb connect localhost:5555 >/dev/null 2>&1 || true
+    if adb -s localhost:5555 shell getprop sys.boot_completed 2>/dev/null \
+            | tr -d '\r\n' | grep -q '^1$'; then
+        break
+    fi
+    printf '  %s still waiting…\n' "$(date +%H:%M:%S)"
     sleep 5
 done
 
-# Give Android system services time to settle
-sleep 15
-log "Waydroid running: $(adb -s localhost:5555 shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
-WAYDROID
+log "Redroid running: $(adb -s localhost:5555 shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
+REDROID
 
 # ── 6. Install APK ────────────────────────────────────────────────────────────
 step "Installing APK"
