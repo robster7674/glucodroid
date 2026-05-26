@@ -1293,6 +1293,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="export_failed_with_error">Export failed: %1$s</string>
     <string name="export_profile">Export profile</string>
     <string name="export_readable_report">Export Readable Report</string>
+    <string name="export_raw_csv">Export Raw Data (CSV)</string>
     <string name="report_style_title">Report visual style</string>
     <string name="report_style_current">Current</string>
     <string name="report_style_minimal_swiss">Minimal Swiss</string>

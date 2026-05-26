@@ -130,6 +130,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import tk.glucodata.R
+import tk.glucodata.data.HistoryExporter
 import tk.glucodata.ui.components.CompactSheetDragHandle
 import tk.glucodata.ui.util.ConnectedButtonGroup
 import tk.glucodata.ui.util.GlucoseFormatter
@@ -270,6 +271,29 @@ fun StatsScreen(
                     R.string.export_failed_with_error,
                     result.exceptionOrNull()?.message ?: context.getString(R.string.unknown_error)
                 ),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    val csvLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        coroutineScope.launch {
+            val reportState = viewModel.buildReportUiState(pendingReportDays)
+            val success = HistoryExporter.exportToCsv(
+                context = context,
+                uri = uri,
+                data = reportState.readings,
+                unit = unitLabel(reportState.unit),
+                startMillis = reportState.activeRange?.startMillis,
+                endMillis = reportState.activeRange?.endMillis
+            )
+            Toast.makeText(
+                context,
+                if (success) context.getString(R.string.export_successful)
+                else context.getString(R.string.export_failed),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -543,6 +567,21 @@ fun StatsScreen(
                         enabled = parsedReportDays != null
                     ) {
                         Text(text = stringResource(R.string.export_readable_report))
+                    }
+
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            val reportDays = parsedReportDays ?: return@OutlinedButton
+                            pendingReportDays = reportDays
+                            persistReportPrefs()
+                            showShareSheet = false
+                            val reportDate = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
+                            csvLauncher.launch("cgm_data_$reportDate.csv")
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = parsedReportDays != null
+                    ) {
+                        Text(text = stringResource(R.string.export_raw_csv))
                     }
 
                     OutlinedTextField(
