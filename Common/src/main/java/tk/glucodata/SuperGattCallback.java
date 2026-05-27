@@ -35,6 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import tk.glucodata.alerts.AlertConfig;
+import tk.glucodata.alerts.AlertRepository;
+import tk.glucodata.alerts.AlertType;
 import tk.glucodata.drivers.ManagedBluetoothSensorDriver;
 
 import static android.bluetooth.BluetoothDevice.BOND_BONDED;
@@ -536,10 +539,13 @@ public abstract class SuperGattCallback extends BluetoothGattCallback {
         if (!DontTalk) {
             if (dotalk && !alarmSpeechStarted) {
                 long readingAgeMs = System.currentTimeMillis() - timmsec;
-                String toSpeak = readingAgeMs > Notify.glucosetimeout
-                        ? Applic.app.getString(R.string.tts_missed_readings)
-                        : sglucose.value;
-                talker.selspeak(toSpeak);
+                if (readingAgeMs > Notify.glucosetimeout) {
+                    if (AlertRepository.INSTANCE.loadConfig(AlertType.MISSED_READING).getEnabled()) {
+                        talker.selspeak(Applic.app.getString(R.string.tts_missed_readings));
+                    }
+                } else {
+                    talker.selspeak(sglucose.value);
+                }
             }
         }
         if (isWearable) {
