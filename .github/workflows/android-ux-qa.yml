@@ -82,35 +82,7 @@ jobs:
           disable-animations: true
           disk-size: 6000M
           heap-size: 512M
-          script: |
-            echo "Running instrumented UX tests on API ${{ matrix.api-level }}"
-
-            # Smoke tests - quick validation
-            if [ "${{ github.event.inputs.test_level }}" = "smoke" ] || [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-              ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
-                --no-daemon \
-                --warning-mode=all \
-                -Pandroid.testInstrumentationRunnerArguments.size=small
-              echo "✓ Smoke tests completed"
-            fi
-
-            # Full tests
-            if [ "${{ github.event.inputs.test_level }}" = "full" ] || [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
-              ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
-                --no-daemon \
-                --warning-mode=all
-              echo "✓ Full instrumented tests completed"
-            fi
-
-            # Extended tests (longer duration)
-            if [ "${{ github.event.inputs.test_level }}" = "extended" ]; then
-              echo "Running extended soak tests..."
-              ./gradlew connectedMobileLibre3SiDexGoogleDebugAndroidTest \
-                --no-daemon \
-                --warning-mode=all \
-                -Pandroid.testInstrumentationRunnerArguments.duration=3600
-              echo "✓ Extended tests completed"
-            fi
+          script: bash scripts/run-instrumented-tests.sh ${{ matrix.api-level }} ${{ github.event.inputs.test_level || 'smoke' }} ${{ github.event_name }}
 
       - name: Upload test results
         if: always()
