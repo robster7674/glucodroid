@@ -28,7 +28,8 @@ on:
     - cron: '0 2 * * *'
 
 env:
-  GRADLE_OPTS: -Xmx6g -XX:+HeapDumpOnOutOfMemoryError
+  GRADLE_OPTS: -Xmx3g -XX:+HeapDumpOnOutOfMemoryError
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   instrumented-tests:
