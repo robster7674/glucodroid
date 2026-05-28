@@ -2,6 +2,15 @@
 
 App package: `cloud.glucodroid`
 
+## Package and app name — NEVER change
+
+The application package must always be `cloud.glucodroid` and the app label must always be `GlucoDroid`.
+These are set in `Common/build.gradle`:
+- `defaultConfig { applicationId "cloud.glucodroid" }`
+- Every release build type must have `resValue "string", "app_name", "GlucoDroid"`
+
+If an upstream merge changes either of these, revert immediately and do not ship until fixed.
+
 ## Git workflow
 
 After completing any fix or feature on the `glucodroid` branch, always commit and push the changes immediately.
@@ -24,3 +33,5 @@ Build command:
 ```
 
 The APK will be under `Common/build/outputs/apk/`.
+
+If the build cache returns a stale APK (wrong package name or version), run `./gradlew clean` first.
