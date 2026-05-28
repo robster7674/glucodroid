@@ -274,8 +274,9 @@ buildTypes {
 
 
         release {
+            resValue "string", "app_name", "GlucoDroid"
             signingConfig signingConfigs.alg
-            minifyEnabled true 
+            minifyEnabled true
         shrinkResources true
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'proguard-rules.my', 'proguard-rules.log'
