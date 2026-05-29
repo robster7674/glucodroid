@@ -1,7 +1,7 @@
 <resources>
     <string name="language">tr</string>
     <string name="languagename">Dil</string>
-    <string name="app_name">JugglucoNG</string>
+    <string name="app_name">GlucoDroid</string>
 
     <string name="ok">Tamam</string>
     <string name="cancel">İptal</string>
@@ -1293,7 +1293,7 @@ Tamam\'a basmak bağlantı için QR kod görüntüleyecektir. QR kodu diğer tel
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Trendi oluşturmak için yeterli günlük veri yok.</string>
     <string name="report_no_readings_day">Bu gün için okuma yok.</string>
-    <string name="report_page1_title">JugglucoNG CGM Klinik Raporu</string>
+    <string name="report_page1_title">GlucoDroid CGM Klinik Raporu</string>
     <string name="report_page1_subtitle">Aralık %1$s · Okumalar %2$d · Pencere %3$s - %4$s</string>
     <string name="report_estimated_a1c">Tahmini A1C</string>
     <string name="report_below_target">Hedefin altında</string>
@@ -1308,7 +1308,7 @@ Tamam\'a basmak bağlantı için QR kod görüntüleyecektir. QR kodu diğer tel
     <string name="report_above_duration">Üstte: %1$s</string>
     <string name="report_agp_section_title">Ambulatuvar glikoz profili (24 saatlik yüzdelik bantlar)</string>
     <string name="report_reference_targets">Referans hedefleri: GMI &lt; %%7,0, CV &lt;= %%36, Aralıktaki süre &gt;= %%70.</string>
-    <string name="report_page2_title">JugglucoNG CGM Günlük Trendler ve Yorumlama</string>
+    <string name="report_page2_title">GlucoDroid CGM Günlük Trendler ve Yorumlama</string>
     <string name="report_page2_subtitle">Günlük değişkenlik, metrik döküm ve yorumlama notları</string>
     <string name="report_daily_average_trend">Günlük ortalama trend</string>
     <string name="report_detailed_metrics">Ayrıntılı ölçümler</string>
@@ -1323,7 +1323,7 @@ Tamam\'a basmak bağlantı için QR kod görüntüleyecektir. QR kodu diğer tel
     <string name="report_no_generated_insights_message">Bu zaman aralığı için ek kalıp uyarısı oluşturulmadı.</string>
     <string name="report_agp_consensus_title">AGP fikir birliği referansı</string>
     <string name="report_agp_consensus_body">Bu raporda atıfta bulunulan hedefler AGP uluslararası fikir birliği stilini takip etmektedir: TIR 70-180 mg/dL (3,9-10,0 mmol/L), TBR &lt;70 ve &lt;54 mg/dL, TAR &gt;180 ve &gt;250 mg/dL, CV hedefi &lt;=%%36.</string>
-    <string name="report_page3_title">JugglucoNG Ek I - AGP ve Günlük Tablolar</string>
+    <string name="report_page3_title">GlucoDroid Ek I - AGP ve Günlük Tablolar</string>
     <string name="report_page3_subtitle">Saatlik yüzdelikler ve gün düzeyinde sonuçlar</string>
     <string name="report_hourly_agp_table">Saatlik AGP profil tablosu</string>
     <string name="report_hour">Saat</string>
@@ -1332,7 +1332,7 @@ Tamam\'a basmak bağlantı için QR kod görüntüleyecektir. QR kodu diğer tel
     <string name="report_no_hourly_agp">Bu aralıkta saatlik AGP kutusu mevcut değil.</string>
     <string name="report_daily_outcomes_table">Günlük sonuç tablosu</string>
     <string name="report_showing_latest_days">%2$d günün en son %1$d günü gösteriliyor.</string>
-    <string name="report_page4_title">JugglucoNG Ek II - Etkinlikler ve Günlük Profiller</string>
+    <string name="report_page4_title">GlucoDroid Ek II - Etkinlikler ve Günlük Profiller</string>
     <string name="report_page4_subtitle">Hipo/hiper maruz kalma ölçümleri ve gün düzeyinde profil grafikleri</string>
     <string name="report_hypo_hyper_events">Hipo/hiper maruz kalma olayları</string>
     <string name="report_hours_per_day">Saat/gün</string>

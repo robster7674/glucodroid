@@ -1,7 +1,7 @@
 <resources>
     <string name="language">uk</string>
     <string name="languagename">Мова</string>
-    <string name="app_name">JugglucoNG</string>
+    <string name="app_name">GlucoDroid</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Скасувати</string>
@@ -1279,7 +1279,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Недостатньо щоденних даних для відображення тенденції.</string>
     <string name="report_no_readings_day">Немає читань на цей день.</string>
-    <string name="report_page1_title">Клінічний звіт JugglucoNG CGM</string>
+    <string name="report_page1_title">Клінічний звіт GlucoDroid CGM</string>
     <string name="report_page1_subtitle">Діапазон %1$s · Показання %2$d · Вікно від %3$s до %4$s</string>
     <string name="report_estimated_a1c">Розрахунковий A1C</string>
     <string name="report_below_target">Нижче цілі</string>
@@ -1294,7 +1294,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_above_duration">Вгорі: %1$s</string>
     <string name="report_agp_section_title">Амбулаторний профіль глюкози (24-годинний процентиль)</string>
     <string name="report_reference_targets">Контрольні цілі: GMI &lt; 7,0%%, CV &lt;= 36%%, Час у діапазоні &gt;= 70%%.</string>
-    <string name="report_page2_title">Щоденні тенденції та інтерпретація JugglucoNG CGM</string>
+    <string name="report_page2_title">Щоденні тенденції та інтерпретація GlucoDroid CGM</string>
     <string name="report_page2_subtitle">Щоденна мінливість, розподіл показників та примітки до інтерпретації</string>
     <string name="report_daily_average_trend">Середньоденний тренд</string>
     <string name="report_detailed_metrics">Детальні показники</string>
@@ -1309,7 +1309,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_generated_insights_message">Для цього періоду часу не було створено додаткових попереджень про шаблони.</string>
     <string name="report_agp_consensus_title">Посилання на консенсус AGP</string>
     <string name="report_agp_consensus_body">Цілі, згадані в цьому звіті, відповідають міжнародному узгодженому стилю AGP: TIR 70-180 мг/дл (3,9-10,0 ммоль/л), TBR &lt;70 і &lt;54 мг/дл, TAR &gt;180 і &gt;250 мг/дл, з цільовим CV &lt;=36%%.</string>
-    <string name="report_page3_title">JugglucoNG Додаток I - AGP і щоденні таблиці</string>
+    <string name="report_page3_title">GlucoDroid Додаток I - AGP і щоденні таблиці</string>
     <string name="report_page3_subtitle">Погодинні процентилі та результати на денному рівні</string>
     <string name="report_hourly_agp_table">Погодинна таблиця профілю AGP</string>
     <string name="report_hour">Година</string>
@@ -1318,7 +1318,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_hourly_agp">У цьому діапазоні немає погодинних контейнерів AGP.</string>
     <string name="report_daily_outcomes_table">Таблиця щоденних результатів</string>
     <string name="report_showing_latest_days">Показано останні %1$d з %2$d днів.</string>
-    <string name="report_page4_title">JugglucoNG Додаток II - Події та щоденні профілі</string>
+    <string name="report_page4_title">GlucoDroid Додаток II - Події та щоденні профілі</string>
     <string name="report_page4_subtitle">Показники гіпо/гіпер експозиції та діаграми профілів на денному рівні</string>
     <string name="report_hypo_hyper_events">Події гіпо/гіперопромінення</string>
     <string name="report_hours_per_day">Годин/день</string>

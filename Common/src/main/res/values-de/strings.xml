@@ -2,7 +2,7 @@
     <string name="language">de</string>
     <string name="languagename">Sprache</string>
 
-     <string name="app_name">JugglucoNG</string>
+     <string name="app_name">GlucoDroid</string>
      <string name="ok">OK</string>
      <string name="cancel">Abbrechen</string>
 
@@ -1303,7 +1303,7 @@ Durch Drücken von „OK“ wird eine Verbindung auf diesem Telefon hergestellt 
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Nicht genügend tägliche Daten, um einen Trend darzustellen.</string>
     <string name="report_no_readings_day">Für diesen Tag gibt es keine Lesungen.</string>
-    <string name="report_page1_title">Klinischer JugglucoNG CGM-Bericht</string>
+    <string name="report_page1_title">Klinischer GlucoDroid CGM-Bericht</string>
     <string name="report_page1_subtitle">Bereich %1$s · Messwerte %2$d · Fenster %3$s bis %4$s</string>
     <string name="report_estimated_a1c">Geschätzter A1C</string>
     <string name="report_below_target">Unterhalb des Ziels</string>
@@ -1318,7 +1318,7 @@ Durch Drücken von „OK“ wird eine Verbindung auf diesem Telefon hergestellt 
     <string name="report_above_duration">Oben: %1$s</string>
     <string name="report_agp_section_title">Ambulantes Glukoseprofil (24-Stunden-Perzentilbänder)</string>
     <string name="report_reference_targets">Referenzziele: GMI &lt; 7,0 %%, CV &lt;= 36 %%, Zeit im Bereich &gt;= 70 %%.</string>
-    <string name="report_page2_title">JugglucoNG CGM Tägliche Trends und Interpretation</string>
+    <string name="report_page2_title">GlucoDroid CGM Tägliche Trends und Interpretation</string>
     <string name="report_page2_subtitle">Tägliche Variabilität, metrische Aufschlüsselung und Interpretationshinweise</string>
     <string name="report_daily_average_trend">Täglicher durchschnittlicher Trend</string>
     <string name="report_detailed_metrics">Detaillierte Metriken</string>
@@ -1333,7 +1333,7 @@ Durch Drücken von „OK“ wird eine Verbindung auf diesem Telefon hergestellt 
     <string name="report_no_generated_insights_message">Für diesen Zeitraum wurden keine zusätzlichen Musterwarnungen generiert.</string>
     <string name="report_agp_consensus_title">AGP-Konsensreferenz</string>
     <string name="report_agp_consensus_body">Die in diesem Bericht genannten Ziele folgen dem internationalen AGP-Konsensstil: TIR 70–180 mg/dl (3,9–10,0 mmol/l), TBR &lt;70 und &lt;54 mg/dl, TAR &gt;180 und &gt;250 mg/dl, mit CV-Ziel &lt;= 36 %%.</string>
-    <string name="report_page3_title">JugglucoNG Anhang I – AGP und Tagestabellen</string>
+    <string name="report_page3_title">GlucoDroid Anhang I – AGP und Tagestabellen</string>
     <string name="report_page3_subtitle">Stündliche Perzentile und Ergebnisse auf Tagesebene</string>
     <string name="report_hourly_agp_table">Stündliche AGP-Profiltabelle</string>
     <string name="report_hour">Stunde</string>
@@ -1342,7 +1342,7 @@ Durch Drücken von „OK“ wird eine Verbindung auf diesem Telefon hergestellt 
     <string name="report_no_hourly_agp">In diesem Bereich sind keine stündlichen AGP-Behälter verfügbar.</string>
     <string name="report_daily_outcomes_table">Tägliche Ergebnistabelle</string>
     <string name="report_showing_latest_days">Zeigt die letzten %1$d von %2$d Tagen an.</string>
-    <string name="report_page4_title">JugglucoNG Anhang II – Ereignisse und Tagesprofile</string>
+    <string name="report_page4_title">GlucoDroid Anhang II – Ereignisse und Tagesprofile</string>
     <string name="report_page4_subtitle">Hypo-/Hyper-Expositionsmetriken und Profildiagramme auf Tagesebene</string>
     <string name="report_hypo_hyper_events">Hypo-/Hyperexpositionsereignisse</string>
     <string name="report_hours_per_day">Stunden/Tag</string>

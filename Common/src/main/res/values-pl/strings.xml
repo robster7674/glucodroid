@@ -1,7 +1,7 @@
 <resources>
     <string name="language">pl</string>
     <string name="languagename">Język</string>
-    <string name="app_name">JugglucoNG</string>
+    <string name="app_name">GlucoDroid</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Anuluj</string>
@@ -1300,7 +1300,7 @@
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Za mało danych dziennych, aby wygenerować trend.</string>
     <string name="report_no_readings_day">Brak odczytów na ten dzień.</string>
-    <string name="report_page1_title">Raport kliniczny JugglucoNG CGM</string>
+    <string name="report_page1_title">Raport kliniczny GlucoDroid CGM</string>
     <string name="report_page1_subtitle">Zakres %1$s · Odczyty %2$d · Okno %3$s do %4$s</string>
     <string name="report_estimated_a1c">Szacunkowa wartość HbA1C</string>
     <string name="report_below_target">Poniżej celu</string>
@@ -1315,7 +1315,7 @@
     <string name="report_above_duration">Powyżej: %1$s</string>
     <string name="report_agp_section_title">Ambulatoryjny profil glukozy (24-godzinne pasma percentylowe)</string>
     <string name="report_reference_targets">Cele referencyjne: GMI &lt; 7,0%%, CV &lt;= 36%%, Czas w zakresie &gt;= 70%%.</string>
-    <string name="report_page2_title">Codzienne trendy i interpretacja JugglucoNG CGM</string>
+    <string name="report_page2_title">Codzienne trendy i interpretacja GlucoDroid CGM</string>
     <string name="report_page2_subtitle">Dzienna zmienność, podział miar i uwagi dotyczące interpretacji</string>
     <string name="report_daily_average_trend">Średni dzienny trend</string>
     <string name="report_detailed_metrics">Szczegółowe wskaźniki</string>
@@ -1330,7 +1330,7 @@
     <string name="report_no_generated_insights_message">Dla tego zakresu czasu nie wygenerowano żadnych dodatkowych ostrzeżeń o wzorcach.</string>
     <string name="report_agp_consensus_title">Odniesienie do konsensusu AGP</string>
     <string name="report_agp_consensus_body">Cele wymienione w tym raporcie są zgodne z międzynarodowym konsensusem AGP: TIR 70–180 mg/dl (3,9–10,0 mmol/l), TBR &lt;70 i &lt;54 mg/dl, TAR &gt;180 i &gt;250 mg/dl, z docelowym współczynnikiem CV &lt;=36%%.</string>
-    <string name="report_page3_title">JugglucoNG Załącznik I - AGP i tabele dzienne</string>
+    <string name="report_page3_title">GlucoDroid Załącznik I - AGP i tabele dzienne</string>
     <string name="report_page3_subtitle">Percentyle godzinowe i wyniki na poziomie dnia</string>
     <string name="report_hourly_agp_table">Godzinowa tabela profili AGP</string>
     <string name="report_hour">Godzina</string>
@@ -1339,7 +1339,7 @@
     <string name="report_no_hourly_agp">W tym zakresie nie są dostępne żadne godzinne pojemniki AGP.</string>
     <string name="report_daily_outcomes_table">Tabela wyników dziennych</string>
     <string name="report_showing_latest_days">Wyświetlanie ostatnich %1$d z %2$d dni.</string>
-    <string name="report_page4_title">JugglucoNG Załącznik II - Wydarzenia i codzienne profile</string>
+    <string name="report_page4_title">GlucoDroid Załącznik II - Wydarzenia i codzienne profile</string>
     <string name="report_page4_subtitle">Wskaźniki hipo/nadmiernej ekspozycji i wykresy profili na poziomie dnia</string>
     <string name="report_hypo_hyper_events">Zdarzenia hipo/nadmiernej ekspozycji</string>
     <string name="report_hours_per_day">Godziny/dzień</string>

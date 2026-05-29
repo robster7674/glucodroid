@@ -1,7 +1,7 @@
 <resources>
   <string name="language">sv</string>
   <string name="languagename">Språk</string>
-  <string name="app_name">JugglucoNG</string>
+  <string name="app_name">GlucoDroid</string>
   <string name="ok">OK</string>
   <string name="cancel">Avbryt</string>
   <string name="garmin_initialization_error">"Misslyckades med att starta Garmin Connect SDK: "</string>
@@ -1265,7 +1265,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Inte tillräckligt med daglig data för att rendera trend.</string>
     <string name="report_no_readings_day">Inga läsningar för denna dag.</string>
-    <string name="report_page1_title">JugglucoNG CGM klinisk rapport</string>
+    <string name="report_page1_title">GlucoDroid CGM klinisk rapport</string>
     <string name="report_page1_subtitle">Område %1$s · Avläsningar %2$d · Fönster %3$s till %4$s</string>
     <string name="report_estimated_a1c">Uppskattad A1C</string>
     <string name="report_below_target">Under målet</string>
@@ -1280,7 +1280,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_above_duration">Ovan: %1$s</string>
     <string name="report_agp_section_title">Ambulatorisk glukosprofil (24h percentilband)</string>
     <string name="report_reference_targets">Referensmål: GMI &lt; 7,0 %%, CV &lt;= 36 %%, Tid inom intervallet &gt;= 70 %%.</string>
-    <string name="report_page2_title">JugglucoNG CGM Dagliga trender och tolkning</string>
+    <string name="report_page2_title">GlucoDroid CGM Dagliga trender och tolkning</string>
     <string name="report_page2_subtitle">Daglig variation, metrisk uppdelning och tolkningsanteckningar</string>
     <string name="report_daily_average_trend">Daglig genomsnittlig trend</string>
     <string name="report_detailed_metrics">Detaljerad statistik</string>
@@ -1295,7 +1295,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_generated_insights_message">Inga ytterligare mönstervarningar genererades för detta tidsintervall.</string>
     <string name="report_agp_consensus_title">AGP konsensusreferens</string>
     <string name="report_agp_consensus_body">Mål som hänvisas till i denna rapport följer AGPs internationella konsensusstil: TIR 70-180 mg/dL (3,9-10,0 mmol/L), TBR &lt;70 och &lt;54 mg/dL, TAR &gt;180 och &gt;250 mg/dL, med CV-mål &lt;=36%%.</string>
-    <string name="report_page3_title">JugglucoNG Bilaga I - AGP och dagliga tabeller</string>
+    <string name="report_page3_title">GlucoDroid Bilaga I - AGP och dagliga tabeller</string>
     <string name="report_page3_subtitle">Timpercentiler och resultat på dagnivå</string>
     <string name="report_hourly_agp_table">Timvis AGP-profiltabell</string>
     <string name="report_hour">Timme</string>
@@ -1304,7 +1304,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_hourly_agp">Inga timliga AGP-behållare tillgängliga i detta sortiment.</string>
     <string name="report_daily_outcomes_table">Tabell för dagliga utfall</string>
     <string name="report_showing_latest_days">Visar senaste %1$d av %2$d dagar.</string>
-    <string name="report_page4_title">JugglucoNG Appendix II - Händelser och dagliga profiler</string>
+    <string name="report_page4_title">GlucoDroid Appendix II - Händelser och dagliga profiler</string>
     <string name="report_page4_subtitle">Hypo/hyperexponeringsmått och profildiagram på dagnivå</string>
     <string name="report_hypo_hyper_events">Hypo/hyperexponeringshändelser</string>
     <string name="report_hours_per_day">Timmar/dag</string>

@@ -1,7 +1,7 @@
 <resources>
     <string name="language">mn</string>
     <string name="languagename">Монгол хэл</string>
-    <string name="app_name">JugglucoNG</string>
+    <string name="app_name">GlucoDroid</string>
     <string name="ok">OK</string>
     <string name="cancel">Цуцлах</string>
     <string name="garmin_initialization_error">"Garmin Connect SDK эхлүүлэхэд алдаа гарлаа: "</string>
@@ -1375,7 +1375,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Not enough daily data to render trend.</string>
     <string name="report_no_readings_day">No readings for this day.</string>
-    <string name="report_page1_title">JugglucoNG CGM Clinical Report</string>
+    <string name="report_page1_title">GlucoDroid CGM Clinical Report</string>
     <string name="report_page1_subtitle">Range %1$s · Readings %2$d · Window %3$s to %4$s</string>
     <string name="report_estimated_a1c">Estimated A1C</string>
     <string name="report_below_target">Below target</string>
@@ -1390,7 +1390,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_above_duration">Above: %1$s</string>
     <string name="report_agp_section_title">Ambulatory glucose profile (24h percentile bands)</string>
     <string name="report_reference_targets">Reference targets: GMI &lt; 7.0%%, CV &lt;= 36%%, Time in range &gt;= 70%%.</string>
-    <string name="report_page2_title">JugglucoNG CGM Daily Trends and Interpretation</string>
+    <string name="report_page2_title">GlucoDroid CGM Daily Trends and Interpretation</string>
     <string name="report_page2_subtitle">Daily variability, metric breakdown, and interpretation notes</string>
     <string name="report_daily_average_trend">Daily average trend</string>
     <string name="report_detailed_metrics">Detailed metrics</string>
@@ -1405,7 +1405,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_generated_insights_message">No additional pattern warnings were generated for this time range.</string>
     <string name="report_agp_consensus_title">AGP consensus reference</string>
     <string name="report_agp_consensus_body">Targets referenced in this report follow AGP international consensus style: TIR 70-180 mg/dL (3.9-10.0 mmol/L), TBR &lt;70 and &lt;54 mg/dL, TAR &gt;180 and &gt;250 mg/dL, with CV goal &lt;=36%%.</string>
-    <string name="report_page3_title">JugglucoNG Appendix I - AGP and Daily Tables</string>
+    <string name="report_page3_title">GlucoDroid Appendix I - AGP and Daily Tables</string>
     <string name="report_page3_subtitle">Hourly percentiles and day-level outcomes</string>
     <string name="report_hourly_agp_table">Hourly AGP profile table</string>
     <string name="report_hour">Hour</string>
@@ -1414,7 +1414,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="report_no_hourly_agp">No hourly AGP bins available in this range.</string>
     <string name="report_daily_outcomes_table">Daily outcomes table</string>
     <string name="report_showing_latest_days">Showing latest %1$d of %2$d days.</string>
-    <string name="report_page4_title">JugglucoNG Appendix II - Events and Daily Profiles</string>
+    <string name="report_page4_title">GlucoDroid Appendix II - Events and Daily Profiles</string>
     <string name="report_page4_subtitle">Hypo/hyper exposure metrics and day-level profile charts</string>
     <string name="report_hypo_hyper_events">Hypo / hyper exposure events</string>
     <string name="report_hours_per_day">Hours/day</string>

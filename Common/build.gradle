@@ -296,6 +296,7 @@ buildTypes {
         }
         releaselog {
             versionNameSuffix '-log'
+            resValue "string", "app_name", "GlucoDroid"
             signingConfig signingConfigs.alg
             minifyEnabled true 
         shrinkResources true

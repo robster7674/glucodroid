@@ -2,7 +2,7 @@
     <string name="language">nl</string>
     <string name="languagename">Taal</string>
 
-    <string name="app_name">JugglucoNG</string>
+    <string name="app_name">GlucoDroid</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Annuleren</string>
@@ -1308,7 +1308,7 @@ Als je op OK drukt, wordt er een verbinding gemaakt op deze telefoon en wordt er
     <string name="report_iqr_short">IQR</string>
     <string name="report_not_enough_daily_trend">Niet genoeg dagelijkse gegevens om de trend weer te geven.</string>
     <string name="report_no_readings_day">Geen lezingen voor deze dag.</string>
-    <string name="report_page1_title">JugglucoNG CGM klinisch rapport</string>
+    <string name="report_page1_title">GlucoDroid CGM klinisch rapport</string>
     <string name="report_page1_subtitle">Bereik %1$s · Uitlezingen %2$d · Venster %3$s tot %4$s</string>
     <string name="report_estimated_a1c">Geschatte A1C</string>
     <string name="report_below_target">Onder doel</string>
@@ -1323,7 +1323,7 @@ Als je op OK drukt, wordt er een verbinding gemaakt op deze telefoon en wordt er
     <string name="report_above_duration">Boven: %1$s</string>
     <string name="report_agp_section_title">Ambulant glucoseprofiel (24-uurs percentielbanden)</string>
     <string name="report_reference_targets">Referentiedoelstellingen: GMI &lt; 7,0%%, CV &lt;= 36%%, Tijd binnen bereik &gt;= 70%%.</string>
-    <string name="report_page2_title">JugglucoNG CGM dagelijkse trends en interpretatie</string>
+    <string name="report_page2_title">GlucoDroid CGM dagelijkse trends en interpretatie</string>
     <string name="report_page2_subtitle">Dagelijkse variabiliteit, metrische uitsplitsing en interpretatienotities</string>
     <string name="report_daily_average_trend">Dagelijkse gemiddelde trend</string>
     <string name="report_detailed_metrics">Gedetailleerde statistieken</string>
@@ -1338,7 +1338,7 @@ Als je op OK drukt, wordt er een verbinding gemaakt op deze telefoon en wordt er
     <string name="report_no_generated_insights_message">Er zijn voor deze periode geen aanvullende patroonwaarschuwingen gegenereerd.</string>
     <string name="report_agp_consensus_title">AGP-consensusreferentie</string>
     <string name="report_agp_consensus_body">De doelstellingen waarnaar in dit rapport wordt verwezen, volgen de internationale consensusstijl van AGP: TIR 70-180 mg/dl (3,9-10,0 mmol/l), TBR &lt;70 en &lt;54 mg/dl, TAR &gt;180 en &gt;250 mg/dl, met CV-doel &lt;=36%%.</string>
-    <string name="report_page3_title">JugglucoNG Bijlage I - AGP en dagtabellen</string>
+    <string name="report_page3_title">GlucoDroid Bijlage I - AGP en dagtabellen</string>
     <string name="report_page3_subtitle">Percentielen per uur en uitkomsten op dagniveau</string>
     <string name="report_hourly_agp_table">AGP-profieltabel per uur</string>
     <string name="report_hour">Uur</string>
@@ -1347,7 +1347,7 @@ Als je op OK drukt, wordt er een verbinding gemaakt op deze telefoon en wordt er
     <string name="report_no_hourly_agp">Er zijn geen AGP-bakken per uur beschikbaar in dit assortiment.</string>
     <string name="report_daily_outcomes_table">Tabel met dagelijkse resultaten</string>
     <string name="report_showing_latest_days">Laatste %1$d van %2$d dagen weergeven.</string>
-    <string name="report_page4_title">JugglucoNG Bijlage II - Evenementen en dagelijkse profielen</string>
+    <string name="report_page4_title">GlucoDroid Bijlage II - Evenementen en dagelijkse profielen</string>
     <string name="report_page4_subtitle">Hypo-/hyperblootstellingsstatistieken en profielgrafieken op dagniveau</string>
     <string name="report_hypo_hyper_events">Hypo-/hyperblootstellingsgebeurtenissen</string>
     <string name="report_hours_per_day">Uren/dag</string>
