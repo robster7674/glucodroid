@@ -926,8 +926,8 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="caresens_air_sensor_desc">Scan code + Bluetooth</string>
     <string name="aidex_sensor">AiDex / LinX</string>
     <string name="aidex_sensor_desc">Configure AiDex or LinX CGM via Bluetooth</string>
-    <string name="icanhealth_sensor">iCan i3 / Sinocare</string>
-    <string name="icanhealth_sensor_desc">Configure iCan i3/i6/i7 CGM via Bluetooth</string>
+    <string name="icanhealth_sensor">iCan i3 / i6</string>
+    <string name="icanhealth_sensor_desc">Configure iCan i3/i6 CGM via Bluetooth</string>
     <string name="mq_sensor">MQ / Glutec</string>
     <string name="mq_sensor_desc">Pair a Glutec / MQ CGM transmitter via Bluetooth</string>
     <string name="anytime_sensor">Anytime / Yuwell 4 / 4H / 5</string>
