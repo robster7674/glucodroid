@@ -16,6 +16,15 @@ If an upstream merge changes either of these, revert immediately and do not ship
 After completing any fix or feature on the `glucodroid` branch, always commit and push the changes immediately.
 Use a clear commit message, then run `git push`.
 
+## Fresh clone setup
+
+After cloning, initialise the libjuice native submodule before building:
+
+```
+git submodule update --init
+echo "sdk.dir=/home/rob/android-sdk" > local.properties
+```
+
 ## Build
 
 After a successful build, copy the output APK to:
