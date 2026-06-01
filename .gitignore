@@ -46,6 +46,10 @@ hs_err_pid*
 # Hetzner device-test credentials (copy from scripts/.env.hetzner.example)
 scripts/.env.hetzner
 
+# Firebase Test Lab credentials (copy from scripts/.env.firebase.example)
+scripts/.env.firebase
+firebase-test-results/
+
 # Device test results (local artefacts, not for version control)
 device-test-results/
 
