@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
-    id 'com.google.devtools.ksp' version '2.2.21-2.0.5'
+    id 'com.google.devtools.ksp' version '2.3.9'
 //    id "io.freefair.lombok" version "8.0.0-rc2"
 }
 
@@ -35,6 +35,7 @@ else {
 CMAKEVERSION = "4.1.2"
 android {
  buildFeatures.buildConfig = true
+ buildFeatures.resValues = true
  namespace "tk.glucodata"
     externalNativeBuild {
         cmake {
@@ -630,7 +631,7 @@ android.applicationVariants.all { variant ->
         def variantName = variant.name
         def capName = variantName.capitalize()
         def mergeJniTaskName = "merge${capName}JniLibFolders"
-        def mergedLibPath = "${buildDir}/intermediates/merged_jni_libs/${variantName}/${mergeJniTaskName}/out/armeabi-v7a/libdata-handle-lib.so"
+        def mergedLibPath = "${layout.buildDirectory.get().asFile}/intermediates/merged_jni_libs/${variantName}/${mergeJniTaskName}/out/armeabi-v7a/libdata-handle-lib.so"
         def patchTask = tasks.register("patch${capName}SibionicsArmv7DataHandle") {
             dependsOn tasks.named(mergeJniTaskName)
             outputs.upToDateWhen { false }
@@ -709,8 +710,7 @@ dependencies {
     implementation 'androidx.core:core:1.18.0'
    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.21'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.2.21'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.3.21'
     implementation "com.google.android.gms:play-services-base:$GMSBASE"
 //    implementation "com.google.android.gms:play-services-base:18.8.0"
  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0'
