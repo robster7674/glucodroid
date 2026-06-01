@@ -62,7 +62,7 @@ import static tk.glucodata.Natives.getstreamingAuthenticationData;
 import static tk.glucodata.Natives.hasalarmloss;
 import static tk.glucodata.Natives.processTooth;
 
-
+@SuppressLint("MissingPermission")
 public class Libre2GattCallback extends SuperGattCallback {
 	private int conphase = 0;
 
@@ -387,19 +387,15 @@ private   boolean failedbefore=false;
 
 
 
+private static volatile PowerManager.WakeLock wakeLock = null;
 private static PowerManager.WakeLock getwakelock() {
-		return ((PowerManager) app.getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Juggluco::processTooth");
+		if (wakeLock == null) {
+			PowerManager powerManager = (PowerManager) app.getSystemService(POWER_SERVICE);
+			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "glucodroid::processTooth");
+			wakeLock.setReferenceCounted(false);
 		}
-	/*
-private static PowerManager.WakeLock wakeLock=null; 
-private static PowerManager.WakeLock getwakelock() {
-		if(wakeLock==null) {
-			PowerManager powerManager= (PowerManager) app.getSystemService(POWER_SERVICE);
-			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Juggluco::processTooth");
-			}
 		return wakeLock;
-		}
-		*/
+	}
 
 private boolean setDescriptor(BluetoothGattCharacteristic ch, byte[] type) {
        var gatt=mBluetoothGatt;
@@ -436,20 +432,7 @@ private	void oldonCharacteristicChanged(byte[] value) {
 					final var wakeLock=Natives.hasRootcheck()?getwakelock():null;
 					if(wakeLock!=null)
 						wakeLock.acquire();
-                        /*
-                    if(isWearable) {
-                        if(Natives.getDisconnectSensor()) {
-                            Log.i(LOG_ID,"enableNotification(mBluetoothGatt, characteristic)");
-                            setDescriptor(characteristic,  BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-                            Applic.scheduler.schedule(()-> {
-                                if(connected) {
-                                   setDescriptor(characteristic,  BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                                    }
-                                    }, 30, TimeUnit.SECONDS);
-                                    
-                            }
-                        } */
-
+					try {
 					pack1 = false;
 					pack2 = false;
 					System.arraycopy(value, 0, packet, 38, 8);
@@ -462,8 +445,10 @@ private	void oldonCharacteristicChanged(byte[] value) {
 							}
 						}
                     datatime=timmsec;
-					if(wakeLock!=null)
+					} finally {
+					if(wakeLock!=null && wakeLock.isHeld())
 						wakeLock.release();
+					}
                   /*  if(isWearable) {
                         if(Natives.getDisconnectSensor()&&!autoconnect) {
                             disconnect();  
