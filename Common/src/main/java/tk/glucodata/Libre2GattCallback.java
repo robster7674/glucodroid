@@ -387,19 +387,15 @@ private   boolean failedbefore=false;
 
 
 
+private static volatile PowerManager.WakeLock wakeLock = null;
 private static PowerManager.WakeLock getwakelock() {
-		return ((PowerManager) app.getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Juggluco::processTooth");
+		if (wakeLock == null) {
+			PowerManager powerManager = (PowerManager) app.getSystemService(POWER_SERVICE);
+			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "glucodroid::processTooth");
+			wakeLock.setReferenceCounted(false);
 		}
-	/*
-private static PowerManager.WakeLock wakeLock=null; 
-private static PowerManager.WakeLock getwakelock() {
-		if(wakeLock==null) {
-			PowerManager powerManager= (PowerManager) app.getSystemService(POWER_SERVICE);
-			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Juggluco::processTooth");
-			}
 		return wakeLock;
-		}
-		*/
+	}
 
 private boolean setDescriptor(BluetoothGattCharacteristic ch, byte[] type) {
        var gatt=mBluetoothGatt;

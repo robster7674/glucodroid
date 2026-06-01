@@ -56,6 +56,7 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var currentLuxAlpha = 1.0f // Default to full brightness
     private var cachedBaseOpacity = 1.0f // Cached from preferences
+    private var prefs: android.content.SharedPreferences? = null
 
     // State for AOD behavior
     private var isScreenOn = true
@@ -246,8 +247,8 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
             } catch (e: Exception) {}
             chooseOverlayPosition()
         }
-        val prefs = getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
-        cachedBaseOpacity = prefs.getFloat("aod_opacity", 1.0f)
+        prefs = getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
+        cachedBaseOpacity = prefs!!.getFloat("aod_opacity", 1.0f)
         updateOverlayContent()
         applyBurnInProtection(force = true)
         handler.removeCallbacks(updateRunnable)
@@ -283,7 +284,7 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
     }
 
     private fun chooseOverlayPosition() {
-        val prefs = getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
+        val prefs = prefs ?: getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
         val positions = prefs.getStringSet("aod_positions", setOf("TOP")) ?: setOf("TOP")
         val activePositions = if (positions.isNotEmpty()) positions.toList() else listOf("TOP")
         currentOverlayPosition = activePositions.random()
@@ -297,7 +298,7 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
         val view = overlayView ?: return
         val p = params ?: return
         
-        val prefs = getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
+        val prefs = prefs ?: getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
         val opacity = prefs.getFloat("aod_opacity", 1.0f)
         val textScale = prefs.getFloat("aod_text_scale", 1.0f)
         val chartScale = prefs.getFloat("aod_chart_scale", 1.5f)
@@ -402,7 +403,7 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
             }
         }
 
-        val prefs = getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
+        val prefs = prefs ?: getSharedPreferences("tk.glucodata_preferences", Context.MODE_PRIVATE)
         val showSecondary = prefs.getBoolean("aod_show_secondary", false)
         // Current Value
         var glvalue = 0f
