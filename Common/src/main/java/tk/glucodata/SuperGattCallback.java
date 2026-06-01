@@ -251,11 +251,11 @@ public abstract class SuperGattCallback extends BluetoothGattCallback {
     }
 
     static final int mininterval = 55;
-    static long nexttime = 0L; // secs
+    volatile static long nexttime = 0L; // secs
     public static tk.glucodata.GlucoseAlarms glucosealarms = null;
-    public static notGlucose previousglucose = null;
-    static float previousglucosevalue = 0.0f;
-    public static String previousglucosesensorid = null;
+    public volatile static notGlucose previousglucose = null;
+    volatile static float previousglucosevalue = 0.0f;
+    public volatile static String previousglucosesensorid = null;
     private static final ConcurrentHashMap<String, Long> lastCollapsedExchangeTimeMs = new ConcurrentHashMap<>();
 
     private static boolean shouldEmitExchangeUpdate(String sensorId, long payloadTimeMs, boolean collapseChunks) {

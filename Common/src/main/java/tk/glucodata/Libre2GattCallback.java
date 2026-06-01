@@ -436,20 +436,7 @@ private	void oldonCharacteristicChanged(byte[] value) {
 					final var wakeLock=Natives.hasRootcheck()?getwakelock():null;
 					if(wakeLock!=null)
 						wakeLock.acquire();
-                        /*
-                    if(isWearable) {
-                        if(Natives.getDisconnectSensor()) {
-                            Log.i(LOG_ID,"enableNotification(mBluetoothGatt, characteristic)");
-                            setDescriptor(characteristic,  BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-                            Applic.scheduler.schedule(()-> {
-                                if(connected) {
-                                   setDescriptor(characteristic,  BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                                    }
-                                    }, 30, TimeUnit.SECONDS);
-                                    
-                            }
-                        } */
-
+					try {
 					pack1 = false;
 					pack2 = false;
 					System.arraycopy(value, 0, packet, 38, 8);
@@ -462,8 +449,10 @@ private	void oldonCharacteristicChanged(byte[] value) {
 							}
 						}
                     datatime=timmsec;
-					if(wakeLock!=null)
+					} finally {
+					if(wakeLock!=null && wakeLock.isHeld())
 						wakeLock.release();
+					}
                   /*  if(isWearable) {
                         if(Natives.getDisconnectSensor()&&!autoconnect) {
                             disconnect();  

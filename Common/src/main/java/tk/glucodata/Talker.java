@@ -86,6 +86,7 @@ public class Talker {
 static public final String LOG_ID="Talker";
     private TextToSpeech engine;
     volatile boolean engineReady = false;
+    private android.os.PowerManager.WakeLock ttsWakeLock;
 
 static    private float curpitch=1.0f;
 static  private float curspeed=1.0f;
@@ -357,6 +358,7 @@ if(!DontTalk) {
 void destruct() {
 if(!DontTalk) {
     engineReady = false;
+    if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
     if(engine!=null) {
         engine.shutdown();
         engine=null;
@@ -441,6 +443,12 @@ if(!DontTalk) {
          }
             }
           });
+    android.os.PowerManager pm = (android.os.PowerManager) Applic.app.getSystemService(android.content.Context.POWER_SERVICE);
+    if (pm != null) {
+        ttsWakeLock = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "glucodroid:tts");
+        ttsWakeLock.setReferenceCounted(false);
+    }
+
     engine.setOnUtteranceProgressListener(new UtteranceProgressListener() {
 
  //  AudioFocusRequest audiofocusrequest = (android.os.Build.VERSION.SDK_INT <26)?null:new AudioFocusRequest.Builder( AudioManager.AUDIOFOCUS_GAIN_TRANSIENT).setAudioAttributes( notification_audio ).build();
@@ -449,6 +457,7 @@ if(!DontTalk) {
             if(doLog) {Log.i(LOG_ID,"onDone "+utteranceId);};
             if(!notifyfocus)
                 doTurnFocusoff();
+            if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
             if ("voice_preview".equals(utteranceId)) {
                 var cb = previewDoneCallback;
                 if (cb != null) Applic.RunOnUiThread(cb);
@@ -460,6 +469,7 @@ if(!DontTalk) {
             if(doLog) {Log.i(LOG_ID,"onError "+utteranceId);};
             if(!notifyfocus)
                 doTurnFocusoff();
+            if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
             if ("voice_preview".equals(utteranceId)) {
                 var cb = previewDoneCallback;
                 if (cb != null) Applic.RunOnUiThread(cb);
@@ -510,20 +520,20 @@ public void speak(String message) {
     if(!DontTalk) {
         try {
             ensureMinStreamVolume();
-            if(
-                    ((android.os.Build.VERSION.SDK_INT >= 21)?
-                    engine.speak(message, TextToSpeech.QUEUE_FLUSH, null,message):
-                            engine.speak(message, TextToSpeech.QUEUE_FLUSH, null)) ==TextToSpeech.SUCCESS)
-
-
-            {
+            if (ttsWakeLock != null && !ttsWakeLock.isHeld()) ttsWakeLock.acquire(15_000L);
+            int speakResult = (android.os.Build.VERSION.SDK_INT >= 21)
+                    ? engine.speak(message, TextToSpeech.QUEUE_FLUSH, null, message)
+                    : engine.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+            if (speakResult == TextToSpeech.SUCCESS) {
                 if(doLog) {Log.i(LOG_ID,"success speak "+message);}
                 }
              else {
                 Log.e(LOG_ID,"failed speak "+message);
+                if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
                 }
             }
         catch(Throwable th) {
+            if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
             Log.stack(LOG_ID,"speak failed",th);
             }
         }

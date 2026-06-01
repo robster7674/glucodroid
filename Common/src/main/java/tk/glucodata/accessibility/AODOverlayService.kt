@@ -109,46 +109,16 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
                 }
                 Intent.ACTION_SCREEN_ON -> {
                     isScreenOn = true
-                    // Immediately check keyguard state - faster than waiting for USER_PRESENT
                     checkAndUpdateLockState()
-                    // Also schedule quick rechecks to catch unlock faster
-                    scheduleQuickLockCheck()
                 }
                 Intent.ACTION_USER_PRESENT -> {
-                    // User fully unlocked - guaranteed hide
                     isLocked = false
                     updateVisibility()
-                    cancelQuickLockCheck()
                 }
             }
         }
     }
     
-    private val quickLockCheckRunnable = object : Runnable {
-        private var checkCount = 0
-        override fun run() {
-            checkAndUpdateLockState()
-            checkCount++
-            // Keep checking for up to 2 seconds after screen on (20 checks @ 100ms)
-            if (isLocked && checkCount < 20) {
-                handler.postDelayed(this, 100L)
-            } else {
-                checkCount = 0
-            }
-        }
-        fun reset() { checkCount = 0 }
-    }
-    
-    private fun scheduleQuickLockCheck() {
-        quickLockCheckRunnable.reset()
-        handler.removeCallbacks(quickLockCheckRunnable)
-        handler.postDelayed(quickLockCheckRunnable, 100L)
-    }
-    
-    private fun cancelQuickLockCheck() {
-        handler.removeCallbacks(quickLockCheckRunnable)
-    }
-
     private fun resolveDeviceLocked(): Boolean {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as android.app.KeyguardManager
         return keyguardManager.isDeviceLocked || keyguardManager.isKeyguardLocked
@@ -571,7 +541,6 @@ class AODOverlayService : AccessibilityService(), SensorEventListener {
             val packageName = event.packageName?.toString()
             if (isScreenOn && packageName != null && !isLockscreenPackage(packageName)) {
                 isLocked = false
-                cancelQuickLockCheck()
                 updateVisibility()
             } else {
                 checkAndUpdateLockState()
