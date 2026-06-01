@@ -1,0 +1,45 @@
+Categories:
+  - Health & Fitness
+
+License: GPL-3.0-only
+AuthorName: Rob
+SourceCode: https://github.com/robster7674/glucodroid
+IssueTracker: https://github.com/robster7674/glucodroid/issues
+Changelog: https://github.com/robster7674/glucodroid/releases
+
+Name: GlucoDroid
+Summary: CGM relay and display for FreeStyle Libre & Dexcom
+Description: |-
+  GlucoDroid is an open-source continuous glucose monitor (CGM) companion app
+  supporting FreeStyle Libre 2/3 and Dexcom sensors. It reads glucose values
+  directly from the sensor and can relay them via glucodroid.cloud to caregivers,
+  Nightscout, and other integrations.
+
+  This is a community fork of JugglucoNG, rebranded for the glucodroid.cloud
+  infrastructure. The cloud relay is free to use. GlucoDroid is not a medical
+  device and is not intended for treatment decisions.
+
+  Features:
+  * Direct Bluetooth reading from Libre 2/3 and Dexcom sensors
+  * Glucose alarms with configurable thresholds
+  * WearOS companion support
+  * Nightscout / glucodroid.cloud relay
+  * No ads, no tracking, no data sold
+
+AntiFeatures:
+  NonFreeNet:
+    en-US: The default relay backend (glucodroid.cloud) runs proprietary server
+      software while it undergoes security hardening. A self-hosted open-source
+      backend is planned. The app works without the relay for local display only.
+
+RepoType: git
+Repo: https://github.com/robster7674/glucodroid
+
+# We distribute pre-built signed APKs rather than building from source.
+# F-Droid builds: omitted — handled by the custom repo workflow.
+Builds: []
+
+AutoUpdateMode: None
+UpdateCheckMode: None
+CurrentVersion: 0.2.2-Alpha
+CurrentVersionCode: 822

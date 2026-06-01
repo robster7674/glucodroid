@@ -1,0 +1,21 @@
+repo_url: "https://robster7674.github.io/glucodroid/fdroid-repo/repo"
+repo_name: "GlucoDroid"
+repo_description: |-
+  GlucoDroid — open-source CGM relay and display for FreeStyle Libre 2/3 and Dexcom.
+  Community-maintained fork. Requires glucodroid.cloud or a compatible Nightscout relay.
+
+# Separate keystore used only to sign the F-Droid index (not the APK itself).
+# Generate once: keytool -genkey -v -keystore keystore.jks -alias glucodroid-fdroid
+#   -keyalg RSA -keysize 4096 -validity 10000
+# Then base64-encode and store as FDROID_KEYSTORE_B64 secret in GitHub.
+keystore: "keystore.jks"
+repo_keyalias: "glucodroid-fdroid"
+keystorepass: "{{FDROID_KEYSTORE_PASS}}"
+keypass: "{{FDROID_KEYSTORE_PASS}}"
+keydname: "CN=GlucoDroid F-Droid Repo, O=GlucoDroid, C=NL"
+
+# Do not build from source — we host pre-signed release APKs.
+build_server_always: false
+
+# Keep last 3 versions in the archive.
+archive_older: 3

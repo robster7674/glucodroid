@@ -1,0 +1,84 @@
+name: Update F-Droid Repository
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v0.2.0-alpha)"
+        required: true
+
+jobs:
+  update-fdroid:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source (for config and metadata)
+        uses: actions/checkout@v4
+        with:
+          path: src
+
+      - name: Checkout fdroid-repo branch
+        uses: actions/checkout@v4
+        with:
+          ref: fdroid-repo
+          path: fdroid-repo
+          fetch-depth: 0
+
+      - name: Install fdroidserver
+        run: pip3 install fdroidserver
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download APK from release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p fdroid-repo/repo
+          gh release download "${{ steps.tag.outputs.tag }}" \
+            --pattern "glucodroid.apk" \
+            --dir fdroid-repo/repo \
+            --repo ${{ github.repository }}
+
+      - name: Restore repo signing keystore
+        run: |
+          echo "${{ secrets.FDROID_KEYSTORE_B64 }}" | base64 -d > fdroid-repo/keystore.jks
+
+      - name: Copy F-Droid config and metadata
+        run: |
+          cp src/fdroid/config.yml fdroid-repo/config.yml
+          # Inject keystore password from secret
+          sed -i "s|{{FDROID_KEYSTORE_PASS}}|${{ secrets.FDROID_KEYSTORE_PASS }}|g" fdroid-repo/config.yml
+          mkdir -p fdroid-repo/metadata
+          cp src/fdroid/metadata/cloud.glucodroid.yml fdroid-repo/metadata/
+
+      - name: Generate F-Droid index
+        working-directory: fdroid-repo
+        run: fdroid update --create-metadata --verbose
+
+      - name: Clean up keystore from working tree
+        if: always()
+        run: rm -f fdroid-repo/keystore.jks fdroid-repo/config.yml
+
+      - name: Commit and push updated repo
+        working-directory: fdroid-repo
+        run: |
+          git config user.name "F-Droid Bot"
+          git config user.email "noreply@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "fdroid: publish ${{ steps.tag.outputs.tag }}"
+            git push origin fdroid-repo
+          fi
