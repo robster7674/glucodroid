@@ -898,11 +898,7 @@ private static View makeConfigView(MainActivity context, boolean overlayMode, Ru
         });
     test.setOnClickListener(v->  {
         var current = CurrentDisplaySource.resolveCurrent(Notify.glucosetimeout);
-<<<<<<< HEAD
         var say=current!=null?current.getSpeechPrimaryStr():context.getString(R.string.tts_missed_readings);
-=======
-        var say=(current!=null&&current.getPrimaryStr()!=null)?current.getPrimaryStr():context.getString(R.string.tts_missed_readings);
->>>>>>> 23c5126e (fix: speak 'Missed readings' when TTS reading is stale)
         getvalues.run();
         if(istalking()) {
             var talk=SuperGattCallback.talker;
