@@ -133,13 +133,13 @@ flavorDimensions = ['wearos','libreVersion','SiBionics', 'DexCom','Google']
         nogoogle {
             dimension 'Google'
             versionNameSuffix '-nog'
-            minSdk 23
-            minSdkVersion 23
+            minSdk MINSDK
+            minSdkVersion MINSDK
             //targetSdk 28
             targetSdk  TARGETSDK
             buildConfigField 'int', 'targetSDK', "$targetSdk"
             manifestPlaceholders["targetSDK"] = "$targetSdk"
-            buildConfigField 'int', 'minSDK', "23"
+            buildConfigField 'int', 'minSDK', "$minSdk"
             buildConfigField 'int', 'Google', '0'
             buildConfigField 'int', 'noZXing', '0'
              manifestPlaceholders["debuggable"] = "true"
