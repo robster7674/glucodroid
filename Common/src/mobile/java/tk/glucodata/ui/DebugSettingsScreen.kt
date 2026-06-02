@@ -97,17 +97,19 @@ fun DebugSettingsScreen(navController: NavController) {
         return File(context.filesDir, name)
     }
 
-    fun sanitizedContent(): String = LogSanitizer.sanitize(
-        try { logFile().readText() } catch (e: Exception) { logContent }
-    )
-
-    // Save to file (sanitized)
+    // Save to file (sanitized, streaming — avoids OOM on large logs)
     val saveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
         uri?.let { targetUri ->
             coroutineScope.launch(Dispatchers.IO) {
                 try {
-                    val sanitized = sanitizedContent()
-                    context.contentResolver.openOutputStream(targetUri)?.use { it.writer().use { w -> w.write(sanitized) } }
+                    context.contentResolver.openOutputStream(targetUri)?.use { out ->
+                        val file = logFile()
+                        if (file.exists()) {
+                            file.inputStream().use { LogSanitizer.sanitizeTo(it, out) }
+                        } else {
+                            out.writer().use { it.write(logContent) }
+                        }
+                    }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) { logContent += "\n[Error saving file: ${e.message}]" }
                 }
@@ -142,10 +144,16 @@ fun DebugSettingsScreen(navController: NavController) {
                     IconButton(onClick = {
                         coroutineScope.launch(Dispatchers.IO) {
                             try {
-                                val sanitized = sanitizedContent()
                                 val exportDir = File(context.cacheDir, "exports").also { it.mkdirs() }
                                 val exportFile = File(exportDir, if (logType == LogType.TRACE) "trace.log" else "logcat.txt")
-                                exportFile.writeText(sanitized)
+                                val file = logFile()
+                                if (file.exists()) {
+                                    exportFile.outputStream().use { out ->
+                                        file.inputStream().use { LogSanitizer.sanitizeTo(it, out) }
+                                    }
+                                } else {
+                                    exportFile.writeText(logContent)
+                                }
                                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", exportFile)
                                 val intent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"

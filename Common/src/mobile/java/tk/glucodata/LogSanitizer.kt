@@ -1,5 +1,8 @@
 package tk.glucodata
 
+import java.io.InputStream
+import java.io.OutputStream
+
 object LogSanitizer {
 
     // Bluetooth MAC address: 6 hex pairs separated by colons
@@ -41,5 +44,18 @@ object LogSanitizer {
             "$keyword=[ID:$hash]"
         }
         return text
+    }
+
+    // Streaming variant: sanitizes input line-by-line into output.
+    // Caller owns the output stream; this method flushes but does not close it.
+    fun sanitizeTo(input: InputStream, output: OutputStream) {
+        input.bufferedReader().use { reader ->
+            val writer = output.bufferedWriter()
+            reader.lineSequence().forEach { line ->
+                writer.write(sanitize(line))
+                writer.newLine()
+            }
+            writer.flush()
+        }
     }
 }
