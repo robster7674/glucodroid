@@ -43,7 +43,8 @@ Build command:
 
 The APK will be under `Common/build/outputs/apk/`.
 
-Use the `nogoogle` flavour (not `google`): it sets minSdk 21, omits the
+Use the `nogoogle` flavour (not `google`): it sets minSdk 23 (raised from 21
+in 1.0.0-Alpha due to work-runtime-ktx dependency), omits the
 `requireWatch` manifest flag, and is the correct variant for F-Droid and
 other non-Play-Store distribution channels.
 
