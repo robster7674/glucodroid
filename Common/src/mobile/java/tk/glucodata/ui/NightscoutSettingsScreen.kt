@@ -557,7 +557,7 @@ fun NightscoutSettingsScreen(navController: NavController) {
                             },
                             icon = Icons.Default.Link,
                             iconTint = MaterialTheme.colorScheme.secondary,
-                            enabled = isActive,
+                            enabled = mode != NightscoutMode.OFF,
                             position = CardPosition.MIDDLE
                         )
                         SettingsSwitchItem(
