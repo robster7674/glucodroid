@@ -482,6 +482,18 @@ if(!DontTalk) {
                 doTurnFocuson() ;
             }
 
+        @Override
+        public void onStop(String utteranceId, boolean interrupted) {
+            if(doLog) {Log.i(LOG_ID,"onStop "+utteranceId+" interrupted="+interrupted);};
+            if(!notifyfocus)
+                doTurnFocusoff();
+            if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
+            if ("voice_preview".equals(utteranceId)) {
+                var cb = previewDoneCallback;
+                if (cb != null) Applic.RunOnUiThread(cb);
+            }
+        }
+
     });
     if(doLog) {Log.i(LOG_ID,"after new TextToSpeech");};
     if(android.os.Build.VERSION.SDK_INT >= minandroid)
