@@ -1,0 +1,315 @@
+name: Static Analysis & Race Detection
+
+on:
+  push:
+    branches: [glucodroid]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [glucodroid]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+  schedule:
+    # Run nightly at 3 AM UTC (offset from UX QA at 2 AM)
+    - cron: '0 3 * * *'
+
+env:
+  GRADLE_OPTS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # ── 1. Android Lint ──────────────────────────────────────────────────────────
+  lint:
+    name: Android Lint (nogoogle release)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Run lint
+        run: |
+          ./gradlew :Common:lintMobileLibre3SiDexNogoogleRelease \
+            --no-daemon --warning-mode=all
+        # abortOnError is false in build.gradle so this always exits 0;
+        # we parse severity ourselves below.
+
+      - name: Summarise lint results
+        if: always()
+        run: |
+          XML=$(find Common/build/reports -name "lint-results-mobileLibre3SiDexNogoogleRelease.xml" | head -1)
+          if [[ -z "$XML" ]]; then
+            echo "No lint XML found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          python3 - "$XML" << 'PYEOF'
+          import xml.etree.ElementTree as ET, sys, os, collections
+
+          tree  = ET.parse(sys.argv[1])
+          issues = tree.getroot().findall("issue")
+
+          by_sev = collections.defaultdict(list)
+          for iss in issues:
+              by_sev[iss.get("severity","?")].append(iss)
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY","")
+          lines = ["## Android Lint Results\n"]
+          lines.append(f"| Severity | Count |")
+          lines.append(f"|---|---|")
+          for sev in ("Error","Warning","Information","Hint"):
+              if sev in by_sev:
+                  lines.append(f"| {sev} | {len(by_sev[sev])} |")
+          lines.append("")
+
+          # Thread-safety focused categories
+          RACE_CATS = {"VisibleForTests","WrongThread","NotThreadSafe",
+                       "SynchronizedOrAtomicFieldUpdater","ThreadSafe"}
+          race_hits = [i for i in issues if i.get("id","") in RACE_CATS]
+          if race_hits:
+              lines.append("### Thread-Safety Findings\n")
+              for iss in race_hits[:30]:
+                  loc  = iss.find("location")
+                  f    = os.path.basename(loc.get("file","?")) if loc is not None else "?"
+                  l    = loc.get("line","?") if loc is not None else "?"
+                  msg  = iss.get("message","")[:160]
+                  sev  = iss.get("severity","?")
+                  lines.append(f"- **[{sev}]** `{f}:{l}` — {msg}")
+              if len(race_hits) > 30:
+                  lines.append(f"- … and {len(race_hits)-30} more")
+              lines.append("")
+
+          # Top-10 error categories
+          errors = by_sev.get("Error",[])
+          if errors:
+              lines.append("### Errors (top categories)\n")
+              cat_counts = collections.Counter(i.get("category","?") for i in errors)
+              for cat, cnt in cat_counts.most_common(10):
+                  lines.append(f"- **{cat}**: {cnt}")
+              lines.append("")
+
+          if summary:
+              with open(summary, "a") as fh:
+                  fh.write("\n".join(lines) + "\n")
+          else:
+              print("\n".join(lines))
+
+          # Exit 1 if any Error-severity issues exist
+          if by_sev.get("Error"):
+              print(f"::error::{len(by_sev['Error'])} lint error(s) found — see report artifact")
+              sys.exit(1)
+          PYEOF
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            Common/build/reports/lint-results-mobileLibre3SiDexNogoogleRelease.xml
+            Common/build/reports/lint-results-mobileLibre3SiDexNogoogleRelease.html
+          retention-days: 30
+
+  # ── 2. Race / Thread-Safety Detection ────────────────────────────────────────
+  race-detection:
+    name: Race & Thread-Safety Detection (API ${{ matrix.api-level }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      matrix:
+        api-level: [31, 34]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-race-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
+      - name: Build debug + test APKs (nogoogle)
+        run: |
+          ./gradlew \
+            :Common:assembleMobileLibre3SiDexNogoogleDebug \
+            :Common:assembleMobileLibre3SiDexNogoogleDebugAndroidTest \
+            --no-daemon --warning-mode=all \
+            -Pno_x86 -Pno_x86_64
+
+      - name: Run on emulator — capture thread violations
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          profile: Nexus 6P
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          disk-size: 6000M
+          heap-size: 512M
+          script: |
+            set -euo pipefail
+
+            APP_APK=$(find Common/build/outputs/apk/mobileLibre3SiDexNogoogle/debug \
+                        -name "*.apk" ! -name "*-unsigned*" | head -1)
+            TEST_APK=$(find Common/build/outputs/apk/androidTest/mobileLibre3SiDexNogoogle/debug \
+                         -name "*.apk" | head -1)
+
+            echo "App APK:  $APP_APK"
+            echo "Test APK: $TEST_APK"
+
+            # Reset battery stats before the run
+            adb shell dumpsys batterystats --reset || true
+
+            adb logcat -c
+            adb install -r -t "$APP_APK"
+
+            if [[ -n "$TEST_APK" ]]; then
+              adb install -r -t "$TEST_APK"
+              # Run smoke-size instrumented tests; capture full output
+              adb shell am instrument -w \
+                -e size small \
+                "cloud.glucodroid.debug.test/androidx.test.runner.AndroidJUnitRunner" \
+                2>&1 | tee instrumentation.log || true
+            fi
+
+            # Launch app and let it run for 30 seconds to surface any startup races
+            adb shell monkey -p cloud.glucodroid.debug \
+              -c android.intent.category.LAUNCHER 1 || true
+            sleep 30
+
+            adb logcat -d > logcat-full.log
+
+            # Dump batterystats for wakelock analysis
+            adb shell dumpsys batterystats > batterystats.txt || true
+
+      - name: Analyse logcat for race / thread violations
+        if: always()
+        run: |
+          python3 - << 'PYEOF'
+          import re, sys, os
+
+          logcat = open("logcat-full.log").read() if os.path.exists("logcat-full.log") else ""
+          instr  = open("instrumentation.log").read() if os.path.exists("instrumentation.log") else ""
+
+          PATTERNS = {
+              "StrictMode violation":          r"StrictMode policy violation",
+              "CalledFromWrongThread":          r"CalledFromWrongThreadException",
+              "ConcurrentModification":         r"ConcurrentModificationException",
+              "DeadObjectException":            r"DeadObjectException",
+              "Main-thread IO":                 r"StrictMode.*disk (read|write)",
+              "ANR":                            r"Input dispatching timed out|ANR in",
+              "Looper not prepared":            r"Can.t create handler inside thread.*Looper.prepare",
+              "IllegalStateException (thread)": r"IllegalStateException.*thread|thread.*IllegalStateException",
+              "Test failure":                   r"FAILURES!!|FAILED \(",
+          }
+
+          findings = {}
+          for label, pattern in PATTERNS.items():
+              hits = re.findall(f"(?m)^.*{pattern}.*$", logcat + "\n" + instr)
+              if hits:
+                  findings[label] = hits
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY","")
+          lines = [f"## Race & Thread-Safety Scan — API ${{ matrix.api-level }}\n"]
+
+          if findings:
+              lines.append(f"**{len(findings)} category(ies) with findings:**\n")
+              for label, hits in findings.items():
+                  lines.append(f"### {label} ({len(hits)} occurrence(s))")
+                  for h in hits[:5]:
+                      lines.append(f"```\n{h.strip()[:200]}\n```")
+                  if len(hits) > 5:
+                      lines.append(f"*… and {len(hits)-5} more — see logcat artifact*")
+                  lines.append("")
+          else:
+              lines.append("No thread-safety violations or race indicators detected.\n")
+
+          # Note about StrictMode being commented out in Applic.java
+          lines.append("> **Note:** `StrictMode` is commented out in `Applic.java:792`.")
+          lines.append("> Uncommenting `startstrictmode()` would surface additional violations here.\n")
+
+          output = "\n".join(lines)
+          if summary_path:
+              with open(summary_path, "a") as fh:
+                  fh.write(output + "\n")
+          print(output)
+
+          if findings:
+              critical = {k for k in findings if k not in ("Test failure",)}
+              if critical:
+                  print(f"::warning::Thread-safety findings in {len(critical)} category(ies) — see step summary")
+          PYEOF
+
+      - name: Upload race-detection artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: race-detection-api${{ matrix.api-level }}
+          path: |
+            logcat-full.log
+            instrumentation.log
+            batterystats.txt
+          retention-days: 14
+
+  # ── 3. Gate ───────────────────────────────────────────────────────────────────
+  analysis-gate:
+    name: Analysis Gate
+    runs-on: ubuntu-latest
+    needs: [lint, race-detection]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          lint="${{ needs.lint.result }}"
+          race="${{ needs.race-detection.result }}"
+
+          echo "Lint:           $lint"
+          echo "Race detection: $race"
+
+          # Race detection uses ::warning:: not exit 1, so failures here are
+          # genuine infrastructure problems, not finding warnings.
+          for r in "$lint" "$race"; do
+            if [[ "$r" == "failure" ]]; then
+              echo "One or more analysis jobs failed — check artifacts and step summaries."
+              exit 1
+            fi
+          done
+          echo "All analysis jobs completed."
