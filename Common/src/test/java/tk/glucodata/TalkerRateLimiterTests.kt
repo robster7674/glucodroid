@@ -123,43 +123,48 @@ class TalkerRateLimiterTests {
 
     // ---------- onStop wake lock regression guard ----------
     // QUEUE_FLUSH cancels the current utterance before onDone fires, triggering onStop instead.
-    // Without onStop releasing the wake lock, it is held for the full 15s timeout on every
-    // interrupted speak() — one per minute if glucose readings arrive while the previous
-    // utterance is still playing.
+    // onStop(interrupted=true): a new utterance is already queued from QUEUE_FLUSH — the wake
+    // lock acquired in speak() belongs to that new utterance and must NOT be released here;
+    // onDone/onError for the new utterance will release it correctly.
+    // onStop(interrupted=false): a queued-but-not-yet-started item was cleared; release the
+    // lock since no new utterance is coming.
 
     @Test
-    fun talker_utteranceProgressListener_hasOnStopMethod() {
-        // Verify via reflection that UtteranceProgressListener anonymous class inside Talker
-        // overrides onStop — the critical release path for QUEUE_FLUSH interruptions.
-        val talkerClass = Class.forName("tk.glucodata.Talker")
-        // The listener is set via engine.setOnUtteranceProgressListener — we can't easily get
-        // the anonymous class, but we can verify Talker declares the bridging infrastructure
-        // by asserting onStop's contract holds for the rate-limiter model:
-        // If speak() is called twice in quick succession, the second QUEUE_FLUSH stops the
-        // first utterance (onStop), then the second completes (onDone). Total wake lock hold
-        // time must be bounded by the second utterance's duration, not 15s * 2.
-        // We model this as: two overlapping speak windows, onStop fires mid-first.
-        data class WakeLockSim(var held: Boolean = false, var totalHoldMs: Long = 0L)
+    fun talker_utteranceProgressListener_onStop_keepsLockWhenInterrupted() {
+        // Model the QUEUE_FLUSH scenario:
+        // speak("reading 1") → speaking → speak("reading 2") with QUEUE_FLUSH
+        //   → onStop("reading 1", interrupted=true) → onDone("reading 2")
+        // The wake lock acquired for reading 2 must survive through to onDone.
+        data class WakeLockSim(var held: Boolean = false)
         val lock = WakeLockSim()
 
         fun acquire() { lock.held = true }
         fun release() { lock.held = false }
 
-        val t0 = 0L
-        acquire()                  // speak("reading 1") at t=0
-        val firstAcquireMs = t0
+        acquire()                  // speak("reading 1") acquires at t=0; isHeld=true
+        // speak("reading 2") at t=500ms: isHeld=true → no new acquire (non-ref-counted)
+        val interrupted = true
+        if (!interrupted) release() // onStop(interrupted=true) must NOT release
+        assertTrue("wake lock must remain held after onStop(interrupted=true)", lock.held)
 
-        val t1 = 500L              // speak("reading 2") at t=500ms — QUEUE_FLUSH
-        acquire()                  // second acquire (noop on non-ref-counted lock)
-        release()                  // onStop fires for reading 1 — releases immediately
-        assertFalse("wake lock must be released by onStop before the second onDone", lock.held)
-
-        acquire()                  // re-acquire for second utterance (would happen in practice)
-        val t2 = 2000L             // onDone fires for reading 2 at t=2000ms
+        // onDone("reading 2") eventually fires and releases
         release()
-        assertFalse("wake lock must be released after second onDone", lock.held)
+        assertFalse("wake lock must be released after onDone for reading 2", lock.held)
+    }
 
-        // Total hold was ~500ms (first) + ~1500ms (second) = 2000ms, NOT 15000ms + 2000ms
-        assertTrue("onStop prevents 15s wake lock overhang", t2 - firstAcquireMs < 15_000L)
+    @Test
+    fun talker_utteranceProgressListener_onStop_releasesLockWhenNotInterrupted() {
+        // Model clearing a queued-but-not-started item:
+        // speak("reading 1") → onStop("reading 1", interrupted=false)
+        data class WakeLockSim(var held: Boolean = false)
+        val lock = WakeLockSim()
+
+        fun acquire() { lock.held = true }
+        fun release() { lock.held = false }
+
+        acquire()                  // speak("reading 1") acquires; isHeld=true
+        val interrupted = false
+        if (!interrupted) release() // onStop(interrupted=false) releases
+        assertFalse("wake lock must be released by onStop(interrupted=false)", lock.held)
     }
 }

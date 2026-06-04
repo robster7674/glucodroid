@@ -487,7 +487,11 @@ if(!DontTalk) {
             if(doLog) {Log.i(LOG_ID,"onStop "+utteranceId+" interrupted="+interrupted);};
             if(!notifyfocus)
                 doTurnFocusoff();
-            if (ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
+            // Only release the wake lock when the utterance was queued but never started
+            // (interrupted=false). When interrupted=true a new utterance from QUEUE_FLUSH
+            // is already in-flight; the wake lock acquired in speak() belongs to it and
+            // must not be dropped here — onDone/onError will release it.
+            if (!interrupted && ttsWakeLock != null && ttsWakeLock.isHeld()) ttsWakeLock.release();
             if ("voice_preview".equals(utteranceId)) {
                 var cb = previewDoneCallback;
                 if (cb != null) Applic.RunOnUiThread(cb);
@@ -570,7 +574,7 @@ if(!DontTalk) {
          }
          }
     }
-static long nexttime=0L;
+volatile static long nexttime=0L;
 void selspeak(String message) {
     if(!DontTalk) {
         var now=System.currentTimeMillis();
