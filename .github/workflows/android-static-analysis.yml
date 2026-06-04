@@ -288,11 +288,84 @@ jobs:
             batterystats.txt
           retention-days: 14
 
-  # ── 3. Gate ───────────────────────────────────────────────────────────────────
+  # ── 3. Redroid Kernel Probe (ARM64 runner) ───────────────────────────────────
+  # Checks whether GitHub's ubuntu-24.04-arm runners expose the binder and
+  # ashmem kernel modules required to run Redroid natively (no QEMU layer).
+  # This job never fails CI — it only reports findings so we know whether
+  # a Redroid-on-Actions path is viable.
+  redroid-kernel-probe:
+    name: Redroid Kernel Probe (ARM64)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 5
+    continue-on-error: true
+
+    steps:
+      - name: Check kernel modules and Docker capabilities
+        run: |
+          echo "## Redroid Kernel Probe — \$(uname -r) [\$(uname -m)]" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          check() {
+            local label="$1" result="$2" detail="$3"
+            if [[ "$result" == "ok" ]]; then
+              echo "| ✅ | $label | \`$detail\` |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "| ❌ | $label | $detail |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          }
+
+          echo "| | Check | Detail |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+
+          # binder
+          binder=$(grep binder /proc/filesystems 2>/dev/null | awk '{print $2}')
+          [[ -n "$binder" ]] && check "binder in /proc/filesystems" ok "$binder" \
+                             || check "binder in /proc/filesystems" fail "not found"
+
+          # ashmem
+          ashmem=$(grep ashmem /proc/misc 2>/dev/null | awk '{print $2}')
+          [[ -n "$ashmem" ]] && check "ashmem in /proc/misc" ok "$ashmem" \
+                             || check "ashmem in /proc/misc" fail "not found"
+
+          # /dev/binder device node
+          [[ -e /dev/binder ]] \
+            && check "/dev/binder device node" ok "$(ls -l /dev/binder)" \
+            || check "/dev/binder device node" fail "not present"
+
+          # /dev/ashmem device node
+          [[ -e /dev/ashmem ]] \
+            && check "/dev/ashmem device node" ok "$(ls -l /dev/ashmem)" \
+            || check "/dev/ashmem device node" fail "not present"
+
+          # modprobe availability (can we load modules?)
+          modprobe_out=$(modprobe binder_linux 2>&1 || true)
+          [[ -z "$modprobe_out" || "$modprobe_out" == *"already loaded"* ]] \
+            && check "modprobe binder_linux" ok "loaded or already present" \
+            || check "modprobe binder_linux" fail "$modprobe_out"
+
+          # Docker privileged mode (required by Redroid)
+          docker_ok=$(docker run --rm --privileged alpine uname -m 2>/dev/null || echo "failed")
+          [[ "$docker_ok" == "aarch64" ]] \
+            && check "Docker privileged containers" ok "aarch64 confirmed" \
+            || check "Docker privileged containers" fail "$docker_ok"
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Kernel:** \$(uname -r)  " >> "$GITHUB_STEP_SUMMARY"
+          echo "**Arch:** \$(uname -m)" >> "$GITHUB_STEP_SUMMARY"
+
+          # Print raw details to the log for debugging
+          echo "=== /proc/filesystems (android-related) ==="
+          grep -E "binder|ashmem" /proc/filesystems /proc/misc 2>/dev/null || echo "(none)"
+          echo "=== /dev entries ==="
+          ls -l /dev/binder /dev/ashmem 2>/dev/null || echo "(none)"
+          echo "=== kernel modules ==="
+          lsmod 2>/dev/null | grep -E "binder|ashmem" || echo "(none loaded)"
+
+  # ── 4. Gate ───────────────────────────────────────────────────────────────────
   analysis-gate:
     name: Analysis Gate
     runs-on: ubuntu-latest
-    needs: [lint, race-detection]
+    needs: [lint, race-detection, redroid-kernel-probe]
     if: always()
 
     steps:
@@ -300,12 +373,15 @@ jobs:
         run: |
           lint="${{ needs.lint.result }}"
           race="${{ needs.race-detection.result }}"
+          probe="${{ needs.redroid-kernel-probe.result }}"
 
-          echo "Lint:           $lint"
-          echo "Race detection: $race"
+          echo "Lint:                $lint"
+          echo "Race detection:      $race"
+          echo "Redroid kernel probe: $probe (informational only)"
 
           # Race detection uses ::warning:: not exit 1, so failures here are
           # genuine infrastructure problems, not finding warnings.
+          # Probe is continue-on-error so it never blocks the gate.
           for r in "$lint" "$race"; do
             if [[ "$r" == "failure" ]]; then
               echo "One or more analysis jobs failed — check artifacts and step summaries."
