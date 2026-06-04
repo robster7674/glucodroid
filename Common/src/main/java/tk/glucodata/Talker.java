@@ -255,7 +255,6 @@ public static void applyComposeSettings(Context context, boolean speakGlucose, b
     curspeed=speed;
     curpitch=pitch;
     cursep=Math.max(1,separationSeconds)*1000L;
-    nexttime=System.currentTimeMillis()+cursep;
     if(selectedVoice>=0)
         voicepos=selectedVoice;
 
@@ -873,8 +872,6 @@ private static View makeConfigView(MainActivity context, boolean overlayMode, Ru
              var str = separation.getText().toString();
             if(str != null) {
                 cursep = Integer.parseInt(str)*1000L;
-                var now=System.currentTimeMillis();
-                nexttime=now+cursep;
                 }
             var speedstr=((EditText)speeds[1]).getText().toString();
             if(speedstr != null) {
