@@ -184,7 +184,7 @@ jobs:
           disk-size: 6000M
           heap-size: 512M
           script: |
-            set -euo pipefail
+            set -eu
 
             APP_APK=$(find Common/build/outputs/apk/mobileLibre3SiDexNogoogle/debug \
                         -name "*.apk" ! -name "*-unsigned*" | head -1)
