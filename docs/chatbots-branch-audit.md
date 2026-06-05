@@ -204,11 +204,19 @@ NAS). GlucoDroid stays a thin client:
 
 - No code changes.
 - `chatbots` branch created off `glucodroid` and pushed to origin.
-- This audit document is the only commit.
-- Next step depends on Rob's direction:
-  - (a) Implement `delta_chat_relay` preset (option B, side 1)
-    in this branch.
-  - (b) Stand up a relay service in a new repo first, then come
-    back and wire the preset.
-  - (c) Explore an upstream-pushed, in-process Delta Chat core for
-    Android — multi-week scope, separate branch.
+- `docs/outbound-api.md` is the canonical architecture & extension
+  guide for the OutboundApi framework.
+- This audit document is the only other commit on the branch.
+
+## 4. Direction (decided 2026-06-05)
+
+- **v1 (this branch):** outbound-only `delta_chat_relay` preset, parity
+  with Telegram. Pure notification fan-out — no inbound commands.
+  The relay does the SMTP+PGP+Autocrypt heavy lifting; GlucoDroid just
+  POSTs JSON. Concretely: ~50 lines in `OutboundApiSettings.kt` for
+  constant/defaults/validation, ~30 lines in `OutboundApi.kt` for the
+  send branch, one `PresetSpec` entry, and string resources. Full diff
+  recipe in `docs/outbound-api.md` §7.
+- **v2 (future branch, not yet):** bidirectional — `current`, `graph`,
+  `iob`, etc. Lives outside the `OutboundApi` plumbing since it
+  needs a long-poll / push listener and a foreground service.
