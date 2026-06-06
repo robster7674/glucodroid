@@ -491,7 +491,12 @@ object OutboundApi {
         val json: JSONObject? = null
     )
 
-    internal fun renderMessage(template: String, reading: Reading): String {
+    internal fun renderMessage(
+        template: String,
+        reading: Reading,
+        destination: OutboundApiSettings.Destination? = null,
+        status: String? = null
+    ): String {
         val time = DateFormat.getDateTimeInstance(
             DateFormat.SHORT,
             DateFormat.SHORT,
@@ -508,6 +513,10 @@ object OutboundApi {
         }
         val effectiveIob = journal.iob.takeIf { it.isFinite() } ?: reading.iob
         val journalEvents = journalEventsJsonArray(journal)
+        val effectiveStatus = status
+            ?: destination?.rangeStatus(reading.mgdl)
+            ?: OutboundApiSettings.TUNNEL_STATUS_IN_RANGE
+        val statusEmojiValue = statusEmoji(effectiveStatus)
         return template
             .replace("{event_id}", reading.eventId)
             .replace("{recipient}", reading.recipient)
@@ -546,6 +555,16 @@ object OutboundApi {
             .replace("{journal_events}", journalEvents?.toString().orEmpty())
             .replace("{journal}", journal.json?.toString().orEmpty())
             .replace("{test}", reading.test.toString())
+            .replace("{status}", effectiveStatus)
+            .replace("{status_emoji}", statusEmojiValue)
+    }
+
+    internal fun statusEmoji(status: String): String = when (status) {
+        OutboundApiSettings.TUNNEL_STATUS_HIGH -> "\uD83D\uDFE1"      // 🟡
+        OutboundApiSettings.TUNNEL_STATUS_LOW -> "\uD83D\uDD34"       // 🔴
+        OutboundApiSettings.TUNNEL_STATUS_STALE -> "\u26A0\uFE0F"     // ⚠️
+        OutboundApiSettings.TUNNEL_STATUS_MISSED -> "\u26AA"          // ⚪
+        else -> "\uD83D\uDFE2"                                        // 🟢
     }
 
     internal fun formatNumber(value: Float, decimals: Int): String {
@@ -635,9 +654,25 @@ class OutboundApiWorker(
             val reading = OutboundApi.inputToReading(inputData) ?: return Result.success()
 
             return try {
-                val response = send(destination, reading)
+                val response = send(context, destination, reading)
                 if (response.ok) {
                     OutboundApiSettings.recordSuccess(context, destination.id, response.code)
+                    if (!response.suppressed) {
+                        OutboundApiSettings.recordBubbleSent(
+                            context = context.applicationContext,
+                            destinationId = destination.id,
+                            recipient = reading.recipient,
+                            messageId = response.messageId,
+                            sentAtMs = System.currentTimeMillis(),
+                            mgdl = reading.mgdl
+                        )
+                        TelegramStaleCheckWork.schedule(
+                            context = context.applicationContext,
+                            destinationId = destination.id,
+                            delayMs = (destination.staleThresholdMinutes.coerceIn(1, 120) * 60_000L) +
+                                OutboundApiSettings.STALE_CHECK_SLACK_MS
+                        )
+                    }
                     Result.success()
                 } else {
                     OutboundApiSettings.recordAttempt(context, destination.id, response.code, response.error)
@@ -658,7 +693,9 @@ class OutboundApiWorker(
             val code: Int,
             val ok: Boolean,
             val retryable: Boolean,
-            val error: String?
+            val error: String?,
+            val messageId: Long? = null,
+            val suppressed: Boolean = false
         )
 
         private data class ApiError(
@@ -668,12 +705,17 @@ class OutboundApiWorker(
         )
 
         private fun send(
+            context: Context,
             destination: OutboundApiSettings.Destination,
             reading: OutboundApi.Reading
         ): SendResponse {
-            val message = OutboundApi.renderMessage(destination.resolvedTemplate(), reading)
+            val message = OutboundApi.renderMessage(
+                template = destination.resolvedTemplate(),
+                reading = reading,
+                destination = destination
+            )
             return when (destination.normalizedPreset()) {
-                OutboundApiSettings.PRESET_TELEGRAM_BOT -> sendTelegram(destination, reading, message)
+                OutboundApiSettings.PRESET_TELEGRAM_BOT -> sendTelegram(context, destination, reading, message)
                 OutboundApiSettings.PRESET_GLUCO_WATCH_VK,
                 OutboundApiSettings.PRESET_VK_MESSAGES -> sendVk(destination, reading, message)
                 else -> sendJson(destination, reading, message)
@@ -681,6 +723,52 @@ class OutboundApiWorker(
         }
 
         private fun sendTelegram(
+            context: Context,
+            destination: OutboundApiSettings.Destination,
+            reading: OutboundApi.Reading,
+            message: String
+        ): SendResponse {
+            val now = System.currentTimeMillis()
+            val lastMsgId = destination.lastMessageIdByRecipient[reading.recipient] ?: 0L
+            val lastSentMs = destination.lastSentAtMsByRecipient[reading.recipient] ?: 0L
+            val lastMgdl = destination.lastSentMgdlByRecipient[reading.recipient] ?: 0
+            val windowMs = destination.refreshWindowMinutes.coerceIn(1, 60) * 60_000L
+            val withinWindow = destination.refreshInPlaceEnabled &&
+                lastMsgId > 0L && lastSentMs > 0L &&
+                (now - lastSentMs) <= windowMs
+            val suppressThreshold = destination.suppressDeltaBelowMgdl.coerceIn(0, 100)
+            val shouldSuppress = withinWindow && suppressThreshold > 0 &&
+                kotlin.math.abs(reading.mgdl - lastMgdl) < suppressThreshold
+
+            if (shouldSuppress) {
+                return SendResponse(
+                    code = 200,
+                    ok = true,
+                    retryable = false,
+                    error = null,
+                    messageId = lastMsgId,
+                    suppressed = true
+                )
+            }
+            if (withinWindow) {
+                val editResponse = sendTelegramEdit(
+                    destination = destination,
+                    reading = reading,
+                    message = message,
+                    messageId = lastMsgId
+                )
+                if (editResponse.ok) return editResponse
+                // Edit failed (message deleted, etc.) — fall through to a fresh send.
+                OutboundApiSettings.clearRecipientState(
+                    context = context.applicationContext,
+                    destinationId = destination.id,
+                    recipient = reading.recipient
+                )
+            }
+            return sendTelegramSend(destination, reading, message)
+        }
+
+        private fun sendTelegramSend(
             destination: OutboundApiSettings.Destination,
             reading: OutboundApi.Reading,
             message: String
@@ -697,7 +785,34 @@ class OutboundApiWorker(
                 body = body,
                 parseApiError = ::parseTelegramError,
                 connectTimeoutMs = 20_000,
-                readTimeoutMs = 30_000
+                readTimeoutMs = 30_000,
+                parseMessageId = ::parseTelegramMessageId
+            )
+        }
+
+        private fun sendTelegramEdit(
+            destination: OutboundApiSettings.Destination,
+            reading: OutboundApi.Reading,
+            message: String,
+            messageId: Long
+        ): SendResponse {
+            val editUrl = destination.resolvedUrl()
+                .replace(Regex("/sendMessage$"), "/editMessageText")
+            val body = JSONObject()
+                .put("chat_id", reading.recipient)
+                .put("message_id", messageId)
+                .put("text", message)
+                .toString()
+                .toByteArray(Charsets.UTF_8)
+            return executePost(
+                urlString = editUrl,
+                contentType = "application/json; charset=UTF-8",
+                headers = destination.headers,
+                body = body,
+                parseApiError = ::parseTelegramError,
+                connectTimeoutMs = 20_000,
+                readTimeoutMs = 30_000,
+                parseMessageId = ::parseTelegramMessageId
             )
         }
 
@@ -743,7 +858,8 @@ class OutboundApiWorker(
             parseApiError: (String) -> ApiError?,
             connectTimeoutMs: Int = 15_000,
             readTimeoutMs: Int = 30_000,
-            preResponseRetries: Int = 0
+            preResponseRetries: Int = 0,
+            parseMessageId: (String) -> Long? = { null }
         ): SendResponse {
             var lastFailure: Throwable? = null
             repeat(preResponseRetries + 1) { attempt ->
@@ -755,7 +871,8 @@ class OutboundApiWorker(
                         body = body,
                         parseApiError = parseApiError,
                         connectTimeoutMs = connectTimeoutMs,
-                        readTimeoutMs = readTimeoutMs
+                        readTimeoutMs = readTimeoutMs,
+                        parseMessageId = parseMessageId
                     )
                 } catch (th: Throwable) {
                     lastFailure = th
@@ -773,7 +890,8 @@ class OutboundApiWorker(
             body: ByteArray,
             parseApiError: (String) -> ApiError?,
             connectTimeoutMs: Int,
-            readTimeoutMs: Int
+            readTimeoutMs: Int,
+            parseMessageId: (String) -> Long?
         ): SendResponse {
             val connection = (URL(urlString).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -803,11 +921,13 @@ class OutboundApiWorker(
                     )
                 }
                 val ok = code in 200..299
+                val messageId = if (ok) parseMessageId(responseText) else null
                 return SendResponse(
                     code = code,
                     ok = ok,
                     retryable = code == 429 || code >= 500,
-                    error = if (ok) null else responseText.take(500).ifBlank { "HTTP $code" }
+                    error = if (ok) null else responseText.take(500).ifBlank { "HTTP $code" },
+                    messageId = messageId
                 )
             } finally {
                 connection.disconnect()
@@ -946,6 +1066,19 @@ class OutboundApiWorker(
                     code = code,
                     retryable = code == 429 || code == 500 || code == 502 || code == 503
                 )
+            } catch (_: Throwable) {
+                null
+            }
+        }
+
+        private fun parseTelegramMessageId(responseText: String): Long? {
+            if (responseText.isBlank()) return null
+            return try {
+                val root = JSONObject(responseText)
+                if (!root.optBoolean("ok", true)) return null
+                val result = root.optJSONObject("result") ?: return null
+                val id = result.optLong("message_id", 0L)
+                if (id > 0L) id else null
             } catch (_: Throwable) {
                 null
             }

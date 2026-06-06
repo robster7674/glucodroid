@@ -568,6 +568,9 @@ private fun DestinationEditor(
         )
     )
     TriggerPicker(destination = destination, onChange = onChange)
+    if (isTelegram) {
+        BubbleRefreshSection(destination = destination, onChange = onChange)
+    }
     TemplateEditor(destination = destination, onChange = onChange)
 }
 
@@ -725,6 +728,140 @@ private fun TriggerEditorSheet(
                 )
             )
         }
+    }
+}
+
+@Composable
+private fun BubbleRefreshSection(
+    destination: OutboundApiSettings.Destination,
+    onChange: (OutboundApiSettings.Destination) -> Unit
+) {
+    SettingsSubsectionTitle(stringResource(R.string.outbound_api_bubble_title))
+    ToggleRow(
+        title = stringResource(R.string.outbound_api_bubble_refresh_title),
+        subtitle = stringResource(R.string.outbound_api_bubble_refresh_desc),
+        checked = destination.refreshInPlaceEnabled,
+        onCheckedChange = { checked ->
+            onChange(destination.copy(refreshInPlaceEnabled = checked))
+        }
+    )
+    if (destination.refreshInPlaceEnabled) {
+        NumberStepper(
+            label = stringResource(R.string.outbound_api_bubble_refresh_window),
+            value = destination.refreshWindowMinutes,
+            range = 1..60,
+            onChange = { onChange(destination.copy(refreshWindowMinutes = it)) }
+        )
+    }
+    ToggleRow(
+        title = stringResource(R.string.outbound_api_bubble_suppress_title),
+        subtitle = stringResource(R.string.outbound_api_bubble_suppress_desc),
+        checked = destination.suppressDeltaBelowMgdl > 0,
+        onCheckedChange = { checked ->
+            onChange(
+                destination.copy(
+                    suppressDeltaBelowMgdl = if (checked) {
+                        OutboundApiSettings.DEFAULT_SUPPRESS_DELTA_BELOW_MGDL
+                    } else 0
+                )
+            )
+        }
+    )
+    ToggleRow(
+        title = stringResource(R.string.outbound_api_bubble_stale_title),
+        subtitle = stringResource(R.string.outbound_api_bubble_stale_desc),
+        checked = destination.staleEnabled,
+        onCheckedChange = { checked ->
+            onChange(destination.copy(staleEnabled = checked))
+        }
+    )
+    if (destination.staleEnabled) {
+        NumberStepper(
+            label = stringResource(R.string.outbound_api_bubble_stale_threshold),
+            value = destination.staleThresholdMinutes,
+            range = 1..120,
+            onChange = { stale ->
+                val missed = if (destination.missedThresholdMinutes <= stale) stale + 1
+                else destination.missedThresholdMinutes
+                onChange(
+                    destination.copy(
+                        staleThresholdMinutes = stale,
+                        missedThresholdMinutes = missed
+                    )
+                )
+            }
+        )
+        NumberStepper(
+            label = stringResource(R.string.outbound_api_bubble_missed_threshold),
+            value = destination.missedThresholdMinutes,
+            range = (destination.staleThresholdMinutes + 1)..240,
+            onChange = { onChange(destination.copy(missedThresholdMinutes = it)) }
+        )
+    }
+}
+
+@Composable
+private fun ToggleRow(
+    title: String,
+    subtitle: String?,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (!subtitle.isNullOrBlank()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        StyledSwitch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+private fun NumberStepper(
+    label: String,
+    value: Int,
+    range: IntRange,
+    onChange: (Int) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value.toString(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        TextButton(
+            onClick = { onChange((value - 1).coerceAtLeast(range.first)) },
+            enabled = value > range.first
+        ) { Text("−") }
+        TextButton(
+            onClick = { onChange((value + 1).coerceAtMost(range.last)) },
+            enabled = value < range.last
+        ) { Text("+") }
     }
 }
 
@@ -1091,5 +1228,7 @@ private val templateTokens = listOf(
     "{cob}",
     "{journal_cob}",
     "{journal_events}",
-    "{journal}"
+    "{journal}",
+    "{status}",
+    "{status_emoji}"
 )

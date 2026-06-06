@@ -354,8 +354,120 @@ case-insensitively on load.
   single user but is a bottleneck if multiple destinations are
   configured and one is slow.
 - **No "send only on change" beyond min-interval.** Two identical
-  readings 6 minutes apart are sent. Adding a
-  "only on delta ≥ N mg/dL" trigger would help noisy sensors.
+  readings 6 minutes apart are sent. ~~Adding a
+  "only on delta ≥ N mg/dL" trigger would help noisy sensors.~~
+  **Resolved by `suppressDeltaBelowMgdl` — see §9.**
 
 These are tracked in the audit document
 (`docs/chatbots-branch-audit.md`).
+
+---
+
+## 9. Telegram bubble refresh (v0.2.4.4+)
+
+To stop the chat from filling with one-bubble-per-reading noise, the
+Telegram destination supports an "edit in place" model. Each destination
+gets a small bag of per-recipient state (last message id, last sent
+time, last sent mg/dL, last stale time) keyed by recipient chat id, so
+multi-recipient configs don't collide.
+
+### 9.1 Per-destination fields
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `refreshInPlaceEnabled` | `Boolean` | `true` | Master switch. When off, every reading posts a new message (legacy behaviour). |
+| `refreshWindowMinutes` | `Int` | `5` | After this many minutes since the last send, the next reading posts a fresh message instead of editing. 1–60. |
+| `suppressDeltaBelowMgdl` | `Int` | `1` | 0 = never suppress; >0 = skip the edit if `|new_mgdl − last_mgdl| < threshold`. Default 1 ignores sensor noise within 1 mg/dL. |
+| `staleEnabled` | `Boolean` | `true` | Show "Stale" / "Missed reading." in the bubble when no new reading arrives in time. |
+| `staleThresholdMinutes` | `Int` | `10` | After this many minutes of silence, edit the bubble to "⚠️ Stale — waiting for next reading. (HH:mm)". |
+| `missedThresholdMinutes` | `Int` | `15` | After this many minutes of silence, edit the bubble to "⚪ Missed reading. (HH:mm)". Must be > `staleThresholdMinutes`. |
+| `lastMessageIdByRecipient` | `Map<String, Long>` | `{}` | Per-recipient last Telegram `message_id`, used as the `message_id` for `editMessageText`. |
+| `lastSentAtMsByRecipient` | `Map<String, Long>` | `{}` | Per-recipient timestamp of the last successful send. |
+| `lastSentMgdlByRecipient` | `Map<String, Int>` | `{}` | Per-recipient last sent mg/dL (for delta suppression). |
+| `lastStaleAtMsByRecipient` | `Map<String, Long>` | `{}` | Per-recipient timestamp of the last stale edit; used to throttle stale edits to 30 s. |
+
+### 9.2 Send path
+
+`OutboundApiWorker.runOnce()` → `send()` → `sendTelegram()`:
+
+```
+1. Compute windowMs = refreshWindowMinutes * 60_000
+2. withinWindow = enabled && lastMsgId > 0 && lastSentAt > 0 &&
+                  (now - lastSentAt) <= windowMs
+3. if withinWindow && |newMgdl - lastMgdl| < suppressDeltaBelowMgdl:
+       return synthetic 200 response, no API call (suppressed)
+4. if withinWindow:
+       response = editMessageText(chat_id, message_id, text)
+       if response.ok: return response
+       else: clearRecipientState()  // bubble gone; next send will be fresh
+5. response = sendMessage(chat_id, text)  // fresh bubble
+6. on success: recordBubbleSent(msgId, now, mgdl)
+              schedule stale-check Handler(delay = staleThresholdMinutes*60s + 10s)
+```
+
+### 9.3 Stale-check scheduler
+
+`TelegramStaleCheckWork` is a thin in-process Handler-based scheduler.
+After every successful `sendMessage` or `editMessageText`, the producer
+schedules a single Handler post-delayed by `staleThresholdMinutes*60_000
++ 10_000` (the 10 s slack avoids firing on slightly-late deliveries).
+
+When the post fires:
+
+```
+for each recipient in destination.recipients():
+    elapsed = now - lastSentAtMsByRecipient[recipient]
+    status = missed if elapsed >= missedThresholdMs
+           else stale if elapsed >= staleThresholdMs
+           else continue
+    if lastStaleAt within last 30s: continue  // throttle
+    if lastMessageIdByRecipient[recipient] <= 0: continue
+    text = "⚠️ Stale — waiting for next reading. (HH:mm)"   # if stale
+         or "⚪ Missed reading. (HH:mm)"                    # if missed
+    if editMessageText(chat_id, message_id, text) returns 2xx:
+        recordStaleAt(recipient, now)
+    else:
+        clearRecipientState(recipient)  // bubble deleted by user
+```
+
+**Limitation:** in-process only. If Android kills the app between sends,
+the stale check is lost until the next CGM reading arrives and
+re-schedules. Acceptable for a 1:1 CGM bubble — worst case is one missed
+stale period after a phone restart. A future revision could persist the
+pending `WorkRequest` via WorkManager for stricter guarantees.
+
+### 9.4 Template tokens for status
+
+| Token | Renders | Example |
+|---|---|---|
+| `{status}` | Status key | `in_range`, `high`, `low`, `stale`, `missed` |
+| `{status_emoji}` | Status emoji | 🟢 / 🟡 / 🔴 / ⚠️ / ⚪ |
+
+`Destination.rangeStatus(mgdl)` returns one of the five status keys
+based on the per-destination `triggerLowMgdl` / `triggerHighMgdl`
+thresholds. The default Telegram template
+(`DEFAULT_CHAT_TEMPLATE`) now includes `{status_emoji}` at the start:
+
+```
+{status_emoji} {value} {unit} {trend_arrow} {time}
+```
+
+Existing destinations with a non-empty `messageTemplate` are not
+touched; only the default for new destinations changes.
+
+### 9.5 Wire-level details
+
+- **Edit URL:** `sendMessage` → `editMessageText` (last segment swap).
+  Bot token stays the same. No additional endpoint or scope needed.
+- **`SendResponse` extended** with `messageId: Long?` (parsed from
+  `result.message_id` in the Telegram 2xx response) and `suppressed:
+  Boolean` (true for the synthetic "no API call" path).
+- **Edit failures fall through to fresh send.** Common cases:
+  400 "message is not modified" (we re-send identical text — handled by
+  the suppression path), 400 "message to edit not found" (user deleted
+  the bubble), 429 (rate limit). In all of these we clear the cached
+  `lastMessageId` and post fresh on the next reading.
+- **Headers on the edit path:** any custom `headers` field on the
+  destination is also applied to `editMessageText` so e.g.
+  `Authorization: Bearer …` relays keep working.
+
