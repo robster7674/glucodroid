@@ -131,7 +131,6 @@ jobs:
             gcloud firebase test android run \
               --type robo \
               --app "$APP_APK" \
-              --robo-max-depth 10 \
               "${COMMON_ARGS[@]}"
           fi
 
