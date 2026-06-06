@@ -107,7 +107,11 @@ jobs:
           TIMEOUT="${{ inputs.timeout || '5m' }}"
           TYPE="${{ inputs.test_type || 'robo' }}"
           RUN_DIR="glucodroid-${TYPE}-$(date +%Y%m%d-%H%M%S)"
-          BUCKET="${FIREBASE_PROJECT_ID}.appspot.com"
+          BUCKET="${FIREBASE_PROJECT_ID}-ftl-results"
+
+          # Create the results bucket if it doesn't exist yet.
+          # (glucodroid.appspot.com requires App Engine init; a plain bucket does not.)
+          gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${BUCKET}" 2>/dev/null || true
 
           echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
           echo "FTL_BUCKET=$BUCKET"   >> "$GITHUB_ENV"
