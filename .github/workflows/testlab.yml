@@ -1,0 +1,214 @@
+name: Firebase Test Lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Test type'
+        required: false
+        default: 'robo'
+        type: choice
+        options:
+          - robo
+          - instrumented
+      device_model:
+        description: 'Device model ID (default: oriole = Pixel 6)'
+        required: false
+        default: 'oriole'
+      api_level:
+        description: 'Android API level'
+        required: false
+        default: '33'
+      timeout:
+        description: 'Test timeout (e.g. 5m, 10m)'
+        required: false
+        default: '5m'
+  push:
+    branches: [glucodroid]
+    paths:
+      - 'Common/src/**'
+      - 'Common/build.gradle'
+    # Only auto-run on source changes, not CI config changes, to preserve
+    # the 5 physical-device runs/day on the Spark free tier.
+
+env:
+  GRADLE_OPTS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  firebase-test:
+    name: >
+      Firebase Test Lab — ${{ inputs.test_type || 'robo' }}
+      on ${{ inputs.device_model || 'oriole' }} API${{ inputs.api_level || '33' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # ── Auth ──────────────────────────────────────────────────────────────────
+      - name: Authenticate with Google Cloud
+        run: |
+          KEY_FILE="$RUNNER_TEMP/gcp-sa-key.json"
+          echo '${{ secrets.GCP_SA_KEY }}' > "$KEY_FILE"
+          gcloud auth activate-service-account \
+            --key-file="$KEY_FILE" --quiet
+          PROJECT_ID=$(python3 -c "import json; print(json.load(open('$KEY_FILE'))['project_id'])")
+          echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          echo "GCP_SA_KEY_FILE=$KEY_FILE"        >> "$GITHUB_ENV"
+          gcloud config set project "$PROJECT_ID" --quiet
+          echo "Authenticated. Project: $PROJECT_ID"
+
+      # ── Build APK ─────────────────────────────────────────────────────────────
+      - name: Build debug APK (nogoogle)
+        run: |
+          ./gradlew :Common:assembleMobileLibre3SiDexNogoogleDebug \
+            --no-daemon --warning-mode=all \
+            -Pno_x86 -Pno_x86_64
+
+          APK=$(find Common/build/outputs/apk/mobileLibre3SiDexNogoogle/debug \
+                  -name "*.apk" ! -name "*-unsigned*" | head -1)
+          echo "APP_APK=$APK" >> "$GITHUB_ENV"
+          echo "App APK: $APK ($(du -sh "$APK" | cut -f1))"
+
+      - name: Build test APK (nogoogle) — instrumented only
+        if: ${{ inputs.test_type == 'instrumented' }}
+        run: |
+          ./gradlew :Common:assembleMobileLibre3SiDexNogoogleDebugAndroidTest \
+            --no-daemon --warning-mode=all \
+            -Pno_x86 -Pno_x86_64
+
+          TEST_APK=$(find Common/build/outputs/apk/androidTest/mobileLibre3SiDexNogoogle/debug \
+                       -name "*.apk" | head -1)
+          echo "TEST_APK=$TEST_APK" >> "$GITHUB_ENV"
+          echo "Test APK: $TEST_APK ($(du -sh "$TEST_APK" | cut -f1))"
+
+      # ── Run on Firebase Test Lab ───────────────────────────────────────────────
+      - name: Run on Firebase Test Lab
+        id: ftl
+        run: |
+          DEVICE="${{ inputs.device_model || 'oriole' }}"
+          VERSION="${{ inputs.api_level || '33' }}"
+          TIMEOUT="${{ inputs.timeout || '5m' }}"
+          TYPE="${{ inputs.test_type || 'robo' }}"
+          RUN_DIR="glucodroid-${TYPE}-$(date +%Y%m%d-%H%M%S)"
+          BUCKET="${FIREBASE_PROJECT_ID}.appspot.com"
+
+          echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
+          echo "FTL_BUCKET=$BUCKET"   >> "$GITHUB_ENV"
+
+          COMMON_ARGS=(
+            --project  "$FIREBASE_PROJECT_ID"
+            --device   "model=${DEVICE},version=${VERSION},locale=en,orientation=portrait"
+            --timeout  "$TIMEOUT"
+            --results-bucket "$BUCKET"
+            --results-dir    "$RUN_DIR"
+          )
+
+          if [[ "$TYPE" == "instrumented" ]]; then
+            gcloud firebase test android run \
+              --type instrumentation \
+              --app      "$APP_APK" \
+              --test     "$TEST_APK" \
+              --environment-variables clearPackageData=true \
+              "${COMMON_ARGS[@]}"
+          else
+            gcloud firebase test android run \
+              --type robo \
+              --app "$APP_APK" \
+              --robo-max-depth 10 \
+              "${COMMON_ARGS[@]}"
+          fi
+
+      # ── Download & summarise results ──────────────────────────────────────────
+      - name: Download results from GCS
+        if: always()
+        run: |
+          mkdir -p ftl-results
+          gsutil -m cp -r \
+            "gs://${FTL_BUCKET}/${FTL_RUN_DIR}/**" \
+            ftl-results/ 2>/dev/null || true
+          echo "Downloaded $(find ftl-results -type f | wc -l) file(s)"
+
+      - name: Summarise results
+        if: always()
+        run: |
+          python3 - << 'PYEOF'
+          import os, glob, re
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
+          device  = os.environ.get("INPUT_DEVICE_MODEL", "oriole")
+          version = os.environ.get("INPUT_API_LEVEL", "33")
+          bucket  = os.environ.get("FTL_BUCKET", "")
+          run_dir = os.environ.get("FTL_RUN_DIR", "")
+
+          lines = [
+              f"## Firebase Test Lab Results\n",
+              f"**Device:** {device} (API {version})  ",
+              f"**GCS:** `gs://{bucket}/{run_dir}`\n",
+          ]
+
+          # Test outcome from XML results
+          for xml in glob.glob("ftl-results/**/*.xml", recursive=True):
+              content = open(xml).read()
+              tests    = len(re.findall(r'<testcase ', content))
+              failures = len(re.findall(r'<failure',   content))
+              errors   = len(re.findall(r'<error',     content))
+              if tests:
+                  status = "✅ PASSED" if not (failures + errors) else "❌ FAILED"
+                  lines.append(f"**Tests:** {tests} run, {failures} failure(s), {errors} error(s) — {status}\n")
+                  break
+
+          # Wakelock summary from batterystats
+          batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
+          if batt:
+              data = open(batt).read()
+              wl = re.findall(r'Wake lock\s+([\w.:]+)\s+(.+)', data)
+              al = re.findall(r'Alarm\s+([\w.:]+)\s+(.+)', data)
+              lines.append(f"### Wakelock Summary ({len(wl)} entries)")
+              for name, detail in wl[:15]:
+                  lines.append(f"- `{name}`: {detail}")
+              if len(wl) > 15:
+                  lines.append(f"- … and {len(wl)-15} more")
+              lines.append(f"\n### Alarm Summary ({len(al)} entries)")
+              for name, detail in al[:10]:
+                  lines.append(f"- `{name}`: {detail}")
+          else:
+              lines.append("_No batterystats in artifacts — power analysis unavailable for this run._")
+
+          # List all artifacts
+          all_files = sorted(glob.glob("ftl-results/**/*", recursive=True))
+          all_files = [f for f in all_files if os.path.isfile(f)]
+          if all_files:
+              lines.append(f"\n### Artifacts ({len(all_files)} files)")
+              for f in all_files[:20]:
+                  lines.append(f"- `{f}`")
+
+          output = "\n".join(lines)
+          if summary:
+              open(summary, "a").write(output + "\n")
+          print(output)
+          PYEOF
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ftl-results-${{ inputs.device_model || 'oriole' }}-api${{ inputs.api_level || '33' }}
+          path: ftl-results/
+          retention-days: 14
