@@ -236,6 +236,14 @@ class NightscoutFollowerManager(
         } catch (t: Throwable) {
             Log.stack(TAG, "refresh($reason)", t)
             setStatus(Phase.IDLE, localizedString(R.string.nightscout_follow_status_sync_failed, "Nightscout sync failed"))
+            // Reset recording guards so the next successful poll unconditionally re-runs
+            // importHistory and mirrorToNative. Without this, both guards fire when the
+            // retry returns the same set of readings (no new Nightscout point in 30 s),
+            // and if a second exception fires on the following cycle the stall becomes
+            // permanent — polls.dat stops receiving writes while the display path keeps
+            // working because publishLatest has no deduplication guard of its own.
+            lastImportedHistoryTailMs = 0L
+            nativeMirroredUpToMs = 0L
             scheduleRefresh(RETRY_INTERVAL_MS)
         }
     }
@@ -283,22 +291,26 @@ class NightscoutFollowerManager(
             setRequestProperty("User-Agent", "JugglucoNG Nightscout follower")
             NightscoutFollowerRegistry.applyAuth(this, secret)
         }
-        val code = connection.responseCode
-        val body = (if (code in 200..299) connection.inputStream else connection.errorStream)
-            ?.bufferedReader()
-            ?.use { it.readText() }
-            .orEmpty()
-        if (code !in 200..299) {
-            throw IllegalStateException("Nightscout HTTP $code: ${body.take(160)}")
+        try {
+            val code = connection.responseCode
+            val body = (if (code in 200..299) connection.inputStream else connection.errorStream)
+                ?.bufferedReader()
+                ?.use { it.readText() }
+                .orEmpty()
+            if (code !in 200..299) {
+                throw IllegalStateException("Nightscout HTTP $code: ${body.take(160)}")
+            }
+            val array = JSONArray(body)
+            val readings = ArrayList<VirtualGlucoseSensorBridge.Reading>(array.length())
+            for (index in 0 until array.length()) {
+                parseEntry(array.optJSONObject(index))?.let(readings::add)
+            }
+            return readings
+                .distinctBy { it.timestampMs }
+                .sortedBy { it.timestampMs }
+        } finally {
+            connection.disconnect()
         }
-        val array = JSONArray(body)
-        val readings = ArrayList<VirtualGlucoseSensorBridge.Reading>(array.length())
-        for (index in 0 until array.length()) {
-            parseEntry(array.optJSONObject(index))?.let(readings::add)
-        }
-        return readings
-            .distinctBy { it.timestampMs }
-            .sortedBy { it.timestampMs }
     }
 
     private fun importRemoteTreatments(): Int =

@@ -397,6 +397,124 @@ class NightscoutFollowerIntegrationTests {
     }
 }
 
+// ========== Poll recovery guard tests ==========
+
+/**
+ * Verifies the recording-guard invariants that protect against the
+ * "NSF sensor stall after SocketException" bug.
+ *
+ * Root cause: importHistory and mirrorToNative both have deduplication guards
+ * (lastImportedHistoryTailMs / nativeMirroredUpToMs). After a poll exception,
+ * if the retry returns the same set of readings (no new Nightscout point in
+ * the 30 s back-off window) both guards fire, silently skipping all recording
+ * while publishLatest keeps the display alive. A second exception on the next
+ * cycle then makes the stall permanent.
+ *
+ * Fix: the catch block resets both guards to 0L so the next successful poll
+ * unconditionally re-runs importHistory and mirrorToNative.
+ *
+ * These tests verify the predicate logic directly (pure JVM — no Android
+ * runtime needed). The Handler/HandlerThread scheduling layer is exercised
+ * by instrumented tests.
+ */
+class NightscoutFollowerPollRecoveryTests {
+
+    private val reading1 = VirtualGlucoseSensorBridge.Reading(
+        timestampMs = 1_718_928_000_000L, glucoseMgdl = 100f
+    )
+    private val reading2 = VirtualGlucoseSensorBridge.Reading(
+        timestampMs = 1_718_928_300_000L, glucoseMgdl = 105f
+    )
+    private val readings = listOf(reading1, reading2)
+    private val tailMs = readings.maxOf { it.timestampMs }
+
+    // ---------- importHistory guard ----------
+
+    @Test
+    fun importHistoryGuard_skipWhenTailUnchanged() {
+        // Same tail as already imported → guard fires, re-import skipped.
+        assertTrue(
+            "same tail must trigger skip",
+            NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(tailMs, tailMs),
+        )
+    }
+
+    @Test
+    fun importHistoryGuard_runWhenTailAdvances() {
+        // Nightscout produced a new reading → guard passes.
+        val newTailMs = tailMs + 300_000L
+        assertFalse(
+            "advanced tail must not skip",
+            NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(newTailMs, tailMs),
+        )
+    }
+
+    @Test
+    fun importHistoryGuard_runAfterGuardReset() {
+        // Exception fires → catch block resets lastImportedHistoryTailMs to 0L.
+        // Next poll returns same readings → guard must pass (0L < tailMs).
+        assertFalse(
+            "reset guard (0L) must not skip even for same-tail readings",
+            NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(tailMs, 0L),
+        )
+    }
+
+    @Test
+    fun importHistoryGuard_zeroTailDoesNotSkipViaGuard() {
+        // tailMs==0 (empty readings) — the guard condition (tailMs > 0L && …) is
+        // false, so the guard does NOT fire. VirtualGlucoseSensorBridge.importHistory
+        // handles the empty list itself, so no defensive guard needed here.
+        assertFalse(
+            "zero tailMs must not trigger guard (empty reads handled downstream)",
+            NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(0L, 0L),
+        )
+    }
+
+    // ---------- mirrorToNative filter ----------
+
+    @Test
+    fun mirrorFilter_emptyWhenAllAlreadyMirrored() {
+        val newReadings = NightscoutFollowerManagerTestUtil.mirrorNewReadings(readings, tailMs)
+        assertTrue("no readings newer than tailMs", newReadings.isEmpty())
+    }
+
+    @Test
+    fun mirrorFilter_includesNewReadingsOnly() {
+        val mirroredUpTo = reading1.timestampMs
+        val newReadings = NightscoutFollowerManagerTestUtil.mirrorNewReadings(readings, mirroredUpTo)
+        assertEquals("only reading2 is newer", listOf(reading2), newReadings)
+    }
+
+    @Test
+    fun mirrorFilter_allReadingsAfterGuardReset() {
+        // Exception fires → nativeMirroredUpToMs reset to 0L → all readings eligible.
+        val newReadings = NightscoutFollowerManagerTestUtil.mirrorNewReadings(readings, 0L)
+        assertEquals("all readings eligible after reset", readings.size, newReadings.size)
+    }
+
+    // ---------- combined: stall scenario + fix ----------
+
+    @Test
+    fun stallScenario_sameReadingsAfterException_withoutReset() {
+        // Without the fix: guards retain pre-exception values.
+        // Retry returns identical readings → both guards skip → polls.dat frozen.
+        val importSkips = NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(tailMs, tailMs)
+        val mirrorEmpty = NightscoutFollowerManagerTestUtil.mirrorNewReadings(readings, tailMs).isEmpty()
+        assertTrue("importHistory skips without reset", importSkips)
+        assertTrue("mirrorToNative skips without reset", mirrorEmpty)
+    }
+
+    @Test
+    fun fixScenario_sameReadingsAfterException_withReset() {
+        // With the fix: catch block resets both guards to 0L.
+        // Retry returns identical readings → both guards pass → polls.dat resumes.
+        val importSkips = NightscoutFollowerManagerTestUtil.importHistoryGuardSkips(tailMs, 0L)
+        val mirrorEmpty = NightscoutFollowerManagerTestUtil.mirrorNewReadings(readings, 0L).isEmpty()
+        assertFalse("importHistory runs after reset", importSkips)
+        assertFalse("mirrorToNative runs after reset", mirrorEmpty)
+    }
+}
+
 // ========== Test bridges ==========
 // Package-visible bridges to expose parsing logic for unit testing.
 
@@ -409,11 +527,25 @@ object NightscoutFollowerManagerTestBridge {
 }
 
 /**
- * Mirrors the parsing logic of NightscoutFollowerManager.parseEntry.
- * This is a pure function that doesn't require Android or JSONObject,
- * allowing reliable unit testing of the parsing contract.
+ * Mirrors the parsing and guard logic of NightscoutFollowerManager.
+ * All functions are pure (no Android or JSONObject), allowing reliable
+ * unit testing without the Android runtime.
  */
 object NightscoutFollowerManagerTestUtil {
+
+    /** Mirrors the importHistory deduplication guard: returns true when import should be skipped. */
+    @JvmStatic
+    fun importHistoryGuardSkips(tailMs: Long, lastImportedHistoryTailMs: Long): Boolean =
+        tailMs > 0L && tailMs <= lastImportedHistoryTailMs
+
+    /** Mirrors the mirrorToNative filter: returns only readings newer than nativeMirroredUpToMs. */
+    @JvmStatic
+    fun mirrorNewReadings(
+        readings: List<VirtualGlucoseSensorBridge.Reading>,
+        nativeMirroredUpToMs: Long,
+    ): List<VirtualGlucoseSensorBridge.Reading> =
+        readings.filter { it.timestampMs > nativeMirroredUpToMs }
+
     @JvmStatic
     fun parseEntry(entry: Map<String, Any?>?): VirtualGlucoseSensorBridge.Reading? {
         entry ?: return null
