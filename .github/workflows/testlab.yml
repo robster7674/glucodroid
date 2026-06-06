@@ -8,11 +8,9 @@ on:
         required: false
         default: 'robo'
         type: choice
-        options:
-          - robo
-          - instrumented
+        options: [robo, instrumented]
       device_model:
-        description: 'Device model ID (default: oriole = Pixel 6)'
+        description: 'Physical device model ID (default: oriole = Pixel 6)'
         required: false
         default: 'oriole'
       api_level:
@@ -28,20 +26,20 @@ on:
     paths:
       - 'Common/src/**'
       - 'Common/build.gradle'
-    # Only auto-run on source changes, not CI config changes, to preserve
-    # the 5 physical-device runs/day on the Spark free tier.
 
 env:
   GRADLE_OPTS: -Xmx4g -XX:+HeapDumpOnOutOfMemoryError
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FTL_BUCKET: glucodroid-ftl-results
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Build once, share via artifact across all test jobs
+# ─────────────────────────────────────────────────────────────────────────────
 jobs:
-  firebase-test:
-    name: >
-      Firebase Test Lab — ${{ inputs.test_type || 'robo' }}
-      on ${{ inputs.device_model || 'oriole' }} API${{ inputs.api_level || '33' }}
+  build:
+    name: Build APK(s)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
@@ -61,142 +59,152 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      # ── Auth ──────────────────────────────────────────────────────────────────
-      - name: Authenticate with Google Cloud
-        run: |
-          KEY_FILE="$RUNNER_TEMP/gcp-sa-key.json"
-          echo '${{ secrets.GCP_SA_KEY }}' > "$KEY_FILE"
-          gcloud auth activate-service-account \
-            --key-file="$KEY_FILE" --quiet
-          PROJECT_ID=$(python3 -c "import json; print(json.load(open('$KEY_FILE'))['project_id'])")
-          echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
-          echo "GCP_SA_KEY_FILE=$KEY_FILE"        >> "$GITHUB_ENV"
-          gcloud config set project "$PROJECT_ID" --quiet
-          echo "Authenticated. Project: $PROJECT_ID"
-
-      # ── Build APK ─────────────────────────────────────────────────────────────
-      - name: Build debug APK (nogoogle)
+      - name: Build debug APK
         run: |
           ./gradlew :Common:assembleMobileLibre3SiDexNogoogleDebug \
             --no-daemon --warning-mode=all \
             -Pno_x86 -Pno_x86_64
 
-          APK=$(find Common/build/outputs/apk/mobileLibre3SiDexNogoogle/debug \
-                  -name "*.apk" ! -name "*-unsigned*" | head -1)
-          echo "APP_APK=$APK" >> "$GITHUB_ENV"
-          echo "App APK: $APK ($(du -sh "$APK" | cut -f1))"
-
-      - name: Build test APK (nogoogle) — instrumented only
-        if: ${{ inputs.test_type == 'instrumented' }}
+      - name: Build test APK (instrumented dispatch only)
+        if: inputs.test_type == 'instrumented'
         run: |
           ./gradlew :Common:assembleMobileLibre3SiDexNogoogleDebugAndroidTest \
             --no-daemon --warning-mode=all \
             -Pno_x86 -Pno_x86_64
 
-          TEST_APK=$(find Common/build/outputs/apk/androidTest/mobileLibre3SiDexNogoogle/debug \
-                       -name "*.apk" | head -1)
-          echo "TEST_APK=$TEST_APK" >> "$GITHUB_ENV"
-          echo "Test APK: $TEST_APK ($(du -sh "$TEST_APK" | cut -f1))"
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: |
+            Common/build/outputs/apk/mobileLibre3SiDexNogoogle/debug/*.apk
+            Common/build/outputs/apk/androidTest/mobileLibre3SiDexNogoogle/debug/*.apk
+          retention-days: 1
+          if-no-files-found: warn
 
-      # ── Run on Firebase Test Lab ───────────────────────────────────────────────
-      - name: Run on Firebase Test Lab
-        id: ftl
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Virtual UX/UI — Robo crawl on two virtual form factors.
+  # Runs on every push and on manual dispatch.
+  # Catches: crashes, UI regressions across Android versions.
+  # ─────────────────────────────────────────────────────────────────────────────
+  virtual-ux:
+    name: UX — ${{ matrix.label }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Covers older Android (still ~15 % of our user base at minSdk 23)
+          - model: Pixel2
+            api: 28
+            label: Pixel2-API28
+          # Covers Android 10 mid-range hardware
+          - model: Pixel3
+            api: 30
+            label: Pixel3-API30
+
+    steps:
+      - name: Download APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: apks/
+
+      - name: Authenticate with Google Cloud
         run: |
-          DEVICE="${{ inputs.device_model || 'oriole' }}"
-          VERSION="${{ inputs.api_level || '33' }}"
-          TIMEOUT="${{ inputs.timeout || '5m' }}"
-          TYPE="${{ inputs.test_type || 'robo' }}"
-          RUN_DIR="glucodroid-${TYPE}-$(date +%Y%m%d-%H%M%S)"
-          BUCKET="${FIREBASE_PROJECT_ID}-ftl-results"
+          KEY_FILE="$RUNNER_TEMP/gcp-sa-key.json"
+          echo '${{ secrets.GCP_SA_KEY }}' > "$KEY_FILE"
+          gcloud auth activate-service-account --key-file="$KEY_FILE" --quiet
+          PROJECT_ID=$(python3 -c "import json; print(json.load(open('$KEY_FILE'))['project_id'])")
+          echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          gcloud config set project "$PROJECT_ID" --quiet
 
-          # Create the results bucket if it doesn't exist yet.
-          # (glucodroid.appspot.com requires App Engine init; a plain bucket does not.)
-          gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${BUCKET}" 2>/dev/null || true
-
+      - name: Run UX Robo on virtual ${{ matrix.label }}
+        run: |
+          APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
+          RUN_DIR="glucodroid-ux-${{ matrix.label }}-$(date +%Y%m%d-%H%M%S)"
           echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
-          echo "FTL_BUCKET=$BUCKET"   >> "$GITHUB_ENV"
-
-          COMMON_ARGS=(
-            --project  "$FIREBASE_PROJECT_ID"
-            --device   "model=${DEVICE},version=${VERSION},locale=en,orientation=portrait"
-            --timeout  "$TIMEOUT"
-            --results-bucket "$BUCKET"
+          gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${FTL_BUCKET}" 2>/dev/null || true
+          gcloud firebase test android run \
+            --type robo \
+            --app  "$APP_APK" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --device  "model=${{ matrix.model }},version=${{ matrix.api }},locale=en,orientation=portrait" \
+            --timeout 5m \
+            --results-bucket "$FTL_BUCKET" \
             --results-dir    "$RUN_DIR"
-          )
 
-          if [[ "$TYPE" == "instrumented" ]]; then
-            gcloud firebase test android run \
-              --type instrumentation \
-              --app      "$APP_APK" \
-              --test     "$TEST_APK" \
-              --environment-variables clearPackageData=true \
-              "${COMMON_ARGS[@]}"
-          else
-            gcloud firebase test android run \
-              --type robo \
-              --app "$APP_APK" \
-              "${COMMON_ARGS[@]}"
-          fi
-
-      # ── Download & summarise results ──────────────────────────────────────────
-      - name: Download results from GCS
+      - name: Download UX results
         if: always()
         run: |
           mkdir -p ftl-results
-          gsutil -m cp -r \
-            "gs://${FTL_BUCKET}/${FTL_RUN_DIR}/**" \
-            ftl-results/ 2>/dev/null || true
+          gsutil -m cp -r "gs://${FTL_BUCKET}/${FTL_RUN_DIR}/**" ftl-results/ 2>/dev/null || true
           echo "Downloaded $(find ftl-results -type f | wc -l) file(s)"
 
-      - name: Summarise results
+      - name: Summarise UX results
         if: always()
         run: |
-          python3 - << 'PYEOF'
-          import os, glob, re
+          python3 << 'PYEOF'
+          import os, glob, re, json
 
           summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
-          device  = os.environ.get("INPUT_DEVICE_MODEL", "oriole")
-          version = os.environ.get("INPUT_API_LEVEL", "33")
+          label   = "${{ matrix.label }}"
           bucket  = os.environ.get("FTL_BUCKET", "")
           run_dir = os.environ.get("FTL_RUN_DIR", "")
 
-          lines = [
-              f"## Firebase Test Lab Results\n",
-              f"**Device:** {device} (API {version})  ",
-              f"**GCS:** `gs://{bucket}/{run_dir}`\n",
-          ]
+          lines = [f"## UX Results — {label}\n",
+                   f"**GCS:** `gs://{bucket}/{run_dir}`\n"]
 
-          # Test outcome from XML results
-          for xml in glob.glob("ftl-results/**/*.xml", recursive=True):
-              content = open(xml).read()
-              tests    = len(re.findall(r'<testcase ', content))
-              failures = len(re.findall(r'<failure',   content))
-              errors   = len(re.findall(r'<error',     content))
-              if tests:
-                  status = "✅ PASSED" if not (failures + errors) else "❌ FAILED"
-                  lines.append(f"**Tests:** {tests} run, {failures} failure(s), {errors} error(s) — {status}\n")
-                  break
+          # Robo crawl coverage
+          actions_file = next(iter(glob.glob("ftl-results/**/actions.json", recursive=True)), None)
+          if actions_file:
+              try:
+                  data = json.load(open(actions_file))
+                  events  = data.get("events", [])
+                  screens = {e.get(k) for e in events for k in ("sourceScreenId","destinationScreenId") if e.get(k)}
+                  errors  = [e for e in events if e.get("executionResult","") in ("ERROR","FAILURE")]
+                  lines.append(f"**Screens visited:** {len(screens)}  **Actions taken:** {len(events)}  **Robo errors:** {len(errors)}\n")
+              except Exception as ex:
+                  lines.append(f"_(actions.json parse error: {ex})_\n")
 
-          # Wakelock summary from batterystats
-          batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
-          if batt:
-              data = open(batt).read()
-              wl = re.findall(r'Wake lock\s+([\w.:]+)\s+(.+)', data)
-              al = re.findall(r'Alarm\s+([\w.:]+)\s+(.+)', data)
-              lines.append(f"### Wakelock Summary ({len(wl)} entries)")
-              for name, detail in wl[:15]:
-                  lines.append(f"- `{name}`: {detail}")
-              if len(wl) > 15:
-                  lines.append(f"- … and {len(wl)-15} more")
-              lines.append(f"\n### Alarm Summary ({len(al)} entries)")
-              for name, detail in al[:10]:
-                  lines.append(f"- `{name}`: {detail}")
+          # Crash detection from logcat
+          logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
+          crash_re = re.compile(r'FATAL EXCEPTION|crash|ANR in|Application Not Responding', re.I)
+          crash_hits = []
+          glucodroid_re = re.compile(r'cloud\.glucodroid')
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if crash_re.search(line) and glucodroid_re.search(line):
+                      crash_hits.append(line.rstrip())
+
+          if crash_hits:
+              lines.append(f"### ⚠️ Crashes / ANRs in cloud.glucodroid ({len(crash_hits)})")
+              lines.append("```")
+              lines.extend(crash_hits[:10])
+              lines.append("```\n")
           else:
-              lines.append("_No batterystats in artifacts — power analysis unavailable for this run._")
+              lines.append("### ✅ No app crashes or ANRs detected\n")
 
-          # List all artifacts
-          all_files = sorted(glob.glob("ftl-results/**/*", recursive=True))
-          all_files = [f for f in all_files if os.path.isfile(f)]
+          # Startup jank
+          jank_hits = []
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if "Skipped" in line and "frames" in line and "cloud.glucodroid" in line:
+                      jank_hits.append(line.rstrip())
+          if jank_hits:
+              lines.append(f"### ⚠️ Main-thread jank (Choreographer) — {len(jank_hits)} occurrence(s)")
+              lines.append("```")
+              lines.extend(jank_hits[:5])
+              lines.append("```\n")
+
+          # Screenshots
+          screenshots = glob.glob("ftl-results/**/*.png", recursive=True)
+          lines.append(f"**Screenshots captured:** {len(screenshots)}")
+
+          # Artifacts
+          all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
           if all_files:
               lines.append(f"\n### Artifacts ({len(all_files)} files)")
               for f in all_files[:20]:
@@ -208,10 +216,338 @@ jobs:
           print(output)
           PYEOF
 
-      - name: Upload artifacts
+      - name: Upload UX artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ftl-results-${{ inputs.device_model || 'oriole' }}-api${{ inputs.api_level || '33' }}
+          name: ux-${{ matrix.label }}
           path: ftl-results/
           retention-days: 14
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Virtual Power — 15-minute Robo for wakelock / alarm / jank analysis.
+  # Longer run gives the app time to enter background polling loops.
+  # Runs on every push and on manual dispatch.
+  # ─────────────────────────────────────────────────────────────────────────────
+  virtual-power:
+    name: Power/Wake — virtual Pixel3 API30
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Download APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: apks/
+
+      - name: Authenticate with Google Cloud
+        run: |
+          KEY_FILE="$RUNNER_TEMP/gcp-sa-key.json"
+          echo '${{ secrets.GCP_SA_KEY }}' > "$KEY_FILE"
+          gcloud auth activate-service-account --key-file="$KEY_FILE" --quiet
+          PROJECT_ID=$(python3 -c "import json; print(json.load(open('$KEY_FILE'))['project_id'])")
+          echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          gcloud config set project "$PROJECT_ID" --quiet
+
+      - name: Run power Robo (15 min, virtual Pixel3 API30)
+        run: |
+          APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
+          RUN_DIR="glucodroid-power-$(date +%Y%m%d-%H%M%S)"
+          echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
+          gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${FTL_BUCKET}" 2>/dev/null || true
+          gcloud firebase test android run \
+            --type robo \
+            --app  "$APP_APK" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --device  "model=Pixel3,version=30,locale=en,orientation=portrait" \
+            --timeout 15m \
+            --results-bucket "$FTL_BUCKET" \
+            --results-dir    "$RUN_DIR"
+
+      - name: Download power results
+        if: always()
+        run: |
+          mkdir -p ftl-results
+          gsutil -m cp -r "gs://${FTL_BUCKET}/${FTL_RUN_DIR}/**" ftl-results/ 2>/dev/null || true
+          echo "Downloaded $(find ftl-results -type f | wc -l) file(s)"
+
+      - name: Power / wake analysis
+        if: always()
+        run: |
+          python3 << 'PYEOF'
+          import os, glob, re
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
+          bucket  = os.environ.get("FTL_BUCKET", "")
+          run_dir = os.environ.get("FTL_RUN_DIR", "")
+
+          lines = ["## Power / Wake Analysis — virtual Pixel3 API30\n",
+                   f"**GCS:** `gs://{bucket}/{run_dir}`\n"]
+
+          logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
+
+          # ── BLE scan lifecycle ────────────────────────────────────────────
+          ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
+          ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
+          ble_starts, ble_stops = [], []
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if 'cloud.glucodroid' not in line and '23111' not in line:
+                      # only count BLE events from our process; fallback to
+                      # bt_stack lines which carry no PID context
+                      if 'BluetoothLeScanner' not in line and 'bt_stack' not in line:
+                          continue
+                  m = ble_start.search(line)
+                  if m:
+                      ble_starts.append(line.rstrip())
+                  elif ble_stop.search(line):
+                      ble_stops.append(line.rstrip())
+
+          lines.append("### BLE Scan Lifecycle")
+          lines.append(f"- Scanner registered (start): **{len(ble_starts)}**")
+          lines.append(f"- Scanner stopped: **{len(ble_stops)}**")
+          if len(ble_starts) > len(ble_stops) + 1:
+              lines.append(f"- ⚠️ **{len(ble_starts) - len(ble_stops)} unmatched start(s)** — scanners may not be stopped on screen exit\n")
+          else:
+              lines.append("- ✅ Starts and stops balanced\n")
+
+          # ── Jank / main-thread work ───────────────────────────────────────
+          jank_re = re.compile(r'Skipped (\d+) frames', re.I)
+          jank_hits = []
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if 'cloud.glucodroid' in line and jank_re.search(line):
+                      m = jank_re.search(line)
+                      jank_hits.append((int(m.group(1)), line.rstrip()))
+          total_skipped = sum(n for n, _ in jank_hits)
+          lines.append("### Main-Thread Jank (Choreographer)")
+          if jank_hits:
+              lines.append(f"- ⚠️ Jank events: **{len(jank_hits)}**, total frames skipped: **{total_skipped}**")
+              for n, l in sorted(jank_hits, reverse=True)[:5]:
+                  lines.append(f"  - {n} frames: `{l[-120:]}`")
+          else:
+              lines.append("- ✅ No jank detected")
+
+          # ── AlarmManager ─────────────────────────────────────────────────
+          alarm_re = re.compile(r'AlarmManager.*set|setExact|setWindow|setRepeating', re.I)
+          alarm_hits = []
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if alarm_re.search(line) and 'cloud.glucodroid' in line:
+                      alarm_hits.append(line.rstrip())
+          lines.append(f"\n### App AlarmManager activity")
+          if alarm_hits:
+              lines.append(f"- Alarms set by app: **{len(alarm_hits)}**")
+              lines.append("<details><summary>Alarm log lines</summary>\n\n```")
+              lines.extend(alarm_hits[:20])
+              lines.append("```\n</details>")
+          else:
+              lines.append("- No AlarmManager calls found in app logcat")
+
+          # ── Batterystats (if captured) ────────────────────────────────────
+          batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
+          if batt:
+              data = open(batt).read()
+              wl = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
+              al = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
+              cpu_wk = re.findall(r'CPU wakeups:\s+(\d+)', data)
+              lines.append(f"\n### Batterystats — Wakelock Summary ({len(wl)} entries)")
+              for name, detail in wl[:20]:
+                  lines.append(f"- `{name}`: {detail}")
+              if len(wl) > 20:
+                  lines.append(f"- … and {len(wl)-20} more")
+              lines.append(f"\n### Batterystats — Alarm Summary ({len(al)} entries)")
+              for name, detail in al[:15]:
+                  lines.append(f"- `{name}`: {detail}")
+              if cpu_wk:
+                  lines.append(f"\n**CPU wakeups:** {cpu_wk[0]}")
+          else:
+              lines.append("\n_Batterystats not captured by FTL for virtual Robo runs. "
+                           "BLE/alarm/jank data comes from logcat above._")
+
+          # ── Artifact list ─────────────────────────────────────────────────
+          all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
+          if all_files:
+              lines.append(f"\n### Artifacts ({len(all_files)} files)")
+              for f in all_files[:20]:
+                  lines.append(f"- `{f}`")
+
+          output = "\n".join(lines)
+          if summary:
+              open(summary, "a").write(output + "\n")
+          print(output)
+          PYEOF
+
+      - name: Upload power artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-virtual-pixel3-api30
+          path: ftl-results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Physical device — manual dispatch only (preserves physical-device quota).
+  # Use for real BLE/power measurements that virtual devices can't provide.
+  # ─────────────────────────────────────────────────────────────────────────────
+  physical:
+    name: >
+      Physical ${{ inputs.test_type || 'robo' }} —
+      ${{ inputs.device_model || 'oriole' }} API${{ inputs.api_level || '33' }}
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Download APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: apks/
+
+      - name: Authenticate with Google Cloud
+        run: |
+          KEY_FILE="$RUNNER_TEMP/gcp-sa-key.json"
+          echo '${{ secrets.GCP_SA_KEY }}' > "$KEY_FILE"
+          gcloud auth activate-service-account --key-file="$KEY_FILE" --quiet
+          PROJECT_ID=$(python3 -c "import json; print(json.load(open('$KEY_FILE'))['project_id'])")
+          echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          gcloud config set project "$PROJECT_ID" --quiet
+
+      - name: Run on physical device
+        run: |
+          DEVICE="${{ inputs.device_model || 'oriole' }}"
+          VERSION="${{ inputs.api_level || '33' }}"
+          TIMEOUT="${{ inputs.timeout || '5m' }}"
+          TYPE="${{ inputs.test_type || 'robo' }}"
+          RUN_DIR="glucodroid-${TYPE}-$(date +%Y%m%d-%H%M%S)"
+          echo "FTL_RUN_DIR=$RUN_DIR"   >> "$GITHUB_ENV"
+          echo "PHYSICAL_TYPE=$TYPE"    >> "$GITHUB_ENV"
+
+          APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
+          TEST_APK=$(find apks -name "*androidTest*.apk" 2>/dev/null | head -1 || true)
+
+          gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${FTL_BUCKET}" 2>/dev/null || true
+
+          COMMON_ARGS=(
+            --project  "$FIREBASE_PROJECT_ID"
+            --device   "model=${DEVICE},version=${VERSION},locale=en,orientation=portrait"
+            --timeout  "$TIMEOUT"
+            --results-bucket "$FTL_BUCKET"
+            --results-dir    "$RUN_DIR"
+          )
+
+          if [[ "$TYPE" == "instrumented" && -n "$TEST_APK" ]]; then
+            gcloud firebase test android run \
+              --type instrumentation \
+              --app  "$APP_APK" \
+              --test "$TEST_APK" \
+              --environment-variables clearPackageData=true \
+              "${COMMON_ARGS[@]}"
+          else
+            gcloud firebase test android run \
+              --type robo \
+              --app "$APP_APK" \
+              "${COMMON_ARGS[@]}"
+          fi
+
+      - name: Download physical results
+        if: always()
+        run: |
+          mkdir -p ftl-results
+          gsutil -m cp -r "gs://${FTL_BUCKET}/${FTL_RUN_DIR}/**" ftl-results/ 2>/dev/null || true
+          echo "Downloaded $(find ftl-results -type f | wc -l) file(s)"
+
+      - name: Summarise physical results
+        if: always()
+        run: |
+          python3 << 'PYEOF'
+          import os, glob, re, json
+
+          summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
+          device  = os.environ.get("INPUT_DEVICE_MODEL", "oriole")
+          version = os.environ.get("INPUT_API_LEVEL",    "33")
+          bucket  = os.environ.get("FTL_BUCKET",         "")
+          run_dir = os.environ.get("FTL_RUN_DIR",        "")
+
+          lines = [f"## Physical Device Results — {device} (API {version})\n",
+                   f"**GCS:** `gs://{bucket}/{run_dir}`\n"]
+
+          # Instrumented test outcome
+          for xml in glob.glob("ftl-results/**/*.xml", recursive=True):
+              content  = open(xml).read()
+              tests    = len(re.findall(r'<testcase ', content))
+              failures = len(re.findall(r'<failure',  content))
+              errors   = len(re.findall(r'<error',    content))
+              if tests:
+                  status = "✅ PASSED" if not (failures+errors) else "❌ FAILED"
+                  lines.append(f"**Tests:** {tests} run, {failures+errors} issue(s) — {status}\n")
+                  break
+
+          # Robo coverage
+          actions_file = next(iter(glob.glob("ftl-results/**/actions.json", recursive=True)), None)
+          if actions_file:
+              try:
+                  data    = json.load(open(actions_file))
+                  events  = data.get("events", [])
+                  screens = {e.get(k) for e in events for k in ("sourceScreenId","destinationScreenId") if e.get(k)}
+                  lines.append(f"**Screens visited:** {len(screens)}  **Actions:** {len(events)}\n")
+              except Exception:
+                  pass
+
+          # Batterystats (physical devices capture this)
+          batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
+          if batt:
+              data = open(batt).read()
+              wl   = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
+              al   = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
+              lines.append(f"### Wakelock Summary ({len(wl)} entries)")
+              for name, detail in wl[:15]:
+                  lines.append(f"- `{name}`: {detail}")
+              if len(wl) > 15:
+                  lines.append(f"- … and {len(wl)-15} more")
+              lines.append(f"\n### Alarm Summary ({len(al)} entries)")
+              for name, detail in al[:10]:
+                  lines.append(f"- `{name}`: {detail}")
+          else:
+              lines.append("_No batterystats artifact in this run._")
+
+          # BLE scan balance (from logcat)
+          logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
+          ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
+          ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
+          n_start = sum(1 for lf in logcat_files
+                        for line in open(lf, errors='replace')
+                        if ble_start.search(line) and 'cloud.glucodroid' in line)
+          n_stop  = sum(1 for lf in logcat_files
+                        for line in open(lf, errors='replace')
+                        if ble_stop.search(line) and 'cloud.glucodroid' in line)
+          lines.append(f"\n**BLE scanner start/stop:** {n_start} / {n_stop}")
+          if n_start > n_stop + 1:
+              lines.append("  ⚠️ More starts than stops — verify stopScan() on lifecycle events")
+
+          all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
+          if all_files:
+              lines.append(f"\n### Artifacts ({len(all_files)} files)")
+              for f in all_files[:20]:
+                  lines.append(f"- `{f}`")
+
+          output = "\n".join(lines)
+          if summary:
+              open(summary, "a").write(output + "\n")
+          print(output)
+          PYEOF
+
+      - name: Upload physical artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: physical-${{ inputs.device_model || 'oriole' }}-api${{ inputs.api_level || '33' }}
+          path: ftl-results/
+          retention-days: 14
+          if-no-files-found: warn
