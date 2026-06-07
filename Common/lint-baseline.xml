@@ -1,0 +1,1159 @@
+<?xml version="1.0" ?>
+<issues format="6" by="lint 8.0">
+    <issue id="WrongViewCast" message="Unexpected implicit cast to `CheckBox`: layout tag was `TextView`">
+        <location file="Common/src/main/java/tk/glucodata/bluediag.java" line="624" column="13"/>
+    </issue>
+    <issue id="NewApi" message="Field requires API level 24 (current min is 23): `android.util.DisplayMetrics#DENSITY_DEVICE_STABLE`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/JugglucoTheme.kt" line="90" column="29"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 24 (current min is 23): `android.text.Html#fromHtml`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="580" column="55"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 24 (current min is 23): `android.text.Html#fromHtml`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="580" column="55"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 26 (current min is 23): `android.os.VibrationEffect#createWaveform`">
+        <location file="Common/src/main/java/tk/glucodata/Notify.java" line="1541" column="46"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 26 (current min is 23): `android.os.Vibrator#vibrate`">
+        <location file="Common/src/main/java/tk/glucodata/Notify.java" line="1541" column="22"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 26 (current min is 23): `android.os.VibrationEffect#createWaveform`">
+        <location file="Common/src/main/java/tk/glucodata/ScanNfcV.java" line="123" column="46"/>
+    </issue>
+    <issue id="NewApi" message="Call requires API level 26 (current min is 23): `android.os.Vibrator#vibrate`">
+        <location file="Common/src/main/java/tk/glucodata/ScanNfcV.java" line="123" column="22"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(!usewatch)       `...)">
+        <location file="Common/src/mobile/java/tk/glucodata/nums/AllData.java" line="853" column="6"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(title==null|| tit`...)">
+        <location file="Common/src/main/java/tk/glucodata/Backup.java" line="275" column="12"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(parent!=null)    `...)">
+        <location file="Common/src/main/java/tk/glucodata/settings/Calibration.java" line="129" column="9"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is conditionally executed; expected it to be indented">
+        <location file="Common/src/main/java/tk/glucodata/GlucoseCurve.java" line="153" column="10"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is conditionally executed; expected it to be indented">
+        <location file="Common/src/main/java/tk/glucodata/GlucoseCurve.java" line="378" column="9"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(searchcontrol!=nu`...)">
+        <location file="Common/src/main/java/tk/glucodata/GlucoseCurve.java" line="743" column="9"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is conditionally executed; expected it to be indented">
+        <location file="Common/src/main/java/tk/glucodata/GlucoseCurve.java" line="1151" column="17"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(val&lt;2.2f)    retu`...)">
+        <location file="Common/src/mobileSiNogoogle/java/tk/glucodata/GlucoseDraw.java" line="813" column="9"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(intval&lt;40)    ret`...)">
+        <location file="Common/src/mobileSiNogoogle/java/tk/glucodata/GlucoseDraw.java" line="828" column="9"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(str!=charglucosed`...)">
+        <location file="Common/src/libre3/java/tk/glucodata/Libre3GattCallback.java" line="449" column="13"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is conditionally executed; expected it to be indented">
+        <location file="Common/src/main/java/tk/glucodata/NumberView.java" line="321" column="21"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(wid&gt;w)           `...)">
+        <location file="Common/src/main/java/tk/glucodata/NumberView.java" line="348" column="15"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(mealptr[0]!=0)   `...)">
+        <location file="Common/src/main/java/tk/glucodata/NumberView.java" line="561" column="18"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(!useclose) cancel`...)">
+        <location file="Common/src/main/java/tk/glucodata/NumberView.java" line="887" column="12"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if (Build.VERSION.SD`...)">
+        <location file="Common/src/main/java/tk/glucodata/Openfile.java" line="90" column="12"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(def.isChecked()) `...)">
+        <location file="Common/src/main/java/tk/glucodata/RingTones.java" line="385" column="6"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(parview!=null)   `...)">
+        <location file="Common/src/main/java/tk/glucodata/RingTones.java" line="408" column="11"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(width&gt;w)        l`...)">
+        <location file="Common/src/mobile/java/tk/glucodata/settings/Shortcuts.java" line="268" column="11"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(focus==null)     `...)">
+        <location file="Common/src/main/java/tk/glucodata/help.java" line="334" column="12"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if (Build.VERSION.SD`...)">
+        <location file="Common/src/main/java/tk/glucodata/util.java" line="91" column="7"/>
+    </issue>
+    <issue id="SuspiciousIndentation" message="Suspicious indentation: This is indented but is not nested under the previous expression (`if(receiver==null)  `...)">
+        <location file="Common/src/mobile/java/tk/glucodata/watchdrip.java" line="103" column="5"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationBottomSheet.kt" line="734" column="37"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="1410" column="50"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="1424" column="46"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="1443" column="73"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardChart.kt" line="3105" column="35"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardChart.kt" line="3436" column="73"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardChart.kt" line="3473" column="50"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardChart.kt" line="3512" column="72"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardComponents.kt" line="1690" column="65"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardComponents.kt" line="1690" column="136"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardComponents.kt" line="1840" column="34"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="166" column="77"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQAccountFields.kt" line="68" column="58"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ReadingRow.kt" line="332" column="29"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ReadingRow.kt" line="371" column="33"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ReadingRow.kt" line="532" column="64"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/SensorCard.kt" line="1580" column="55"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/SensorCard.kt" line="1588" column="96"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/SensorCard.kt" line="1812" column="84"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/SensorCard.kt" line="2204" column="84"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1210" column="46"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1294" column="34"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1570" column="31"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1579" column="71"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1600" column="31"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1608" column="31"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1610" column="71"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1610" column="148"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1619" column="33"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1619" column="190"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="1970" column="28"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2396" column="42"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2731" column="45"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2753" column="35"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2768" column="46"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2773" column="46"/>
+    </issue>
+    <issue id="NonObservableLocale" message="Reading locale in a non-observable way in a composable function">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="2778" column="46"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AccuChekSetupWizard.kt" line="77" column="13"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AnytimeSetupWizard.kt" line="403" column="25"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/CareSensAirSetupWizard.kt" line="77" column="13"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/DexcomSetupWizard.kt" line="64" column="13"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/ICanHealthSetupWizard.kt" line="249" column="9"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/MQSetupWizard.kt" line="439" column="25"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/SibionicsSetupWizard.kt" line="708" column="13"/>
+    </issue>
+    <issue id="UnsafeOptInUsageError" message="This declaration is opt-in and its usage should be marked with `@androidx.camera.core.ExperimentalGetImage` or `@OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)`">
+        <location file="Common/src/mobileSi/java/tk/glucodata/UnifiedScanActivity.java" line="281" column="48"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="69" column="13"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="71" column="13"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="80" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="83" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="126" column="61"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="132" column="61"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="140" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="160" column="61"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AiDexSetupWizard.kt" line="166" column="53"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/AlertSettingsScreen.kt" line="124" column="58"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/AlertSettingsScreen.kt" line="124" column="103"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AnytimeSetupWizard.kt" line="187" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/AnytimeSetupWizard.kt" line="200" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ApiSourceSettingsScreen.kt" line="129" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="174" column="32"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="178" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="179" column="22"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="179" column="112"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="194" column="34"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="207" column="21"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="211" column="21"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="211" column="117"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="220" column="48"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="228" column="48"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="469" column="47"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="470" column="51"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="570" column="51"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="571" column="55"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="612" column="35"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="625" column="35"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/calibration/CalibrationListScreen.kt" line="626" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardScreen.kt" line="488" column="25"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DashboardScreen.kt" line="495" column="25"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="124" column="32"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="135" column="73"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="141" column="78"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="164" column="88"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="171" column="72"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="177" column="71"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="191" column="26"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/DebugSettingsScreen.kt" line="194" column="26"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="219" column="57"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="258" column="57"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="472" column="45"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="472" column="84"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="493" column="80"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="513" column="66"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="625" column="65"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="641" column="63"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="657" column="73"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="683" column="57"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="727" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="740" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="752" column="48"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="760" column="56"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="767" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="773" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="779" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="787" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="843" column="60"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExchangeSettingsScreens.kt" line="991" column="55"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="534" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="536" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="538" column="68"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="700" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="707" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="710" column="44"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="736" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="738" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="753" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/ExpressiveSettingsScreen.kt" line="756" column="44"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryBrowseScreen.kt" line="480" column="25"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryBrowseScreen.kt" line="487" column="25"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="109" column="38"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="109" column="89"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="143" column="38"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="143" column="89"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="261" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="263" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="265" column="32"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="337" column="36"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="358" column="28"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="366" column="28"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="368" column="21"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="449" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="464" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/HistoryDataTransfer.kt" line="512" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/ICanHealthSetupWizard.kt" line="112" column="21"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/ICanHealthSetupWizard.kt" line="149" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQAccountSettingsScreen.kt" line="133" column="61"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="132" column="61"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="142" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="152" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="162" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="172" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="194" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="203" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="205" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="225" column="13"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="339" column="49"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MQFollowerSettingsScreen.kt" line="367" column="49"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/MQSetupWizard.kt" line="223" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/setup/MQSetupWizard.kt" line="236" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="198" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="217" column="31"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="268" column="49"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="308" column="49"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="339" column="53"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="357" column="53"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="525" column="44"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="563" column="100"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="651" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="652" column="31"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="653" column="34"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="656" column="40"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="657" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="658" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="730" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="734" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/MirrorSettingsScreen.kt" line="738" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="183" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="232" column="67"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="251" column="40"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="260" column="28"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="261" column="29"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="262" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="265" column="59"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="266" column="35"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="267" column="41"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="268" column="36"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="269" column="36"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="270" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="271" column="17"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="582" column="53"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/NightscoutSettingsScreen.kt" line="604" column="53"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/OutboundApiSettingsScreen.kt" line="143" column="33"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/OutboundApiSettingsScreen.kt" line="829" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/SoundPicker.kt" line="144" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/SoundPicker.kt" line="145" column="55"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/SoundPicker.kt" line="253" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsRangeControls.kt" line="249" column="37"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="269" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="270" column="22"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="272" column="58"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="295" column="30"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="296" column="22"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="617" column="97"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="618" column="65"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="624" column="45"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/stats/StatsScreen.kt" line="626" column="70"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/TalkerSettingsScreen.kt" line="189" column="39"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/TalkerSettingsScreen.kt" line="190" column="36"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/TalkerSettingsScreen.kt" line="191" column="40"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/alerts/TalkerSettingsScreen.kt" line="192" column="38"/>
+    </issue>
+    <issue id="LocalContextGetResourceValueCall" message="Querying resource values using LocalContext.current">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/TurnServerSettingsScreen.kt" line="147" column="53"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;QRmirror&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/mobile/res/values/html.xml" line="2789" column="9"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;app_widget_description&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/mobile/res/values/strings.xml" line="3" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;blueormirror&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="195" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;high_priority&quot; is not translated in &quot;it&quot; (Italian) or &quot;nl&quot; (Dutch)">
+        <location file="Common/src/main/res/values/strings.xml" line="197" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;multiply&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="199" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;rapidinsulin&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="200" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;longinsulin&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="201" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;comments&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="202" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;dontsend&quot; is not translated in &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="203" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;wakelock&quot; is not translated in &quot;it&quot; (Italian) or &quot;nl&quot; (Dutch)">
+        <location file="Common/src/main/res/values/strings.xml" line="210" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;heartrate&quot; is not translated in &quot;pt&quot; (Portuguese) or &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="212" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;sensorpermission&quot; is not translated in &quot;pt&quot; (Portuguese) or &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="218" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;sensorpermissionmessage&quot; is not translated in &quot;pt&quot; (Portuguese) or &quot;it&quot; (Italian)">
+        <location file="Common/src/main/res/values/strings.xml" line="219" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;fontsizeshort&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="224" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;backgroundshort&quot; is not translated in &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;nl&quot; (Dutch)">
+        <location file="Common/src/main/res/values/strings.xml" line="228" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;android13&quot; is not translated in &quot;de&quot; (German), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;nl&quot; (Dutch)">
+        <location file="Common/src/main/res/values/strings.xml" line="268" column="9"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;tts_missed_readings&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="292" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;menus&quot; is not translated in &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French)">
+        <location file="Common/src/main/res/values/strings.xml" line="295" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;sibionics&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;nl&quot; (Dutch)">
+        <location file="Common/src/main/res/values/strings.xml" line="347" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;shortoff&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="352" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;colors_style_setting_description&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="361" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucosenumbercomplicationlabel&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="363" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucosearrowcomplicationlabel&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="364" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucosearrowvaluecomplicationlabel&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="365" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucosevalueiconcomplicationlabel&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="366" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucosearrowiconcomplicationlabel&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="367" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;glucoseshortcomplicationlabel&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="368" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;text&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="370" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;arrow&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="371" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;photomessage&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="375" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;initializing&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="377" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;startjuggluco&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="378" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;alarmclock&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="381" column="12"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;datapresent&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="397" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;overwrite&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="398" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;verylowglucoseshort&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="410" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;veryhighglucoseshort&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="411" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scantranstitle&quot; is not translated in &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="426" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scantransmessage&quot; is not translated in &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="427" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mirrorscansucces&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="428" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;switchtowatch&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="445" column="10"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;disconnectsensor&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="460" column="9"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;QRmirror&quot; is not translated in &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese)">
+        <location file="Common/src/main/res/values/strings.xml" line="470" column="9"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scanner_label&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="490" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;copy_log&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="501" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;share_log&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="502" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;label&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="514" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;send_to&quot; is not translated in &quot;fr&quot; (French)">
+        <location file="Common/src/main/res/values/strings.xml" line="533" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;receive_from&quot; is not translated in &quot;fr&quot; (French)">
+        <location file="Common/src/main/res/values/strings.xml" line="534" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;no_sensors_found&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="549" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;add_sensor_title&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="552" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;restart_autocal_title&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="556" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;restart_autocal_desc&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="557" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;restart&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="558" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;broadcast_only&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="563" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;reset_autocal_button&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="564" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;in_use&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="572" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;remaining&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="573" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;days_short&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="575" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;hours_short&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="576" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;reset_all_title&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="631" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;reset_all_desc&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="632" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;reset_all&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="633" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;auto_reset_never&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="648" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scan_sensor_qr&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="657" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scan_sensor_qr_desc&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="658" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scan_transmitter&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="660" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;connecting&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="662" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;setup_complete&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="663" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;delete_sensor&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="707" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;delete_sensor_desc&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="708" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;delete_confirm&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="709" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;general_settings&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="711" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_data_settings&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="720" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_data_settings_desc&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="721" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_everything&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="722" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_history_data_desc&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="723" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_calibrations_desc&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="724" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_range_title&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="725" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_range_30_days&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="726" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_range_90_days&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="727" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_range_365_days&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="728" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_range_all&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="729" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_save_to_files&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="730" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_share_to_cloud&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="731" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_nothing_selected&quot; is not translated in &quot;mn&quot; (Mongolian)">
+        <location file="Common/src/main/res/values/strings.xml" line="732" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;about_upstream&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="891" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;about_cloud&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="892" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;refreshing&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="893" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;icanhealth_sensor&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="930" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;icanhealth_sensor_desc&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="931" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_sensor&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="932" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_sensor_desc&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="933" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_sensor&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="934" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_sensor_desc&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="935" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_setup_title&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="938" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_searching_sensors&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="939" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_no_sensors_hint&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="940" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_detected_label&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="941" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_selectable_unrecognized&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="942" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;anytime_connecting_to&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="943" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_setup_title&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="946" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_searching_sensors&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="947" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_no_sensors_hint&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="948" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_detected_label&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="949" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_selectable_unrecognized&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="950" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_connecting_to&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="951" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;export_raw_csv&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1297" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_sensor_desc&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1387" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_sensor_picker_desc&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1388" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_mode_label&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1390" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_mode_off&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1391" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_server_ok&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1398" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_server_err&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1399" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_entries_ok&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1400" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_entries_auth_err&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1401" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_entries_err&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1402" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_last_upload_ok&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1403" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;nightscout_test_last_upload_err&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1404" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;manual_calibration&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1484" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;calibration_apply_past_subtitle&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1548" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;calibration_overwrite_values_title&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1549" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;calibration_overwrite_values_subtitle&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1550" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;calibration_visual_continuity_subtitle&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1551" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;scan_with_follower&quot; is not translated in &quot;de&quot; (German), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1552" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_account_section_credentials&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1660" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_account_section_session&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1661" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_account_section_sync&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1662" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_account_section_followers&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1663" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_account_section_advanced&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1664" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_follower_settings_title&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1665" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_follower_settings_subtitle&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1666" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_followers_summary_off&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1667" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_followers_summary_following&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1668" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_sms_recovery_subtitle&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1669" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_sms_show_action&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1670" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;mq_sms_hide_action&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1671" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_settings_summary&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1742" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_type_bg_short&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1756" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_archived_presets&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1770" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_title&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1771" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_preview&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1772" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_add_point&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1773" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_point&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1774" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_minutes&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1775" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_activity&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1776" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_curve_reset&quot; is not translated in &quot;de&quot; (German), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1777" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_enable_preset&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1778" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_disable_preset&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1779" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_preset_nph&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1784" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;journal_preset_ultra_long_basal&quot; is not translated in &quot;de&quot; (German), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="1785" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;voice_schedule_title&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="2058" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;voice_schedule_desc&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="2059" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;voice_schedule_from&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="2060" column="13"/>
+    </issue>
+    <issue id="MissingTranslation" message="&quot;voice_schedule_until&quot; is not translated in &quot;de&quot; (German), &quot;mn&quot; (Mongolian), &quot;be&quot; (Belarusian), &quot;ru&quot; (Russian), &quot;sv&quot; (Swedish), &quot;pt&quot; (Portuguese), &quot;it&quot; (Italian), &quot;fr&quot; (French), &quot;zh&quot; (Chinese), &quot;uk&quot; (Ukrainian), &quot;pl&quot; (Polish), &quot;nl&quot; (Dutch), &quot;tr&quot; (Turkish)">
+        <location file="Common/src/main/res/values/strings.xml" line="2061" column="13"/>
+    </issue>
+    <issue id="UnsafeImplicitIntentLaunch" message="The intent action `tk.glucodata.action.AOD_IMMEDIATE_REFRESH (used to send a broadcast)` matches the intent filter of a non-exported receiver, registered via a call to `Context.registerReceiver`, or similar. If you are trying to invoke this specific receiver via the action then you should use `Intent.setPackage(&lt;APPLICATION_ID&gt;)`.">
+        <location file="Common/src/mobile/java/tk/glucodata/ui/viewmodel/DashboardViewModel.kt" line="1119" column="13"/>
+    </issue>
+</issues>
+
