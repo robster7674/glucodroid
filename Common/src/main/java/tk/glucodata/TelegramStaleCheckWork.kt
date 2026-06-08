@@ -79,8 +79,8 @@ object TelegramStaleCheckWork {
             }
             val lastStaleMs = destination.lastStaleAtMsByRecipient[recipient] ?: 0L
             if (lastStaleMs > 0L && now - lastStaleMs < 30_000L) continue  // throttle
-            val messageId = destination.lastMessageIdByRecipient[recipient] ?: 0L
-            if (messageId <= 0L) continue
+            val hasActiveBubble = (destination.lastMessageIdByRecipient[recipient] ?: 0L) > 0L
+            if (!hasActiveBubble) continue
 
             val text = renderStaleText(status, now)
             val result = postSend(destination, recipient, text)
@@ -93,8 +93,8 @@ object TelegramStaleCheckWork {
                     }
                 }
                 false -> {
-                    // Definitive Telegram rejection (bubble deleted) — clear state
-                    // so next reading starts a fresh bubble.
+                    // Definitive Telegram rejection (bot blocked, wrong chat_id, etc.) — clear
+                    // state so next reading starts a fresh bubble.
                     OutboundApiSettings.clearRecipientState(
                         context = context,
                         destinationId = destinationId,
