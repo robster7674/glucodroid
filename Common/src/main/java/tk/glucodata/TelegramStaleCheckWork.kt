@@ -34,6 +34,7 @@ object TelegramStaleCheckWork {
     private val pending = ConcurrentHashMap<String, Runnable>()
 
     private const val STALE_PREFIX = "telegram_stale_check:"
+    private const val TRANSIENT_RETRY_DELAY_MS = 60_000L
 
     fun schedule(context: Context, destinationId: String, delayMs: Long) {
         val key = STALE_PREFIX + destinationId
@@ -65,7 +66,7 @@ object TelegramStaleCheckWork {
             240
         ) * 60_000L
 
-        var earliestMissedRemainingMs = Long.MAX_VALUE
+        var earliestNextDelayMs = Long.MAX_VALUE
         val recipients = destination.recipients()
         for (recipient in recipients) {
             val lastSentMs = destination.lastSentAtMsByRecipient[recipient] ?: 0L
@@ -88,23 +89,30 @@ object TelegramStaleCheckWork {
                     OutboundApiSettings.recordStaleAt(context, destinationId, recipient, now)
                     if (status == OutboundApiSettings.TUNNEL_STATUS_STALE) {
                         val remaining = (lastSentMs + missedThresholdMs) - now
-                        if (remaining > 0) earliestMissedRemainingMs = minOf(earliestMissedRemainingMs, remaining)
+                        if (remaining > 0) earliestNextDelayMs = minOf(
+                            earliestNextDelayMs,
+                            remaining + OutboundApiSettings.STALE_CHECK_SLACK_MS
+                        )
                     }
                 }
                 false -> {
-                    // Definitive Telegram rejection (bubble deleted) — clear state
-                    // so next reading starts a fresh bubble.
+                    // Definitive Telegram rejection (bot blocked, wrong chat_id, etc.) — clear
+                    // state so next reading starts a fresh bubble.
                     OutboundApiSettings.clearRecipientState(
                         context = context,
                         destinationId = destinationId,
                         recipient = recipient
                     )
                 }
-                null -> { /* transient network error — leave state intact to retry next cycle */ }
+                null -> {
+                    // Transient network error — reschedule so the notification is
+                    // retried rather than silently dropped.
+                    earliestNextDelayMs = minOf(earliestNextDelayMs, TRANSIENT_RETRY_DELAY_MS)
+                }
             }
         }
-        if (earliestMissedRemainingMs < Long.MAX_VALUE) {
-            schedule(context, destinationId, earliestMissedRemainingMs + OutboundApiSettings.STALE_CHECK_SLACK_MS)
+        if (earliestNextDelayMs < Long.MAX_VALUE) {
+            schedule(context, destinationId, earliestNextDelayMs)
         }
     }
 
