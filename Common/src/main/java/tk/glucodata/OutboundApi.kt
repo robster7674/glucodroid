@@ -657,23 +657,34 @@ class OutboundApiWorker(
                 val response = send(context, destination, reading)
                 if (response.ok) {
                     OutboundApiSettings.recordSuccess(context, destination.id, response.code)
+                    val nowMs = System.currentTimeMillis()
                     if (!response.suppressed) {
                         OutboundApiSettings.recordBubbleSent(
                             context = context.applicationContext,
                             destinationId = destination.id,
                             recipient = reading.recipient,
                             messageId = response.messageId,
-                            sentAtMs = System.currentTimeMillis(),
+                            sentAtMs = nowMs,
                             mgdl = reading.mgdl
                         )
-                        if (destination.normalizedPreset() == OutboundApiSettings.PRESET_TELEGRAM_BOT) {
-                            TelegramStaleCheckWork.schedule(
-                                context = context.applicationContext,
-                                destinationId = destination.id,
-                                delayMs = (destination.staleThresholdMinutes.coerceIn(1, 120) * 60_000L) +
-                                    OutboundApiSettings.STALE_CHECK_SLACK_MS
-                            )
-                        }
+                    } else {
+                        // Reading arrived but bubble text was unchanged — still update the
+                        // "last received" timestamp so the stale timer doesn't fire during
+                        // a flat-glucose stretch where every reading is suppressed.
+                        OutboundApiSettings.recordReadingArrived(
+                            context = context.applicationContext,
+                            destinationId = destination.id,
+                            recipient = reading.recipient,
+                            arrivedAtMs = nowMs
+                        )
+                    }
+                    if (destination.normalizedPreset() == OutboundApiSettings.PRESET_TELEGRAM_BOT) {
+                        TelegramStaleCheckWork.schedule(
+                            context = context.applicationContext,
+                            destinationId = destination.id,
+                            delayMs = (destination.staleThresholdMinutes.coerceIn(1, 120) * 60_000L) +
+                                OutboundApiSettings.STALE_CHECK_SLACK_MS
+                        )
                     }
                     Result.success()
                 } else {
