@@ -367,6 +367,21 @@ object OutboundApiSettings {
         }
     }
 
+    fun recordReadingArrived(
+        context: Context,
+        destinationId: String,
+        recipient: String,
+        arrivedAtMs: Long
+    ) {
+        updateDestination(context, destinationId) { dest ->
+            // Only update the timestamp; leave messageId and lastSentMgdl unchanged
+            // so suppression delta is still computed from the last-sent value.
+            dest.copy(
+                lastSentAtMsByRecipient = dest.lastSentAtMsByRecipient + (recipient to arrivedAtMs)
+            )
+        }
+    }
+
     fun recordBubbleSent(
         context: Context,
         destinationId: String,
