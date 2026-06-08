@@ -3,8 +3,13 @@ name: Firebase Test Lab
 on:
   workflow_dispatch:
     inputs:
+      power_only:
+        description: 'Power/wake audit — skips UX matrix, extends tests to 20 min, full batterystats report'
+        required: false
+        default: false
+        type: boolean
       test_type:
-        description: 'Test type'
+        description: 'Physical device test type (ignored when power_only)'
         required: false
         default: 'robo'
         type: choice
@@ -18,7 +23,7 @@ on:
         required: false
         default: '33'
       timeout:
-        description: 'Test timeout (e.g. 5m, 10m)'
+        description: 'Physical device timeout — ignored when power_only (forced to 20m)'
         required: false
         default: '5m'
   push:
@@ -66,7 +71,7 @@ jobs:
             -Pno_x86 -Pno_x86_64
 
       - name: Build test APK (instrumented dispatch only)
-        if: inputs.test_type == 'instrumented'
+        if: inputs.test_type == 'instrumented' && inputs.power_only != true
         run: |
           ./gradlew :Common:assembleMobileLibre3SiDexNogoogleDebugAndroidTest \
             --no-daemon --warning-mode=all \
@@ -84,23 +89,21 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Virtual UX/UI — Robo crawl on two virtual form factors.
-  # Runs on every push and on manual dispatch.
-  # Catches: crashes, UI regressions across Android versions.
+  # Skipped when power_only is set (no value in UX noise during a power audit).
   # ─────────────────────────────────────────────────────────────────────────────
   virtual-ux:
     name: UX — ${{ matrix.label }}
     needs: build
+    if: github.event_name == 'push' || inputs.power_only != true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Covers older Android (still ~15 % of our user base at minSdk 23)
           - model: Pixel2
             api: 28
             label: Pixel2-API28
-          # Covers Android 10 mid-range hardware
           - model: Pixel3
             api: 30
             label: Pixel3-API30
@@ -157,11 +160,10 @@ jobs:
           lines = [f"## UX Results — {label}\n",
                    f"**GCS:** `gs://{bucket}/{run_dir}`\n"]
 
-          # Robo crawl coverage
           actions_file = next(iter(glob.glob("ftl-results/**/actions.json", recursive=True)), None)
           if actions_file:
               try:
-                  data = json.load(open(actions_file))
+                  data    = json.load(open(actions_file))
                   events  = data.get("events", [])
                   screens = {e.get(k) for e in events for k in ("sourceScreenId","destinationScreenId") if e.get(k)}
                   errors  = [e for e in events if e.get("executionResult","") in ("ERROR","FAILURE")]
@@ -169,16 +171,12 @@ jobs:
               except Exception as ex:
                   lines.append(f"_(actions.json parse error: {ex})_\n")
 
-          # Crash detection from logcat
           logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
-          crash_re = re.compile(r'FATAL EXCEPTION|crash|ANR in|Application Not Responding', re.I)
-          crash_hits = []
+          crash_re     = re.compile(r'FATAL EXCEPTION|crash|ANR in|Application Not Responding', re.I)
           glucodroid_re = re.compile(r'cloud\.glucodroid')
-          for lf in logcat_files:
-              for line in open(lf, errors='replace'):
-                  if crash_re.search(line) and glucodroid_re.search(line):
-                      crash_hits.append(line.rstrip())
-
+          crash_hits = [line.rstrip() for lf in logcat_files
+                        for line in open(lf, errors='replace')
+                        if crash_re.search(line) and glucodroid_re.search(line)]
           if crash_hits:
               lines.append(f"### ⚠️ Crashes / ANRs in cloud.glucodroid ({len(crash_hits)})")
               lines.append("```")
@@ -187,23 +185,22 @@ jobs:
           else:
               lines.append("### ✅ No app crashes or ANRs detected\n")
 
-          # Startup jank
-          jank_hits = []
-          for lf in logcat_files:
-              for line in open(lf, errors='replace'):
-                  if "Skipped" in line and "frames" in line and "cloud.glucodroid" in line:
-                      jank_hits.append(line.rstrip())
+          jank_re   = re.compile(r'Skipped (\d+) frames', re.I)
+          jank_hits = [(int(m.group(1)), line.rstrip())
+                       for lf in logcat_files
+                       for line in open(lf, errors='replace')
+                       if 'cloud.glucodroid' in line
+                       for m in [jank_re.search(line)] if m]
           if jank_hits:
-              lines.append(f"### ⚠️ Main-thread jank (Choreographer) — {len(jank_hits)} occurrence(s)")
+              lines.append(f"### ⚠️ Main-thread jank — {len(jank_hits)} event(s), "
+                           f"{sum(n for n,_ in jank_hits)} frames total")
               lines.append("```")
-              lines.extend(jank_hits[:5])
+              lines.extend(l for _, l in sorted(jank_hits, reverse=True)[:5])
               lines.append("```\n")
 
-          # Screenshots
           screenshots = glob.glob("ftl-results/**/*.png", recursive=True)
           lines.append(f"**Screenshots captured:** {len(screenshots)}")
 
-          # Artifacts
           all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
           if all_files:
               lines.append(f"\n### Artifacts ({len(all_files)} files)")
@@ -226,15 +223,15 @@ jobs:
           if-no-files-found: warn
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Virtual Power — 15-minute Robo for wakelock / alarm / jank analysis.
-  # Longer run gives the app time to enter background polling loops.
-  # Runs on every push and on manual dispatch.
+  # Virtual Power — wakelock / alarm / jank analysis.
+  # 15 min on regular runs; extended to 20 min when power_only to capture
+  # more background polling cycles.
   # ─────────────────────────────────────────────────────────────────────────────
   virtual-power:
-    name: Power/Wake — virtual Pixel3 API30
+    name: Power/Wake — virtual Pixel3 API30 (${{ inputs.power_only == true && '20m' || '15m' }})
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - name: Download APKs
@@ -252,18 +249,19 @@ jobs:
           echo "FIREBASE_PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
           gcloud config set project "$PROJECT_ID" --quiet
 
-      - name: Run power Robo (15 min, virtual Pixel3 API30)
+      - name: Run power Robo (virtual Pixel3 API30)
         run: |
           APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
           RUN_DIR="glucodroid-power-$(date +%Y%m%d-%H%M%S)"
           echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
+          TIMEOUT="${{ inputs.power_only == true && '20m' || '15m' }}"
           gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${FTL_BUCKET}" 2>/dev/null || true
           gcloud firebase test android run \
             --type robo \
             --app  "$APP_APK" \
             --project "$FIREBASE_PROJECT_ID" \
             --device  "model=Pixel3,version=30,locale=en,orientation=portrait" \
-            --timeout 15m \
+            --timeout "$TIMEOUT" \
             --results-bucket "$FTL_BUCKET" \
             --results-dir    "$RUN_DIR"
 
@@ -289,86 +287,71 @@ jobs:
 
           logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
 
-          # ── BLE scan lifecycle ────────────────────────────────────────────
           ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
           ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
           ble_starts, ble_stops = [], []
           for lf in logcat_files:
               for line in open(lf, errors='replace'):
-                  if 'cloud.glucodroid' not in line and '23111' not in line:
-                      # only count BLE events from our process; fallback to
-                      # bt_stack lines which carry no PID context
-                      if 'BluetoothLeScanner' not in line and 'bt_stack' not in line:
-                          continue
-                  m = ble_start.search(line)
-                  if m:
+                  if 'cloud.glucodroid' not in line and 'BluetoothLeScanner' not in line and 'bt_stack' not in line:
+                      continue
+                  if ble_start.search(line):
                       ble_starts.append(line.rstrip())
                   elif ble_stop.search(line):
                       ble_stops.append(line.rstrip())
 
           lines.append("### BLE Scan Lifecycle")
-          lines.append(f"- Scanner registered (start): **{len(ble_starts)}**")
-          lines.append(f"- Scanner stopped: **{len(ble_stops)}**")
+          lines.append(f"- Scanner registered: **{len(ble_starts)}**  stopped: **{len(ble_stops)}**")
           if len(ble_starts) > len(ble_stops) + 1:
-              lines.append(f"- ⚠️ **{len(ble_starts) - len(ble_stops)} unmatched start(s)** — scanners may not be stopped on screen exit\n")
+              lines.append(f"- ⚠️ {len(ble_starts) - len(ble_stops)} unmatched start(s) — verify stopScan() on screen exit\n")
           else:
               lines.append("- ✅ Starts and stops balanced\n")
 
-          # ── Jank / main-thread work ───────────────────────────────────────
-          jank_re = re.compile(r'Skipped (\d+) frames', re.I)
-          jank_hits = []
-          for lf in logcat_files:
-              for line in open(lf, errors='replace'):
-                  if 'cloud.glucodroid' in line and jank_re.search(line):
-                      m = jank_re.search(line)
-                      jank_hits.append((int(m.group(1)), line.rstrip()))
+          jank_re   = re.compile(r'Skipped (\d+) frames', re.I)
+          jank_hits = [(int(m.group(1)), line.rstrip())
+                       for lf in logcat_files
+                       for line in open(lf, errors='replace')
+                       if 'cloud.glucodroid' in line
+                       for m in [jank_re.search(line)] if m]
           total_skipped = sum(n for n, _ in jank_hits)
           lines.append("### Main-Thread Jank (Choreographer)")
           if jank_hits:
-              lines.append(f"- ⚠️ Jank events: **{len(jank_hits)}**, total frames skipped: **{total_skipped}**")
+              lines.append(f"- ⚠️ {len(jank_hits)} event(s), {total_skipped} frames skipped total")
               for n, l in sorted(jank_hits, reverse=True)[:5]:
                   lines.append(f"  - {n} frames: `{l[-120:]}`")
           else:
               lines.append("- ✅ No jank detected")
 
-          # ── AlarmManager ─────────────────────────────────────────────────
-          alarm_re = re.compile(r'AlarmManager.*set|setExact|setWindow|setRepeating', re.I)
-          alarm_hits = []
-          for lf in logcat_files:
-              for line in open(lf, errors='replace'):
-                  if alarm_re.search(line) and 'cloud.glucodroid' in line:
-                      alarm_hits.append(line.rstrip())
-          lines.append(f"\n### App AlarmManager activity")
+          alarm_re   = re.compile(r'AlarmManager.*set|setExact|setWindow|setRepeating', re.I)
+          alarm_hits = [line.rstrip() for lf in logcat_files
+                        for line in open(lf, errors='replace')
+                        if alarm_re.search(line) and 'cloud.glucodroid' in line]
+          lines.append(f"\n### App AlarmManager ({len(alarm_hits)} call(s))")
           if alarm_hits:
-              lines.append(f"- Alarms set by app: **{len(alarm_hits)}**")
               lines.append("<details><summary>Alarm log lines</summary>\n\n```")
               lines.extend(alarm_hits[:20])
               lines.append("```\n</details>")
           else:
-              lines.append("- No AlarmManager calls found in app logcat")
+              lines.append("- No AlarmManager calls from app")
 
-          # ── Batterystats (if captured) ────────────────────────────────────
           batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
           if batt:
-              data = open(batt).read()
-              wl = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
-              al = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
+              data   = open(batt).read()
+              wl     = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
+              al     = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
               cpu_wk = re.findall(r'CPU wakeups:\s+(\d+)', data)
-              lines.append(f"\n### Batterystats — Wakelock Summary ({len(wl)} entries)")
+              lines.append(f"\n### Batterystats — Wakelocks ({len(wl)})")
               for name, detail in wl[:20]:
                   lines.append(f"- `{name}`: {detail}")
               if len(wl) > 20:
                   lines.append(f"- … and {len(wl)-20} more")
-              lines.append(f"\n### Batterystats — Alarm Summary ({len(al)} entries)")
+              lines.append(f"\n### Batterystats — Alarms ({len(al)})")
               for name, detail in al[:15]:
                   lines.append(f"- `{name}`: {detail}")
               if cpu_wk:
                   lines.append(f"\n**CPU wakeups:** {cpu_wk[0]}")
           else:
-              lines.append("\n_Batterystats not captured by FTL for virtual Robo runs. "
-                           "BLE/alarm/jank data comes from logcat above._")
+              lines.append("\n_Batterystats not captured for virtual Robo. BLE/alarm/jank from logcat above._")
 
-          # ── Artifact list ─────────────────────────────────────────────────
           all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
           if all_files:
               lines.append(f"\n### Artifacts ({len(all_files)} files)")
@@ -391,17 +374,18 @@ jobs:
           if-no-files-found: warn
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Physical device — manual dispatch only (preserves physical-device quota).
-  # Use for real BLE/power measurements that virtual devices can't provide.
+  # Physical device — manual dispatch only.
+  # power_only mode: forces 20 min Robo, full batterystats/wakelock report.
+  # Normal mode: respects test_type / timeout inputs.
   # ─────────────────────────────────────────────────────────────────────────────
   physical:
     name: >
-      Physical ${{ inputs.test_type || 'robo' }} —
+      Physical ${{ inputs.power_only == true && 'power audit' || (inputs.test_type || 'robo') }} —
       ${{ inputs.device_model || 'oriole' }} API${{ inputs.api_level || '33' }}
     needs: build
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Download APKs
@@ -420,14 +404,23 @@ jobs:
           gcloud config set project "$PROJECT_ID" --quiet
 
       - name: Run on physical device
+        env:
+          POWER_ONLY: ${{ inputs.power_only }}
         run: |
           DEVICE="${{ inputs.device_model || 'oriole' }}"
           VERSION="${{ inputs.api_level || '33' }}"
-          TIMEOUT="${{ inputs.timeout || '5m' }}"
           TYPE="${{ inputs.test_type || 'robo' }}"
+
+          if [[ "$POWER_ONLY" == "true" ]]; then
+            TIMEOUT="20m"
+            TYPE="robo"
+          else
+            TIMEOUT="${{ inputs.timeout || '5m' }}"
+          fi
+
           RUN_DIR="glucodroid-${TYPE}-$(date +%Y%m%d-%H%M%S)"
           echo "FTL_RUN_DIR=$RUN_DIR"   >> "$GITHUB_ENV"
-          echo "PHYSICAL_TYPE=$TYPE"    >> "$GITHUB_ENV"
+          echo "POWER_ONLY=$POWER_ONLY" >> "$GITHUB_ENV"
 
           APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
           TEST_APK=$(find apks -name "*androidTest*.apk" 2>/dev/null | head -1 || true)
@@ -465,20 +458,25 @@ jobs:
 
       - name: Summarise physical results
         if: always()
+        env:
+          POWER_ONLY: ${{ inputs.power_only }}
         run: |
           python3 << 'PYEOF'
           import os, glob, re, json
+          from collections import defaultdict
 
-          summary = os.environ.get("GITHUB_STEP_SUMMARY", "")
-          device  = os.environ.get("INPUT_DEVICE_MODEL", "oriole")
-          version = os.environ.get("INPUT_API_LEVEL",    "33")
-          bucket  = os.environ.get("FTL_BUCKET",         "")
-          run_dir = os.environ.get("FTL_RUN_DIR",        "")
+          summary    = os.environ.get("GITHUB_STEP_SUMMARY", "")
+          power_only = os.environ.get("POWER_ONLY", "false").lower() == "true"
+          device     = "${{ inputs.device_model || 'oriole' }}"
+          version    = "${{ inputs.api_level || '33' }}"
+          bucket     = os.environ.get("FTL_BUCKET", "")
+          run_dir    = os.environ.get("FTL_RUN_DIR", "")
 
-          lines = [f"## Physical Device Results — {device} (API {version})\n",
+          mode_label = "Power Audit" if power_only else "Results"
+          lines = [f"## Physical Device {mode_label} — {device} (API {version})\n",
                    f"**GCS:** `gs://{bucket}/{run_dir}`\n"]
 
-          # Instrumented test outcome
+          # ── Test outcome (instrumented) ───────────────────────────────────
           for xml in glob.glob("ftl-results/**/*.xml", recursive=True):
               content  = open(xml).read()
               tests    = len(re.findall(r'<testcase ', content))
@@ -489,48 +487,132 @@ jobs:
                   lines.append(f"**Tests:** {tests} run, {failures+errors} issue(s) — {status}\n")
                   break
 
-          # Robo coverage
+          # ── Robo coverage ─────────────────────────────────────────────────
           actions_file = next(iter(glob.glob("ftl-results/**/actions.json", recursive=True)), None)
           if actions_file:
               try:
                   data    = json.load(open(actions_file))
                   events  = data.get("events", [])
-                  screens = {e.get(k) for e in events for k in ("sourceScreenId","destinationScreenId") if e.get(k)}
+                  screens = {e.get(k) for e in events
+                             for k in ("sourceScreenId","destinationScreenId") if e.get(k)}
                   lines.append(f"**Screens visited:** {len(screens)}  **Actions:** {len(events)}\n")
               except Exception:
                   pass
 
-          # Batterystats (physical devices capture this)
+          # ── Batterystats (real data from physical device) ─────────────────
           batt = next(iter(glob.glob("ftl-results/**/batterystats*", recursive=True)), None)
           if batt:
-              data = open(batt).read()
-              wl   = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
-              al   = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
-              lines.append(f"### Wakelock Summary ({len(wl)} entries)")
-              for name, detail in wl[:15]:
-                  lines.append(f"- `{name}`: {detail}")
-              if len(wl) > 15:
-                  lines.append(f"- … and {len(wl)-15} more")
-              lines.append(f"\n### Alarm Summary ({len(al)} entries)")
-              for name, detail in al[:10]:
-                  lines.append(f"- `{name}`: {detail}")
-          else:
-              lines.append("_No batterystats artifact in this run._")
+              data   = open(batt).read()
+              wl     = re.findall(r'Wake lock\s+([\w./:]+)\s+(.+)', data)
+              al     = re.findall(r'Alarm\s+([\w./:]+)\s+(.+)', data)
+              cpu_wk = re.findall(r'CPU wakeups:\s+(\d+)', data)
+              screen = re.findall(r'Screen on:\s+([\dhms ]+)', data)
+              bg_cpu = re.findall(r'Background CPU:\s+(.+)', data)
 
-          # BLE scan balance (from logcat)
+              limit = None if power_only else 15
+              lines.append(f"### Wakelocks ({len(wl)} total)")
+              for name, detail in (wl if power_only else wl[:limit]):
+                  lines.append(f"- `{name}`: {detail}")
+              if not power_only and len(wl) > limit:
+                  lines.append(f"- … and {len(wl)-limit} more (run with power_only for full list)")
+
+              if power_only:
+                  # Group wakelocks by package for easier scanning
+                  pkg_wl = defaultdict(list)
+                  for name, detail in wl:
+                      pkg = name.rsplit('/', 1)[0] if '/' in name else name.rsplit('.', 2)[0]
+                      pkg_wl[pkg].append((name, detail))
+                  if len(pkg_wl) > 1:
+                      lines.append("\n**By package:**")
+                      for pkg, entries in sorted(pkg_wl.items(), key=lambda x: -len(x[1]))[:10]:
+                          lines.append(f"- `{pkg}`: {len(entries)} wakelock(s)")
+
+              al_limit = None if power_only else 10
+              lines.append(f"\n### Alarms ({len(al)} total)")
+              for name, detail in (al if power_only else al[:al_limit]):
+                  lines.append(f"- `{name}`: {detail}")
+              if not power_only and len(al) > al_limit:
+                  lines.append(f"- … and {len(al)-al_limit} more")
+
+              if power_only:
+                  pkg_al = defaultdict(int)
+                  for name, _ in al:
+                      pkg = name.rsplit('/', 1)[0] if '/' in name else name.rsplit('.', 2)[0]
+                      pkg_al[pkg] += 1
+                  if pkg_al:
+                      lines.append("\n**Alarm frequency by package:**")
+                      for pkg, count in sorted(pkg_al.items(), key=lambda x: -x[1])[:10]:
+                          lines.append(f"- `{pkg}`: {count} alarm(s)")
+
+              if cpu_wk:
+                  lines.append(f"\n**CPU wakeups:** {cpu_wk[0]}")
+              if screen:
+                  lines.append(f"**Screen-on time:** {screen[0].strip()}")
+              if bg_cpu and power_only:
+                  lines.append(f"**Background CPU:** {bg_cpu[0].strip()}")
+          else:
+              lines.append("_No batterystats artifact — power data unavailable._")
+
+          # ── Jank (always shown in power_only, condensed otherwise) ───────
           logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
+          jank_re   = re.compile(r'Skipped (\d+) frames', re.I)
+          jank_hits = [(int(m.group(1)), line.rstrip())
+                       for lf in logcat_files
+                       for line in open(lf, errors='replace')
+                       if 'cloud.glucodroid' in line
+                       for m in [jank_re.search(line)] if m]
+          if jank_hits or power_only:
+              total_skipped = sum(n for n, _ in jank_hits)
+              lines.append(f"\n### Main-Thread Jank")
+              if jank_hits:
+                  lines.append(f"- ⚠️ {len(jank_hits)} event(s), {total_skipped} frames skipped")
+                  for n, l in sorted(jank_hits, reverse=True)[:5]:
+                      lines.append(f"  - {n} frames: `{l[-120:]}`")
+              else:
+                  lines.append("- ✅ No jank detected")
+
+          # ── BLE scan lifecycle ────────────────────────────────────────────
           ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
           ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
-          n_start = sum(1 for lf in logcat_files
+          ble_starts = [line.rstrip() for lf in logcat_files
                         for line in open(lf, errors='replace')
-                        if ble_start.search(line) and 'cloud.glucodroid' in line)
-          n_stop  = sum(1 for lf in logcat_files
+                        if ble_start.search(line) and 'cloud.glucodroid' in line]
+          ble_stops  = [line.rstrip() for lf in logcat_files
                         for line in open(lf, errors='replace')
-                        if ble_stop.search(line) and 'cloud.glucodroid' in line)
-          lines.append(f"\n**BLE scanner start/stop:** {n_start} / {n_stop}")
-          if n_start > n_stop + 1:
-              lines.append("  ⚠️ More starts than stops — verify stopScan() on lifecycle events")
+                        if ble_stop.search(line) and 'cloud.glucodroid' in line]
+          lines.append(f"\n### BLE Scan Lifecycle")
+          lines.append(f"- Registered: **{len(ble_starts)}**  stopped: **{len(ble_stops)}**")
+          if len(ble_starts) > len(ble_stops) + 1:
+              lines.append(f"- ⚠️ {len(ble_starts)-len(ble_stops)} unmatched start(s)")
 
+          # ── App AlarmManager calls ─────────────────────────────────────────
+          if power_only:
+              alarm_re   = re.compile(r'AlarmManager.*set|setExact|setWindow|setRepeating', re.I)
+              alarm_hits = [line.rstrip() for lf in logcat_files
+                            for line in open(lf, errors='replace')
+                            if alarm_re.search(line) and 'cloud.glucodroid' in line]
+              lines.append(f"\n### App AlarmManager ({len(alarm_hits)} call(s))")
+              if alarm_hits:
+                  lines.append("<details><summary>Alarm log lines</summary>\n\n```")
+                  lines.extend(alarm_hits[:30])
+                  lines.append("```\n</details>")
+              else:
+                  lines.append("- No AlarmManager calls from app")
+
+              # ── Doze / background wake events ─────────────────────────────
+              doze_re  = re.compile(r'DeviceIdle|Doze|BECOME_ACTIVE|IDLE_MAINTENANCE', re.I)
+              doze_hits = [line.rstrip() for lf in logcat_files
+                           for line in open(lf, errors='replace')
+                           if doze_re.search(line) and 'cloud.glucodroid' in line]
+              lines.append(f"\n### Doze / DeviceIdle interaction ({len(doze_hits)} event(s))")
+              if doze_hits:
+                  lines.append("<details><summary>Doze log lines</summary>\n\n```")
+                  lines.extend(doze_hits[:20])
+                  lines.append("```\n</details>")
+              else:
+                  lines.append("- No Doze interactions from app (good)")
+
+          # ── Artifact list ─────────────────────────────────────────────────
           all_files = sorted(f for f in glob.glob("ftl-results/**/*", recursive=True) if os.path.isfile(f))
           if all_files:
               lines.append(f"\n### Artifacts ({len(all_files)} files)")
