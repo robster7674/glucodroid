@@ -2004,6 +2004,16 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="outbound_api_trigger_summary_low">At or below %1$s %2$s</string>
     <string name="outbound_api_trigger_summary_high">At or above %1$s %2$s</string>
     <string name="outbound_api_trigger_summary_range">At or below %1$s or at or above %2$s %3$s</string>
+    <string name="outbound_api_bubble_title">Telegram bubble</string>
+    <string name="outbound_api_bubble_refresh_title">Refresh in place</string>
+    <string name="outbound_api_bubble_refresh_desc">Within the refresh window, edit the same bubble instead of posting a new one.</string>
+    <string name="outbound_api_bubble_refresh_window">Refresh window (minutes)</string>
+    <string name="outbound_api_bubble_suppress_title">Skip if value unchanged</string>
+    <string name="outbound_api_bubble_suppress_desc">Don\'t edit the bubble if the new reading is within 1 mg/dL of the last.</string>
+    <string name="outbound_api_bubble_stale_title">Show "Missed reading." when silent</string>
+    <string name="outbound_api_bubble_stale_desc">Edit the bubble to a stale or missed state if no new reading arrives in time.</string>
+    <string name="outbound_api_bubble_stale_threshold">Stale threshold (minutes)</string>
+    <string name="outbound_api_bubble_missed_threshold">Missed threshold (minutes)</string>
     <string name="outbound_api_send_test">Send test message</string>
     <string name="outbound_api_test_queued">Test message queued</string>
     <string name="outbound_api_no_current_reading">No current reading available</string>
