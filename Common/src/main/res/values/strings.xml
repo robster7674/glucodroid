@@ -2033,6 +2033,10 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="api_source_status_no_readings">No API readings yet</string>
     <string name="api_source_status_sync_failed">API source sync failed</string>
     <string name="outbound_api_preset_sheet_title">Choose destination preset</string>
+    <string name="outbound_api_preset_glucodroid_cloud">glucodroid.cloud</string>
+    <string name="outbound_api_preset_glucodroid_cloud_desc">Stream readings to your glucodroid.cloud account.</string>
+    <string name="outbound_api_glucodroid_subdomain">Subdomain</string>
+    <string name="outbound_api_glucodroid_ingest_token">Ingest token</string>
     <string name="outbound_api_preset_custom_json_desc">POST normalized glucose JSON to any endpoint.</string>
     <string name="outbound_api_preset_telegram_desc">Send text with the Telegram Bot API. The URL can point to a relay.</string>
     <string name="outbound_api_preset_gluco_watch_vk_desc">Send compact GV text through VK community messages.</string>

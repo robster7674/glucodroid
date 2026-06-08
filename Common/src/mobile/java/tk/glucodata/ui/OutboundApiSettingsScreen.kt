@@ -198,6 +198,11 @@ fun OutboundApiSettingsScreen(navController: NavController) {
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showAddSheet = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.outbound_api_add_destination))
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
@@ -423,6 +428,7 @@ private fun DestinationEditor(
     val isVk = preset == OutboundApiSettings.PRESET_GLUCO_WATCH_VK ||
         preset == OutboundApiSettings.PRESET_VK_MESSAGES
     val isTelegram = preset == OutboundApiSettings.PRESET_TELEGRAM_BOT
+    val isGlucodroid = preset == OutboundApiSettings.PRESET_GLUCODROID_CLOUD
     var showPresetSheet by rememberSaveable(destination.id) { mutableStateOf(false) }
 
     if (showPresetSheet) {
@@ -455,7 +461,7 @@ private fun DestinationEditor(
         onChangePreset = { showPresetSheet = true }
     )
 
-    if (isTelegram || isVk) {
+    if (isTelegram || isVk || isGlucodroid) {
         OutlinedTextField(
             value = destination.token,
             onValueChange = { onChange(destination.copy(token = it)) },
@@ -464,7 +470,11 @@ private fun DestinationEditor(
             label = {
                 Text(
                     stringResource(
-                        if (isTelegram) R.string.outbound_api_telegram_token else R.string.outbound_api_vk_token
+                        when {
+                            isTelegram -> R.string.outbound_api_telegram_token
+                            isVk -> R.string.outbound_api_vk_token
+                            else -> R.string.outbound_api_glucodroid_ingest_token
+                        }
                     )
                 )
             },
@@ -483,6 +493,8 @@ private fun DestinationEditor(
                 imeAction = ImeAction.Next
             )
         )
+    }
+    if (isTelegram || isVk) {
         OutlinedTextField(
             value = destination.chatId,
             onValueChange = { onChange(destination.copy(chatId = it)) },
@@ -507,36 +519,51 @@ private fun DestinationEditor(
         )
     }
 
-    OutlinedTextField(
-        value = destination.url.ifBlank { OutboundApiSettings.defaultUrl(preset) },
-        onValueChange = { onChange(destination.copy(url = it)) },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        label = { Text(stringResource(R.string.outbound_api_url_label)) },
-        supportingText = {
-            if (isTelegram) {
-                Text(stringResource(R.string.outbound_api_url_template_help))
-            }
-        },
-        leadingIcon = { Icon(Icons.Filled.Link, contentDescription = null) },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Uri,
-            imeAction = ImeAction.Next
+    if (isGlucodroid) {
+        OutlinedTextField(
+            value = destination.url,
+            onValueChange = { onChange(destination.copy(url = it.trim())) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text(stringResource(R.string.outbound_api_glucodroid_subdomain)) },
+            suffix = { Text(".glucodroid.cloud", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            )
         )
-    )
+    } else {
+        OutlinedTextField(
+            value = destination.url.ifBlank { OutboundApiSettings.defaultUrl(preset) },
+            onValueChange = { onChange(destination.copy(url = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text(stringResource(R.string.outbound_api_url_label)) },
+            supportingText = {
+                if (isTelegram) {
+                    Text(stringResource(R.string.outbound_api_url_template_help))
+                }
+            },
+            leadingIcon = { Icon(Icons.Filled.Link, contentDescription = null) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Next
+            )
+        )
 
-    OutlinedTextField(
-        value = destination.headers,
-        onValueChange = { onChange(destination.copy(headers = it)) },
-        modifier = Modifier.fillMaxWidth(),
-        minLines = if (isCustom) 3 else 1,
-        label = { Text(stringResource(R.string.outbound_api_headers)) },
-        placeholder = { Text(stringResource(R.string.outbound_api_headers_placeholder)) },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Default
+        OutlinedTextField(
+            value = destination.headers,
+            onValueChange = { onChange(destination.copy(headers = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = if (isCustom) 3 else 1,
+            label = { Text(stringResource(R.string.outbound_api_headers)) },
+            placeholder = { Text(stringResource(R.string.outbound_api_headers_placeholder)) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Default
+            )
         )
-    )
+    }
 
     if (isVk) {
         OutlinedTextField(
@@ -568,7 +595,9 @@ private fun DestinationEditor(
         )
     )
     TriggerPicker(destination = destination, onChange = onChange)
-    TemplateEditor(destination = destination, onChange = onChange)
+    if (!isGlucodroid) {
+        TemplateEditor(destination = destination, onChange = onChange)
+    }
 }
 
 @Composable
@@ -966,6 +995,12 @@ private data class PresetSpec(
 private fun destinationPresetSpecs(): List<PresetSpec> =
     listOf(
         PresetSpec(
+            id = OutboundApiSettings.PRESET_GLUCODROID_CLOUD,
+            titleRes = R.string.outbound_api_preset_glucodroid_cloud,
+            descriptionRes = R.string.outbound_api_preset_glucodroid_cloud_desc,
+            icon = Icons.Filled.CloudUpload
+        ),
+        PresetSpec(
             id = OutboundApiSettings.PRESET_CUSTOM_JSON,
             titleRes = R.string.outbound_api_preset_custom_json,
             descriptionRes = R.string.outbound_api_preset_custom_json_desc,
@@ -993,6 +1028,7 @@ private fun destinationPresetSpecs(): List<PresetSpec> =
 
 private fun presetTitle(preset: String): Int =
     when (preset) {
+        OutboundApiSettings.PRESET_GLUCODROID_CLOUD -> R.string.outbound_api_preset_glucodroid_cloud
         OutboundApiSettings.PRESET_TELEGRAM_BOT -> R.string.outbound_api_preset_telegram
         OutboundApiSettings.PRESET_GLUCO_WATCH_VK -> R.string.outbound_api_preset_gluco_watch_vk
         OutboundApiSettings.PRESET_VK_MESSAGES -> R.string.outbound_api_preset_vk

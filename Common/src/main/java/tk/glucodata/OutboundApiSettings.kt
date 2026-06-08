@@ -13,6 +13,7 @@ object OutboundApiSettings {
     const val PRESET_TELEGRAM_BOT = "telegram_bot"
     const val PRESET_GLUCO_WATCH_VK = "glucowatch_vk"
     const val PRESET_VK_MESSAGES = "vk_messages"
+    const val PRESET_GLUCODROID_CLOUD = "glucodroid_cloud"
 
     private const val LEGACY_PROVIDER_WEBHOOK_JSON = "webhook_json"
     private const val LEGACY_PROVIDER_VK = "vk"
@@ -96,6 +97,11 @@ object OutboundApiSettings {
         fun normalizedTriggerMode(): String = normalizeTriggerMode(triggerMode)
 
         fun resolvedUrl(): String {
+            if (normalizedPreset() == PRESET_GLUCODROID_CLOUD) {
+                val subdomain = url.trim()
+                if (subdomain.isBlank()) return ""
+                return "https://$subdomain.glucodroid.cloud/api/v1/ingest?token=${token.trim()}"
+            }
             val trimmed = url.trim()
             val replacementToken = if (normalizedPreset() == PRESET_TELEGRAM_BOT) {
                 token.trim().removePrefix("bot")
@@ -138,6 +144,7 @@ object OutboundApiSettings {
                 PRESET_GLUCO_WATCH_VK,
                 PRESET_VK_MESSAGES -> token.isNotBlank() && recipients().isNotEmpty() &&
                     recipients().all(::isVkRecipient)
+                PRESET_GLUCODROID_CLOUD -> url.isNotBlank() && token.isNotBlank()
                 else -> true
             }
         }
@@ -162,7 +169,11 @@ object OutboundApiSettings {
             val oldDefaultName = defaultName(oldPreset)
             return copy(
                 preset = normalized,
-                url = if (url.isBlank() || url == oldDefaultUrl) defaultUrl(normalized, token) else url,
+                url = if (oldPreset == PRESET_GLUCODROID_CLOUD || url.isBlank() || url == oldDefaultUrl) {
+                    defaultUrl(normalized, token)
+                } else {
+                    url
+                },
                 messageTemplate = if (messageTemplate.isBlank() || messageTemplate == oldDefaultTemplate) {
                     defaultTemplate(normalized)
                 } else {
@@ -233,7 +244,7 @@ object OutboundApiSettings {
             apiVersion = DEFAULT_VK_API_VERSION,
             headers = "",
             messageTemplate = defaultTemplate(normalized),
-            minIntervalMinutes = DEFAULT_MIN_INTERVAL_MINUTES,
+            minIntervalMinutes = if (normalized == PRESET_GLUCODROID_CLOUD) 0 else DEFAULT_MIN_INTERVAL_MINUTES,
             triggerMode = TRIGGER_ALWAYS,
             triggerLowMgdl = DEFAULT_TRIGGER_LOW_MGDL,
             triggerHighMgdl = DEFAULT_TRIGGER_HIGH_MGDL,
@@ -270,6 +281,7 @@ object OutboundApiSettings {
             PRESET_TELEGRAM_BOT -> "Telegram bot"
             PRESET_GLUCO_WATCH_VK -> "VK direct message"
             PRESET_VK_MESSAGES -> "VK text message"
+            PRESET_GLUCODROID_CLOUD -> "glucodroid.cloud"
             else -> "Custom JSON webhook"
         }
 
@@ -381,7 +393,8 @@ object OutboundApiSettings {
         when (preset) {
             PRESET_TELEGRAM_BOT,
             PRESET_GLUCO_WATCH_VK,
-            PRESET_VK_MESSAGES -> preset
+            PRESET_VK_MESSAGES,
+            PRESET_GLUCODROID_CLOUD -> preset
             else -> PRESET_CUSTOM_JSON
         }
 
