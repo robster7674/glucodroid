@@ -65,6 +65,8 @@ object OutboundApiSettings {
         "{value} {unit} {trend_arrow} RAW:{raw} ({rate_mgdl} mg/dL/min) IOB:{iob} COB:{cob} {time}"
     const val DEFAULT_CHAT_TEMPLATE =
         "{status_emoji} {value} {unit} {trend_arrow} {time}"
+    // Old default before status tokens were added — used to migrate stored templates on load.
+    private const val LEGACY_CHAT_TEMPLATE = "{value} {unit} {trend_arrow} {time}"
     const val DEFAULT_GLUCO_WATCH_TEMPLATE =
         "GV:{mmol}|RAW:{raw}|TR:{trend_arrow}|AL:{alarm}|RT:{rate_mmol}|IOB:{iob}|COB:{cob}|TS:{timestamp}"
 
@@ -575,7 +577,13 @@ object OutboundApiSettings {
                 apiVersion = item.optString("apiVersion", DEFAULT_VK_API_VERSION)
                     .ifBlank { DEFAULT_VK_API_VERSION },
                 headers = item.optString("headers", ""),
-                messageTemplate = item.optString("messageTemplate", defaultTemplate(preset)),
+                messageTemplate = run {
+                    val stored = item.optString("messageTemplate", defaultTemplate(preset))
+                    // Migrate the old default (pre-status-emoji) to the current default.
+                    if (stored == LEGACY_CHAT_TEMPLATE &&
+                        (preset == PRESET_TELEGRAM_BOT || preset == PRESET_VK_MESSAGES)
+                    ) DEFAULT_CHAT_TEMPLATE else stored
+                },
                 minIntervalMinutes = item.optInt(
                     "minIntervalMinutes",
                     DEFAULT_MIN_INTERVAL_MINUTES
