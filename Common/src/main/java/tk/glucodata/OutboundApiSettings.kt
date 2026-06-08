@@ -50,7 +50,7 @@ object OutboundApiSettings {
     const val DEFAULT_TRIGGER_LOW_MGDL = 70
     const val DEFAULT_TRIGGER_HIGH_MGDL = 180
     const val DEFAULT_REFRESH_IN_PLACE_ENABLED = true
-    const val DEFAULT_REFRESH_WINDOW_MINUTES = 5
+    const val DEFAULT_REFRESH_WINDOW_MINUTES = 15
     const val DEFAULT_SUPPRESS_DELTA_BELOW_MGDL = 1
     const val DEFAULT_STALE_ENABLED = true
     const val DEFAULT_STALE_THRESHOLD_MINUTES = 10
@@ -604,7 +604,10 @@ object OutboundApiSettings {
                 refreshWindowMinutes = item.optInt(
                     "refreshWindowMinutes",
                     DEFAULT_REFRESH_WINDOW_MINUTES
-                ).coerceIn(1, 60),
+                ).let { stored ->
+                    // Migrate the old 5-minute default: too tight for a 5-min CGM interval.
+                    if (stored == 5) DEFAULT_REFRESH_WINDOW_MINUTES else stored
+                }.coerceIn(1, 60),
                 suppressDeltaBelowMgdl = item.optInt(
                     "suppressDeltaBelowMgdl",
                     DEFAULT_SUPPRESS_DELTA_BELOW_MGDL
