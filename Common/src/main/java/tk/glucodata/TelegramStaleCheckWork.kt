@@ -35,22 +35,18 @@ object TelegramStaleCheckWork {
 
     private const val STALE_PREFIX = "telegram_stale_check:"
     private const val TRANSIENT_RETRY_DELAY_MS = 60_000L
+    // Must exceed TRANSIENT_RETRY_DELAY_MS: a recipient that just posted STALE is
+    // throttled on the 60 s retry cycle but re-evaluated when the missed-threshold
+    // timer fires (which can be minutes later).
+    private const val STALE_THROTTLE_MS = 70_000L
 
-    fun schedule(context: Context, destinationId: String, delayMs: Long) =
-        scheduleInternal(context, destinationId, delayMs, emptySet())
-
-    private fun scheduleInternal(
-        context: Context,
-        destinationId: String,
-        delayMs: Long,
-        retryFor: Set<String>
-    ) {
+    fun schedule(context: Context, destinationId: String, delayMs: Long) {
         val key = STALE_PREFIX + destinationId
         pending.remove(key)?.let { handler.removeCallbacks(it) }
         val appContext = context.applicationContext
         val runnable = Runnable {
             pending.remove(key)
-            run(appContext, destinationId, retryFor)
+            run(appContext, destinationId)
         }
         pending[key] = runnable
         handler.postDelayed(runnable, delayMs)
@@ -61,7 +57,7 @@ object TelegramStaleCheckWork {
         pending.remove(key)?.let { handler.removeCallbacks(it) }
     }
 
-    private fun run(context: Context, destinationId: String, retryFor: Set<String> = emptySet()) {
+    private fun run(context: Context, destinationId: String) {
         val config = OutboundApiSettings.load(context)
         val destination = config.findDestination(destinationId) ?: return
         if (!destination.enabled || !destination.staleEnabled) return
@@ -75,11 +71,8 @@ object TelegramStaleCheckWork {
         ) * 60_000L
 
         var earliestNextDelayMs = Long.MAX_VALUE
-        val failedRecipients = mutableSetOf<String>()
         val recipients = destination.recipients()
         for (recipient in recipients) {
-            // On retry invocations only re-process the recipients that previously failed.
-            if (retryFor.isNotEmpty() && recipient !in retryFor) continue
             val lastSentMs = destination.lastSentAtMsByRecipient[recipient] ?: 0L
             if (lastSentMs <= 0L) continue
             val elapsedMs = now - lastSentMs
@@ -89,7 +82,10 @@ object TelegramStaleCheckWork {
                 else -> continue
             }
             val lastStaleMs = destination.lastStaleAtMsByRecipient[recipient] ?: 0L
-            if (lastStaleMs > 0L && now - lastStaleMs < 30_000L) continue  // throttle
+            // STALE_THROTTLE_MS > TRANSIENT_RETRY_DELAY_MS: a recipient that just
+            // succeeded is skipped on the 60 s retry cycle but re-evaluated when
+            // the missed-threshold timer fires later.
+            if (lastStaleMs > 0L && now - lastStaleMs < STALE_THROTTLE_MS) continue
             val messageId = destination.lastMessageIdByRecipient[recipient] ?: 0L
             if (messageId <= 0L) continue
 
@@ -116,15 +112,15 @@ object TelegramStaleCheckWork {
                     )
                 }
                 null -> {
-                    // Transient network error — track this recipient for a targeted
-                    // retry so other recipients that already succeeded are not re-sent.
-                    failedRecipients.add(recipient)
+                    // Transient network error — retry after TRANSIENT_RETRY_DELAY_MS.
+                    // All recipients are re-evaluated on retry; STALE_THROTTLE_MS
+                    // prevents re-sending to those that already succeeded.
                     earliestNextDelayMs = minOf(earliestNextDelayMs, TRANSIENT_RETRY_DELAY_MS)
                 }
             }
         }
         if (earliestNextDelayMs < Long.MAX_VALUE) {
-            scheduleInternal(context, destinationId, earliestNextDelayMs, failedRecipients)
+            schedule(context, destinationId, earliestNextDelayMs)
         }
     }
 
