@@ -224,12 +224,12 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Virtual Power — wakelock / alarm / jank analysis.
-  # 15 min on regular runs; extended to 20 min when power_only to capture
-  # more background polling cycles.
+  # Skipped when power_only is set (physical-only audit; no value in virtual noise).
   # ─────────────────────────────────────────────────────────────────────────────
   virtual-power:
-    name: Power/Wake — virtual Pixel3 API30 (${{ inputs.power_only == true && '20m' || '15m' }})
+    name: Power/Wake — virtual Pixel3 API30
     needs: build
+    if: github.event_name == 'push' || inputs.power_only != true
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
@@ -254,7 +254,7 @@ jobs:
           APP_APK=$(find apks -name "*.apk" ! -name "*androidTest*" ! -name "*unsigned*" | head -1)
           RUN_DIR="glucodroid-power-$(date +%Y%m%d-%H%M%S)"
           echo "FTL_RUN_DIR=$RUN_DIR" >> "$GITHUB_ENV"
-          TIMEOUT="${{ inputs.power_only == true && '20m' || '15m' }}"
+          TIMEOUT="15m"
           gsutil mb -p "$FIREBASE_PROJECT_ID" -l us-central1 "gs://${FTL_BUCKET}" 2>/dev/null || true
           gcloud firebase test android run \
             --type robo \
