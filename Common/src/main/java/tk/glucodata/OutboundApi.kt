@@ -774,7 +774,11 @@ class OutboundApiWorker(
                         messageId = lastMsgId
                     )
                 }
-                // Any other edit failure (message deleted, chat not found, etc.):
+                // Transient failure (rate limit, server error): preserve the message ID so
+                // the next reading retries the edit. Don't attempt a fresh send that will
+                // likely also fail.
+                if (editResponse.retryable) return editResponse
+                // Definitive rejection (message deleted, chat not found, etc.):
                 // clear stale state so the next reading starts a fresh bubble.
                 OutboundApiSettings.clearRecipientState(
                     context = context.applicationContext,

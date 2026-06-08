@@ -154,10 +154,18 @@ object TelegramStaleCheckWork {
                         setRequestProperty(k, v)
                     }
             }
-            connection.outputStream.use { it.write(body) }
-            val code = connection.responseCode
-            connection.disconnect()
-            if (code in 200..299) true else false
+            try {
+                connection.outputStream.use { it.write(body) }
+                val code = connection.responseCode
+                // 429 (rate limit) and 5xx (server error) are transient — leave state intact.
+                when {
+                    code in 200..299 -> true
+                    code == 429 || code >= 500 -> null
+                    else -> false
+                }
+            } finally {
+                connection.disconnect()
+            }
         } catch (_: Throwable) {
             null
         }
