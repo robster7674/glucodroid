@@ -579,9 +579,9 @@ object OutboundApiSettings {
                 headers = item.optString("headers", ""),
                 messageTemplate = run {
                     val stored = item.optString("messageTemplate", defaultTemplate(preset))
-                    // Migrate the old default (pre-status-emoji) to the current default.
+                    // Migrate the old Telegram default (pre-status-emoji) to the current default.
                     if (stored == LEGACY_CHAT_TEMPLATE &&
-                        (preset == PRESET_TELEGRAM_BOT || preset == PRESET_VK_MESSAGES)
+                        preset == PRESET_TELEGRAM_BOT
                     ) DEFAULT_CHAT_TEMPLATE else stored
                 },
                 minIntervalMinutes = item.optInt(
