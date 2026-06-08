@@ -446,6 +446,20 @@ private fun DestinationEditor(
         onChangePreset = { showPresetSheet = true }
     )
 
+    if (isGlucodroid) {
+        OutlinedTextField(
+            value = destination.url,
+            onValueChange = { onChange(destination.copy(url = it.trim())) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text(stringResource(R.string.outbound_api_glucodroid_subdomain)) },
+            suffix = { Text(".glucodroid.cloud", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            )
+        )
+    }
     if (isTelegram || isVk || isGlucodroid) {
         OutlinedTextField(
             value = destination.token,
@@ -504,20 +518,7 @@ private fun DestinationEditor(
         )
     }
 
-    if (isGlucodroid) {
-        OutlinedTextField(
-            value = destination.url,
-            onValueChange = { onChange(destination.copy(url = it.trim())) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            label = { Text(stringResource(R.string.outbound_api_glucodroid_subdomain)) },
-            suffix = { Text(".glucodroid.cloud", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            )
-        )
-    } else {
+    if (!isGlucodroid) {
         OutlinedTextField(
             value = destination.url.ifBlank { OutboundApiSettings.defaultUrl(preset) },
             onValueChange = { onChange(destination.copy(url = it)) },
