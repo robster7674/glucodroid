@@ -1,6 +1,7 @@
 package tk.glucodata
 
 import android.content.Context
+import android.net.Uri
 import androidx.annotation.Keep
 import org.json.JSONArray
 import org.json.JSONObject
@@ -124,7 +125,7 @@ object OutboundApiSettings {
             if (normalizedPreset() == PRESET_GLUCODROID_CLOUD) {
                 val subdomain = url.trim()
                 if (subdomain.isBlank()) return ""
-                return "https://$subdomain.glucodroid.cloud/api/v1/ingest?token=${token.trim()}"
+                return "https://$subdomain.glucodroid.cloud/api/v1/ingest?token=${Uri.encode(token.trim())}"
             }
             val trimmed = url.trim()
             val replacementToken = if (normalizedPreset() == PRESET_TELEGRAM_BOT) {
