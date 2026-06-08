@@ -739,7 +739,9 @@ class OutboundApiWorker(
                 lastMsgId > 0L && lastSentMs > 0L &&
                 (now - lastSentMs) <= windowMs
             val suppressThreshold = destination.suppressDeltaBelowMgdl.coerceIn(0, 100)
-            val shouldSuppress = withinWindow && suppressThreshold > 0 &&
+            // Test sends use the same reading data every time, so never suppress them —
+            // the user needs to be able to verify edit-in-place via the test button.
+            val shouldSuppress = withinWindow && !reading.test && suppressThreshold > 0 &&
                 kotlin.math.abs(reading.mgdl - lastMgdl) < suppressThreshold
 
             if (shouldSuppress) {
@@ -760,7 +762,20 @@ class OutboundApiWorker(
                     messageId = lastMsgId
                 )
                 if (editResponse.ok) return editResponse
-                // Edit failed (message deleted, etc.) — fall through to a fresh send.
+                // Telegram rejects edits where the content hasn't changed (400 "not modified").
+                // This is a success — the bubble is already correct — so preserve state and
+                // return without posting a new message.
+                if (editResponse.error?.contains("not modified") == true) {
+                    return SendResponse(
+                        code = 200,
+                        ok = true,
+                        retryable = false,
+                        error = null,
+                        messageId = lastMsgId
+                    )
+                }
+                // Any other edit failure (message deleted, chat not found, etc.):
+                // clear stale state so the next reading starts a fresh bubble.
                 OutboundApiSettings.clearRecipientState(
                     context = context.applicationContext,
                     destinationId = destination.id,
