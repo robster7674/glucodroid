@@ -36,7 +36,7 @@ object TelegramStaleCheckWork {
     private const val STALE_PREFIX = "telegram_stale_check:"
     private const val TRANSIENT_RETRY_DELAY_MS = 60_000L
     // Must exceed TRANSIENT_RETRY_DELAY_MS: a recipient that just posted STALE is
-    // throttled during the 60 s retry cycle but re-evaluated when the missed-threshold
+    // throttled on the 60 s retry cycle but re-evaluated when the missed-threshold
     // timer fires (which can be minutes later).
     private const val STALE_THROTTLE_MS = 70_000L
 
@@ -82,9 +82,9 @@ object TelegramStaleCheckWork {
                 else -> continue
             }
             val lastStaleMs = destination.lastStaleAtMsByRecipient[recipient] ?: 0L
-            // Throttle: STALE_THROTTLE_MS > TRANSIENT_RETRY_DELAY_MS so a recipient
-            // that just posted succeeds is skipped on the 60 s retry cycle but is
-            // re-evaluated when the missed-threshold timer fires later.
+            // STALE_THROTTLE_MS > TRANSIENT_RETRY_DELAY_MS: a recipient that just
+            // succeeded is skipped on the 60 s retry cycle but re-evaluated when
+            // the missed-threshold timer fires later.
             if (lastStaleMs > 0L && now - lastStaleMs < STALE_THROTTLE_MS) continue
             val messageId = destination.lastMessageIdByRecipient[recipient] ?: 0L
             if (messageId <= 0L) continue
@@ -113,7 +113,7 @@ object TelegramStaleCheckWork {
                 }
                 null -> {
                     // Transient network error — retry after TRANSIENT_RETRY_DELAY_MS.
-                    // All recipients are re-evaluated on retry; the throttle above
+                    // All recipients are re-evaluated on retry; STALE_THROTTLE_MS
                     // prevents re-sending to those that already succeeded.
                     earliestNextDelayMs = minOf(earliestNextDelayMs, TRANSIENT_RETRY_DELAY_MS)
                 }
