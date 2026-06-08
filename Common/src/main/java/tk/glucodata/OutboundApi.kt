@@ -666,12 +666,14 @@ class OutboundApiWorker(
                             sentAtMs = System.currentTimeMillis(),
                             mgdl = reading.mgdl
                         )
-                        TelegramStaleCheckWork.schedule(
-                            context = context.applicationContext,
-                            destinationId = destination.id,
-                            delayMs = (destination.staleThresholdMinutes.coerceIn(1, 120) * 60_000L) +
-                                OutboundApiSettings.STALE_CHECK_SLACK_MS
-                        )
+                        if (destination.normalizedPreset() == OutboundApiSettings.PRESET_TELEGRAM_BOT) {
+                            TelegramStaleCheckWork.schedule(
+                                context = context.applicationContext,
+                                destinationId = destination.id,
+                                delayMs = (destination.staleThresholdMinutes.coerceIn(1, 120) * 60_000L) +
+                                    OutboundApiSettings.STALE_CHECK_SLACK_MS
+                            )
+                        }
                     }
                     Result.success()
                 } else {

@@ -2,10 +2,7 @@ package tk.glucodata
 
 import android.content.Context
 import android.os.Handler
-import android.os.Looper
-import androidx.work.Data
-import androidx.work.Worker
-import androidx.work.WorkerParameters
+import android.os.HandlerThread
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -32,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object TelegramStaleCheckWork {
 
-    private val handler = Handler(Looper.getMainLooper())
+    private val workerThread = HandlerThread("telegram-stale-check").also { it.start() }
+    private val handler = Handler(workerThread.looper)
     private val pending = ConcurrentHashMap<String, Runnable>()
 
     private const val STALE_PREFIX = "telegram_stale_check:"
@@ -67,6 +65,7 @@ object TelegramStaleCheckWork {
             240
         ) * 60_000L
 
+        var earliestMissedRemainingMs = Long.MAX_VALUE
         val recipients = destination.recipients()
         for (recipient in recipients) {
             val lastSentMs = destination.lastSentAtMsByRecipient[recipient] ?: 0L
@@ -86,6 +85,10 @@ object TelegramStaleCheckWork {
             val ok = postEdit(destination, recipient, messageId, text)
             if (ok) {
                 OutboundApiSettings.recordStaleAt(context, destinationId, recipient, now)
+                if (status == OutboundApiSettings.TUNNEL_STATUS_STALE) {
+                    val remaining = (lastSentMs + missedThresholdMs) - now
+                    if (remaining > 0) earliestMissedRemainingMs = minOf(earliestMissedRemainingMs, remaining)
+                }
             } else {
                 // Bubble gone (deleted by user) — clear state so next reading
                 // starts a fresh bubble.
@@ -95,6 +98,9 @@ object TelegramStaleCheckWork {
                     recipient = recipient
                 )
             }
+        }
+        if (earliestMissedRemainingMs < Long.MAX_VALUE) {
+            schedule(context, destinationId, earliestMissedRemainingMs + OutboundApiSettings.STALE_CHECK_SLACK_MS)
         }
     }
 
