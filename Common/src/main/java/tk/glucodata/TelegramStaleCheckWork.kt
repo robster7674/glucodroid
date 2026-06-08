@@ -16,10 +16,11 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * The producer ([OutboundApi.sendTelegram]) calls [schedule] right after a
  * successful send. We queue a single [Runnable] per destination in a static
- * [Handler]; when it fires, we call the Telegram editMessageText endpoint to
- * rewrite the existing bubble to "⚠️ Stale." (at the stale threshold) or
- * "⚪ Missed reading." (at the missed threshold). The edit is best-effort:
- * if the bubble was deleted, the API returns an error and we give up.
+ * [Handler]; when it fires, we post a **new** Telegram message ("⚠️ Stale" at
+ * the stale threshold, "⚪ Missed reading" at the missed threshold) rather than
+ * editing the bubble. This preserves the last valid reading in the bubble and
+ * leaves stale/missed events as distinct, timestamped messages in the chat
+ * history for easy retrospective review.
  *
  * Limitation: this is in-process only. If the app process is killed between
  * sends, the stale check is lost until the next CGM reading arrives and
@@ -82,7 +83,7 @@ object TelegramStaleCheckWork {
             if (messageId <= 0L) continue
 
             val text = renderStaleText(status, now)
-            val result = postEdit(destination, recipient, messageId, text)
+            val result = postSend(destination, recipient, text)
             when (result) {
                 true -> {
                     OutboundApiSettings.recordStaleAt(context, destinationId, recipient, now)
@@ -122,25 +123,23 @@ object TelegramStaleCheckWork {
     }
 
     /**
+     * Posts a new stale/missed message to the chat (does not edit the existing bubble).
      * Returns true on 2xx, false on a definitive API rejection (4xx),
      * null on transient network failure (caller should leave state intact).
      */
-    private fun postEdit(
+    private fun postSend(
         destination: OutboundApiSettings.Destination,
         recipient: String,
-        messageId: Long,
         text: String
     ): Boolean? {
-        val editUrl = destination.resolvedUrl()
-            .replace(Regex("/sendMessage$"), "/editMessageText")
+        val sendUrl = destination.resolvedUrl()
         val body = JSONObject()
             .put("chat_id", recipient)
-            .put("message_id", messageId)
             .put("text", text)
             .toString()
             .toByteArray(Charsets.UTF_8)
         return try {
-            val connection = (URL(editUrl).openConnection() as HttpURLConnection).apply {
+            val connection = (URL(sendUrl).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 connectTimeout = 20_000
                 readTimeout = 30_000
