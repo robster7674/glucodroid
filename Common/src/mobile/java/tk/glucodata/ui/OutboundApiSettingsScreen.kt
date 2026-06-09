@@ -94,9 +94,7 @@ import tk.glucodata.ui.components.cardShape
 fun OutboundApiSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     var config by remember { mutableStateOf(OutboundApiSettings.load(context)) }
-    var expandedId by rememberSaveable {
-        mutableStateOf(config.destinations.firstOrNull { it.enabled }?.id ?: config.destinations.firstOrNull()?.id)
-    }
+    var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
     var showSecretForId by rememberSaveable { mutableStateOf<String?>(null) }
     var showAddSheet by rememberSaveable { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<OutboundApiSettings.Destination?>(null) }
@@ -127,7 +125,7 @@ fun OutboundApiSettingsScreen(navController: NavController) {
     fun deleteDestination(destination: OutboundApiSettings.Destination) {
         val remaining = config.destinations.filterNot { it.id == destination.id }
         save(config.copy(destinations = remaining))
-        expandedId = remaining.firstOrNull { it.enabled }?.id ?: remaining.firstOrNull()?.id
+        if (expandedId == destination.id) expandedId = remaining.firstOrNull { it.enabled }?.id ?: remaining.firstOrNull()?.id
         pendingDelete = null
         showSecretForId = null
     }
