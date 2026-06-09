@@ -50,7 +50,7 @@ object OutboundApiSettings {
     const val TRIGGER_OUTSIDE_RANGE = "outside_range"
     const val DEFAULT_TRIGGER_LOW_MGDL = 70
     const val DEFAULT_TRIGGER_HIGH_MGDL = 180
-    const val DEFAULT_REFRESH_IN_PLACE_ENABLED = false
+    const val DEFAULT_REFRESH_IN_PLACE_ENABLED = true
     const val DEFAULT_REFRESH_WINDOW_MINUTES = 15
     const val DEFAULT_SUPPRESS_DELTA_BELOW_MGDL = 1
     const val DEFAULT_STALE_ENABLED = true
@@ -621,13 +621,7 @@ object OutboundApiSettings {
                 refreshInPlaceEnabled = item.optBoolean(
                     "refreshInPlaceEnabled",
                     DEFAULT_REFRESH_IN_PLACE_ENABLED
-                ).let { stored ->
-                    // v0→v1 migration: old default was true, which silently broke notifications
-                    // since Telegram doesn't notify on edited messages. Force false on first
-                    // migration. Once settingsVersion is saved as 1+, user's explicit choices
-                    // are preserved.
-                    stored && itemSettingsVersion >= 1
-                },
+                ),
                 refreshWindowMinutes = item.optInt(
                     "refreshWindowMinutes",
                     DEFAULT_REFRESH_WINDOW_MINUTES
