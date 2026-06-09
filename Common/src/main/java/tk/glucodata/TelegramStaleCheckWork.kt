@@ -36,10 +36,10 @@ object TelegramStaleCheckWork {
 
     private const val STALE_PREFIX = "telegram_stale_check:"
     private const val TRANSIENT_RETRY_DELAY_MS = 60_000L
-    // Must exceed TRANSIENT_RETRY_DELAY_MS: a recipient that just posted STALE is
-    // throttled on the 60 s retry cycle but re-evaluated when the missed-threshold
-    // timer fires (which can be minutes later).
-    private const val STALE_THROTTLE_MS = 70_000L
+    // Derived from TRANSIENT_RETRY_DELAY_MS to keep the invariant self-enforcing:
+    // a recipient that just posted STALE is skipped on the 60 s retry cycle but
+    // re-evaluated when the missed-threshold timer fires later.
+    private const val STALE_THROTTLE_MS = TRANSIENT_RETRY_DELAY_MS + 10_000L
 
     fun schedule(context: Context, destinationId: String, delayMs: Long) {
         val key = STALE_PREFIX + destinationId
@@ -83,9 +83,6 @@ object TelegramStaleCheckWork {
                 else -> continue
             }
             val lastStaleMs = destination.lastStaleAtMsByRecipient[recipient] ?: 0L
-            // STALE_THROTTLE_MS > TRANSIENT_RETRY_DELAY_MS: a recipient that just
-            // succeeded is skipped on the 60 s retry cycle but re-evaluated when
-            // the missed-threshold timer fires later.
             if (lastStaleMs > 0L && now - lastStaleMs < STALE_THROTTLE_MS) continue
             val hasActiveBubble = (destination.lastMessageIdByRecipient[recipient] ?: 0L) > 0L
             if (!hasActiveBubble) continue
