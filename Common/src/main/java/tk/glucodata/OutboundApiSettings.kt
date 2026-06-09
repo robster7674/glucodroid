@@ -243,10 +243,16 @@ object OutboundApiSettings {
         if (!stored.isNullOrBlank()) {
             val enabled = prefs.getBoolean(KEY_ENABLED, true)
             val destinations = runCatching { decodeDestinations(stored) }.getOrDefault(emptyList())
-            return Config(
+            val config = Config(
                 enabled = true,
                 destinations = if (enabled) destinations else destinations.map { it.copy(enabled = false) }
             )
+            // If any destination has settingsVersion==1, it came from PR #45's broken migration.
+            // Re-save to persist the in-memory healing and prevent the migration from re-running every load.
+            if (destinations.any { it.settingsVersion == 1 }) {
+                save(context, config)
+            }
+            return config
         }
 
         val migrated = migrateLegacy(context)
