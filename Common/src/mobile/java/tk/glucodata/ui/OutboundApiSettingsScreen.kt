@@ -94,9 +94,7 @@ import tk.glucodata.ui.components.cardShape
 fun OutboundApiSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     var config by remember { mutableStateOf(OutboundApiSettings.load(context)) }
-    var expandedId by rememberSaveable {
-        mutableStateOf(config.destinations.firstOrNull { it.enabled }?.id ?: config.destinations.firstOrNull()?.id)
-    }
+    var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
     var showSecretForId by rememberSaveable { mutableStateOf<String?>(null) }
     var showAddSheet by rememberSaveable { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<OutboundApiSettings.Destination?>(null) }
