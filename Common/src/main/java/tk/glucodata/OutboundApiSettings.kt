@@ -586,6 +586,8 @@ object OutboundApiSettings {
             val item = array.optJSONObject(index) ?: continue
             val preset = normalizePreset(item.optString("preset", PRESET_CUSTOM_JSON))
             val itemSettingsVersion = item.optInt("settingsVersion", 0)
+            val staleThreshold = item.optInt("staleThresholdMinutes", DEFAULT_STALE_THRESHOLD_MINUTES)
+                .coerceIn(1, 120)
             destinations += Destination(
                 id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                 enabled = item.optBoolean("enabled", false),
@@ -625,7 +627,7 @@ object OutboundApiSettings {
                     // since Telegram doesn't notify on edited messages. Force false on first
                     // migration. Once settingsVersion is saved as 1+, user's explicit choices
                     // are preserved.
-                    if (itemSettingsVersion < 1 && stored) false else stored
+                    stored && itemSettingsVersion >= 1
                 },
                 refreshWindowMinutes = item.optInt(
                     "refreshWindowMinutes",
@@ -639,23 +641,16 @@ object OutboundApiSettings {
                     DEFAULT_SUPPRESS_DELTA_BELOW_MGDL
                 ).coerceIn(0, 100),
                 staleEnabled = item.optBoolean("staleEnabled", DEFAULT_STALE_ENABLED),
-                staleThresholdMinutes = item.optInt(
-                    "staleThresholdMinutes",
-                    DEFAULT_STALE_THRESHOLD_MINUTES
-                ).coerceIn(1, 120),
+                staleThresholdMinutes = staleThreshold,
                 missedThresholdMinutes = item.optInt(
                     "missedThresholdMinutes",
                     DEFAULT_MISSED_THRESHOLD_MINUTES
-                ).coerceIn(
-                    item.optInt("staleThresholdMinutes", DEFAULT_STALE_THRESHOLD_MINUTES)
-                        .coerceIn(1, 120) + 1,
-                    240
-                ),
+                ).coerceIn(staleThreshold + 1, 240),
                 lastMessageIdByRecipient = decodeLongMap(item.optJSONObject("lastMessageIdByRecipient")),
                 lastSentAtMsByRecipient = decodeLongMap(item.optJSONObject("lastSentAtMsByRecipient")),
                 lastSentMgdlByRecipient = decodeIntMap(item.optJSONObject("lastSentMgdlByRecipient")),
                 lastStaleAtMsByRecipient = decodeLongMap(item.optJSONObject("lastStaleAtMsByRecipient")),
-                settingsVersion = itemSettingsVersion
+                settingsVersion = maxOf(1, itemSettingsVersion)
             )
         }
         return destinations.distinctBy { it.id.lowercase(Locale.US) }
