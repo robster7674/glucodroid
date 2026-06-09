@@ -933,6 +933,9 @@ public class Applic extends Application implements androidx.work.Configuration.P
         } catch (Throwable th) {
             android.util.Log.e(LOG_ID, "initproc failed; continuing without crash", th);
         }
+        if (!initproccalled) {
+            stopprogram = 1;
+        }
     }
 
     // static public int backgroundcolor= BLACK;
