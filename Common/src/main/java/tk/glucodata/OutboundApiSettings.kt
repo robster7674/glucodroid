@@ -50,7 +50,7 @@ object OutboundApiSettings {
     const val TRIGGER_OUTSIDE_RANGE = "outside_range"
     const val DEFAULT_TRIGGER_LOW_MGDL = 70
     const val DEFAULT_TRIGGER_HIGH_MGDL = 180
-    const val DEFAULT_REFRESH_IN_PLACE_ENABLED = true
+    const val DEFAULT_REFRESH_IN_PLACE_ENABLED = false
     const val DEFAULT_REFRESH_WINDOW_MINUTES = 15
     const val DEFAULT_SUPPRESS_DELTA_BELOW_MGDL = 1
     const val DEFAULT_STALE_ENABLED = true
@@ -115,7 +115,8 @@ object OutboundApiSettings {
         val lastMessageIdByRecipient: Map<String, Long> = emptyMap(),
         val lastSentAtMsByRecipient: Map<String, Long> = emptyMap(),
         val lastSentMgdlByRecipient: Map<String, Int> = emptyMap(),
-        val lastStaleAtMsByRecipient: Map<String, Long> = emptyMap()
+        val lastStaleAtMsByRecipient: Map<String, Long> = emptyMap(),
+        val settingsVersion: Int = 0
     ) {
         fun normalizedPreset(): String = normalizePreset(preset)
 
@@ -299,7 +300,8 @@ object OutboundApiSettings {
             lastMessageIdByRecipient = emptyMap(),
             lastSentAtMsByRecipient = emptyMap(),
             lastSentMgdlByRecipient = emptyMap(),
-            lastStaleAtMsByRecipient = emptyMap()
+            lastStaleAtMsByRecipient = emptyMap(),
+            settingsVersion = 1
         )
     }
 
@@ -571,6 +573,7 @@ object OutboundApiSettings {
                             "lastStaleAtMsByRecipient",
                             encodeLongMap(destination.lastStaleAtMsByRecipient)
                         )
+                        .put("settingsVersion", maxOf(1, destination.settingsVersion))
                 )
             }
         }
@@ -581,6 +584,7 @@ object OutboundApiSettings {
         for (index in 0 until array.length()) {
             val item = array.optJSONObject(index) ?: continue
             val preset = normalizePreset(item.optString("preset", PRESET_CUSTOM_JSON))
+            val itemSettingsVersion = item.optInt("settingsVersion", 0)
             destinations += Destination(
                 id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                 enabled = item.optBoolean("enabled", false),
@@ -615,7 +619,13 @@ object OutboundApiSettings {
                 refreshInPlaceEnabled = item.optBoolean(
                     "refreshInPlaceEnabled",
                     DEFAULT_REFRESH_IN_PLACE_ENABLED
-                ),
+                ).let { stored ->
+                    // v0→v1 migration: old default was true, which silently broke notifications
+                    // since Telegram doesn't notify on edited messages. Force false on first
+                    // migration. Once settingsVersion is saved as 1+, user's explicit choices
+                    // are preserved.
+                    if (itemSettingsVersion < 1 && stored) false else stored
+                },
                 refreshWindowMinutes = item.optInt(
                     "refreshWindowMinutes",
                     DEFAULT_REFRESH_WINDOW_MINUTES
@@ -643,7 +653,8 @@ object OutboundApiSettings {
                 lastMessageIdByRecipient = decodeLongMap(item.optJSONObject("lastMessageIdByRecipient")),
                 lastSentAtMsByRecipient = decodeLongMap(item.optJSONObject("lastSentAtMsByRecipient")),
                 lastSentMgdlByRecipient = decodeIntMap(item.optJSONObject("lastSentMgdlByRecipient")),
-                lastStaleAtMsByRecipient = decodeLongMap(item.optJSONObject("lastStaleAtMsByRecipient"))
+                lastStaleAtMsByRecipient = decodeLongMap(item.optJSONObject("lastStaleAtMsByRecipient")),
+                settingsVersion = itemSettingsVersion
             )
         }
         return destinations.distinctBy { it.id.lowercase(Locale.US) }
