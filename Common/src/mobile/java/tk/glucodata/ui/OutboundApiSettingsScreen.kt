@@ -125,7 +125,7 @@ fun OutboundApiSettingsScreen(navController: NavController) {
     fun deleteDestination(destination: OutboundApiSettings.Destination) {
         val remaining = config.destinations.filterNot { it.id == destination.id }
         save(config.copy(destinations = remaining))
-        if (expandedId != null) expandedId = remaining.firstOrNull { it.enabled }?.id ?: remaining.firstOrNull()?.id
+        if (expandedId == destination.id) expandedId = remaining.firstOrNull { it.enabled }?.id ?: remaining.firstOrNull()?.id
         pendingDelete = null
         showSecretForId = null
     }
