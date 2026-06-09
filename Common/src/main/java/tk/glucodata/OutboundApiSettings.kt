@@ -621,7 +621,12 @@ object OutboundApiSettings {
                 refreshInPlaceEnabled = item.optBoolean(
                     "refreshInPlaceEnabled",
                     DEFAULT_REFRESH_IN_PLACE_ENABLED
-                ),
+                ).let { stored ->
+                    // v0→v1 migration: restore edit-in-place that was incorrectly forced false.
+                    // Old data should have true (the original default); only preserve stored
+                    // value for v1+ data (user's explicit choice).
+                    if (itemSettingsVersion < 1) true else stored
+                },
                 refreshWindowMinutes = item.optInt(
                     "refreshWindowMinutes",
                     DEFAULT_REFRESH_WINDOW_MINUTES
