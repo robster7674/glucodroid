@@ -923,10 +923,17 @@ public class Applic extends Application implements androidx.work.Configuration.P
     public void onCreate() {
         super.onCreate();
         updateWearMessageReceiverComponent();
-        if (DiskSpace.check(this)) {
-            initproc();
-        } else {
+        if (!DiskSpace.check(this)) {
             android.util.Log.e(LOG_ID, "Stop program");
+            stopprogram = 1;
+            return;
+        }
+        try {
+            initproc();
+        } catch (Throwable th) {
+            android.util.Log.e(LOG_ID, "initproc failed; continuing without crash", th);
+        }
+        if (!initproccalled) {
             stopprogram = 1;
         }
     }
