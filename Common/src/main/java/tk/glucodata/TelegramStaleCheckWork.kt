@@ -83,9 +83,6 @@ object TelegramStaleCheckWork {
                 else -> continue
             }
             val lastStaleMs = destination.lastStaleAtMsByRecipient[recipient] ?: 0L
-            // STALE_THROTTLE_MS > TRANSIENT_RETRY_DELAY_MS: a recipient that just
-            // succeeded is skipped on the 60 s retry cycle but re-evaluated when
-            // the missed-threshold timer fires later.
             if (lastStaleMs > 0L && now - lastStaleMs < STALE_THROTTLE_MS) continue
             val hasActiveBubble = (destination.lastMessageIdByRecipient[recipient] ?: 0L) > 0L
             if (!hasActiveBubble) continue
