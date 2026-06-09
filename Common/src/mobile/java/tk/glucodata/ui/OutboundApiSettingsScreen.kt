@@ -1228,6 +1228,7 @@ private val templateTokens = listOf(
     "{value}",
     "{unit}",
     "{trend_arrow}",
+    "{trend_arrow_emoji}",
     "{time}",
     "{mgdl}",
     "{mmol}",

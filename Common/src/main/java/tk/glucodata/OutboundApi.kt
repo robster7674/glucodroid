@@ -462,6 +462,7 @@ object OutboundApi {
             }
         }
         val trendArrow: String get() = trendArrow(trendName)
+        val trendArrowEmoji: String get() = trendArrowEmoji(trendName)
         val iob: Float get() = runCatching { Natives.getIOBvalue(timeMillis) }.getOrDefault(Float.NaN)
         val journal: JournalSnapshot get() = loadJournalSnapshot(timeMillis)
         val displayText: String
@@ -541,6 +542,7 @@ object OutboundApi {
             })
             .replace("{trend}", reading.trendName)
             .replace("{trend_arrow}", reading.trendArrow)
+            .replace("{trend_arrow_emoji}", reading.trendArrowEmoji)
             .replace("{rate_mgdl}", formatNumber(reading.rateMgdlPerMinute, 1))
             .replace("{rate_mmol}", formatNumber(reading.rateMmolPerMinute, 3))
             .replace("{timestamp}", reading.timeMillis.toString())
@@ -619,6 +621,18 @@ object OutboundApi {
             "SingleDown" -> "\u2193"
             "DoubleDown" -> "\u2193\u2193"
             else -> "\u2192"
+        }
+
+    private fun trendArrowEmoji(trendName: String): String =
+        when (trendName) {
+            "DoubleUp" -> "\u2b06\ufe0f\u2b06\ufe0f"       // \u2b06\ufe0f\u2b06\ufe0f
+            "SingleUp" -> "\u2b06\ufe0f"                    // \u2b06\ufe0f
+            "FortyFiveUp" -> "\u2197\ufe0f"                 // \u2197\ufe0f
+            "Flat" -> "\u27a1\ufe0f"                        // \u27a1\ufe0f
+            "FortyFiveDown" -> "\u2198\ufe0f"               // \u2198\ufe0f
+            "SingleDown" -> "\u2b07\ufe0f"                  // \u2b07\ufe0f
+            "DoubleDown" -> "\u2b07\ufe0f\u2b07\ufe0f"      // \u2b07\ufe0f\u2b07\ufe0f
+            else -> "\u27a1\ufe0f"                          // \u27a1\ufe0f
         }
 }
 

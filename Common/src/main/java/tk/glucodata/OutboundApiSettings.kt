@@ -66,6 +66,9 @@ object OutboundApiSettings {
         "{value} {unit} {trend_arrow} RAW:{raw} ({rate_mgdl} mg/dL/min) IOB:{iob} COB:{cob} {time}"
     const val DEFAULT_CHAT_TEMPLATE =
         "{status_emoji} {value} {unit} {trend_arrow} {time}"
+    // Alternative with emoji trend arrows (renders as white arrows on grey squares)
+    const val DEFAULT_CHAT_TEMPLATE_EMOJI_ARROWS =
+        "{status_emoji} {value} {unit} {trend_arrow_emoji} {time}"
     // Old default before status tokens were added — used to migrate stored templates on load.
     private const val LEGACY_CHAT_TEMPLATE = "{value} {unit} {trend_arrow} {time}"
     const val DEFAULT_GLUCO_WATCH_TEMPLATE =
