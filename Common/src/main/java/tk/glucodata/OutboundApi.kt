@@ -59,6 +59,11 @@ object OutboundApi {
     internal val httpClient: OkHttpClient by lazy {
         // TODO(handoff §8.4): add an okhttp3.EventListener for connection-health
         // telemetry (PING/send/failure counts) and expose in DebugSettingsScreen.
+        // pingInterval is only effective under HTTP/2. All current destinations
+        // (api.telegram.org, api.vk.com, glucodroid.cloud) speak HTTPS+H2, so
+        // the PING is load-bearing. If a future HTTP/1.1-only destination is
+        // added, the PING becomes a no-op for it and retryOnConnectionFailure
+        // is the only safety net.
         OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

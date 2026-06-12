@@ -44,17 +44,12 @@
 -keep class ist.com.sdk.KRDecodeData { *; }
 -keep class ist.com.sdk.SDKVersion { *; }
 
-# OkHttp 4.12.0 + Okio: keep public API and platform-detection classes that are
-# reflectively referenced. OkHttp 4 publishes consumer rules, but R8 with
-# minifyEnabled=true still benefits from explicit keeps for the singletons we
-# touch (OkHttpClient, Request, Response, MediaType, RequestBody, ConnectionPool).
--dontwarn okhttp3.internal.platform.**
+# OkHttp 4.12.0 + Okio: OkHttp 4 publishes consumer ProGuard rules in its AAR
+# (see META-INF/proguard/okhttp3.pro) that handle the public API and the
+# platform/Conscrypt/BouncyCastle/OpenJSSE warnings. We only need to suppress
+# R8 warnings for the optional security providers we don't ship — they're
+# only relevant on the desktop JVM, not on Android.
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
--keep class okhttp3.** { *; }
--keep interface okhttp3.** { *; }
--keep class okio.** { *; }
--keep interface okio.** { *; }
--keepclassmembers class okhttp3.OkHttpClient { *; }
 
