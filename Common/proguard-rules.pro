@@ -44,3 +44,12 @@
 -keep class ist.com.sdk.KRDecodeData { *; }
 -keep class ist.com.sdk.SDKVersion { *; }
 
+# OkHttp 4.12.0 + Okio: OkHttp 4 publishes consumer ProGuard rules in its AAR
+# (see META-INF/proguard/okhttp3.pro) that handle the public API and the
+# platform/Conscrypt/BouncyCastle/OpenJSSE warnings. We only need to suppress
+# R8 warnings for the optional security providers we don't ship — they're
+# only relevant on the desktop JVM, not on Android.
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+

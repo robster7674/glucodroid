@@ -771,6 +771,10 @@ dependencies {
     implementation "androidx.glance:glance-appwidget:1.1.1"
     implementation "androidx.glance:glance-material3:1.1.1"
     implementation "androidx.work:work-runtime:2.11.2"
+    // OkHttp 4.12.0 is the latest stable that works with Kotlin 2.3.21 / AGP 9.2.0.
+    // Used for outbound API HTTP (Telegram, etc.) with HTTP/2 PING-based keep-alive
+    // to avoid the system-internal com.android.okhttp stale-connection bug.
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     // Unit tests
     testImplementation 'junit:junit:4.13.2'

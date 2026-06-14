@@ -140,6 +140,14 @@ object ICanHealthRegistry {
         onboardingDeviceSnOrCode: String?,
         authUserId: String?,
     ): String? {
+        // Force eager initialization of all iCan singletons before the
+        // caller does anything that will trigger a Compose recompose.
+        // See ICanHealthSingletons for the rationale; the short version
+        // is that Compose 1.11.x + R8 -repackageclasses can leave an
+        // `object` singleton's INSTANCE field null on first read if the
+        // only call site is buried inside a runCatching { }.
+        ICanHealthSingletons.ensureInitialized()
+
         val normalizedAddress = address?.trim().orEmpty()
         val normalizedOnboardingSn = ICanHealthConstants.normalizeOnboardingDeviceSn(onboardingDeviceSnOrCode)
         if (normalizedAddress.isEmpty() && normalizedOnboardingSn.isEmpty()) {

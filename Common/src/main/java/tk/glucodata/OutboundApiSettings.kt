@@ -377,6 +377,10 @@ object OutboundApiSettings {
                 lastError = null
             )
         }
+        val dest = load(context).findDestination(destinationId)
+        if (dest != null && dest.normalizedPreset() == PRESET_TELEGRAM_BOT) {
+            TelegramKeepAliveScheduler.schedule(context.applicationContext)
+        }
     }
 
     fun recordReadingArrived(

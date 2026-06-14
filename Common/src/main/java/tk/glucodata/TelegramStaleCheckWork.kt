@@ -4,12 +4,13 @@ import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * In-process scheduler for the Telegram "stale" / "missed reading" edit.
@@ -139,6 +140,9 @@ object TelegramStaleCheckWork {
      * Posts a new stale/missed message to the chat (does not edit the existing bubble).
      * Returns true on 2xx, false on a definitive API rejection (4xx),
      * null on transient network failure (caller should leave state intact).
+     *
+     * Uses the shared OutboundApi.httpClient (OkHttp) for HTTP/2 PING keep-alive,
+     * matching the rest of the outbound transport.
      */
     private fun postSend(
         destination: OutboundApiSettings.Destination,
@@ -151,32 +155,31 @@ object TelegramStaleCheckWork {
             .put("text", text)
             .toString()
             .toByteArray(Charsets.UTF_8)
+        val contentType = "application/json; charset=UTF-8"
         return try {
-            val connection = (URL(sendUrl).openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                connectTimeout = 20_000
-                readTimeout = 30_000
-                doOutput = true
-                setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-                destination.headers.split('\n')
-                    .filter { it.contains(':') }
-                    .forEach { line ->
-                        val (k, v) = line.split(':', limit = 2).let { it[0].trim() to it[1].trim() }
-                        if (k.equals("Content-Type", ignoreCase = true)) return@forEach
-                        setRequestProperty(k, v)
-                    }
-            }
-            try {
-                connection.outputStream.use { it.write(body) }
-                val code = connection.responseCode
-                // 429 (rate limit) and 5xx (server error) are transient — leave state intact.
+            val builder = Request.Builder().url(sendUrl)
+                .header("Content-Type", contentType)
+                .header("Accept", "application/json, text/plain")
+                .header("User-Agent", "JugglucoNG API destinations")
+            destination.headers.split('\n')
+                .filter { it.contains(':') }
+                .forEach { line ->
+                    val parts = line.split(':', limit = 2)
+                    if (parts.size != 2) return@forEach
+                    val k = parts[0].trim()
+                    val v = parts[1].trim()
+                    if (k.isEmpty() || k.equals("Content-Type", ignoreCase = true)) return@forEach
+                    builder.header(k, v)
+                }
+            val request = builder.post(body.toRequestBody(contentType.toMediaTypeOrNull())).build()
+            val call = OutboundApi.httpClient.newCall(request)
+            call.execute().use { response ->
+                val code = response.code
                 when {
                     code in 200..299 -> true
                     code == 429 || code >= 500 -> null
                     else -> false
                 }
-            } finally {
-                connection.disconnect()
             }
         } catch (_: Throwable) {
             null
