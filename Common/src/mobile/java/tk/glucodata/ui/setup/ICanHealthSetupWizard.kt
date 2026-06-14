@@ -1,8 +1,14 @@
-// JugglucoNG — iCanHealth (Sinocare iCan i3/i6/i7) Setup Wizard
-// iCan setup is now QR/manual onboarding-first:
-// - scan the onboarding SN / active code
-// - let the driver discover the BLE peripheral in background
-// Account ID stays hidden from the normal flow; bundled keys are selected automatically.
+// JugglucoNG — iCanHealth (Sinocare iCan i3/i6/i7) Setup Wizard.
+// iCan setup is QR/manual onboarding-first:
+//   - scan the onboarding SN / active code
+//   - let the driver discover the BLE peripheral in the background
+// Account ID stays hidden from the normal flow; bundled keys are selected
+// automatically.
+//
+// This file is the presentation layer. The state machine lives in
+// ICanHealthSetupState; the singleton warm-up lives in
+// ICanHealthSingletons. Keep this file focused on layout and event
+// dispatch.
 
 package tk.glucodata.ui.setup
 
@@ -11,6 +17,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +30,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,9 +44,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,96 +66,54 @@ import tk.glucodata.Log
 import tk.glucodata.R
 import tk.glucodata.drivers.icanhealth.ICanHealthConstants
 import tk.glucodata.drivers.icanhealth.ICanHealthRegistry
+import tk.glucodata.drivers.icanhealth.ICanHealthSingletons
 
 private const val ICAN_HEALTH_ONBOARDING_EXAMPLE = "726022F50005"
-
-private enum class ICanHealthSetupStep {
-    ONBOARDING,
-    CONNECTING,
-    SUCCESS,
-}
+private const val TAG = "ICanHealthSetupWizard"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ICanHealthSetupWizard(
     onDismiss: () -> Unit,
     onNavigateToReadiness: () -> Unit = {},
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
 ) {
-    val tag = "ICanHealthSetupWizard"
-    val ui = rememberWizardUiMetrics()
+    // Compose 1.11.x + R8 -repackageclasses can leave a Kotlin `object`'s
+    // INSTANCE field null on first read if its only call site is a
+    // runCatching { } in the driver. Force the iCan singletons to load
+    // before any Compose measure can reach them, mirroring the pattern
+    // AndroidX uses for `androidx.lifecycle.Lifecycle`.
+    ICanHealthSingletons.ensureInitialized()
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var currentStep by remember { mutableStateOf(ICanHealthSetupStep.ONBOARDING) }
-    var lastOnboardingCode by remember { mutableStateOf("") }
-    var selectedSensorLabel by remember { mutableStateOf("") }
-    var showManualEntry by remember { mutableStateOf(false) }
-    var pendingAttachCode by remember { mutableStateOf<String?>(null) }
-
-    fun normalizeOnboardingInput(raw: String): String =
-        ICanHealthConstants.normalizeOnboardingDeviceSn(raw)
-
-    fun canAttach(code: String): Boolean {
-        val normalized = normalizeOnboardingInput(code)
-        return normalized.length in 8..13
-    }
-
-    fun startAttach(normalizedOnboardingCode: String) {
-        val normalized = normalizeOnboardingInput(normalizedOnboardingCode)
-        if (!canAttach(normalized)) {
-            return
-        }
-        selectedSensorLabel = normalized
-        currentStep = ICanHealthSetupStep.CONNECTING
-        scope.launch {
-            try {
-                ICanHealthRegistry.addSensor(
-                    context,
-                    displayName = null,
-                    address = "",
-                    null,
-                    normalized,
-                    null
-                )
-                kotlinx.coroutines.delay(2000)
-                currentStep = ICanHealthSetupStep.SUCCESS
-            } catch (t: Throwable) {
-                Log.e(tag, "Failed to add iCanHealth sensor: ${t.message}")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.nobluetooth),
-                    Toast.LENGTH_LONG
-                ).show()
-                currentStep = ICanHealthSetupStep.ONBOARDING
-            }
-        }
-    }
+    val state = remember { ICanHealthSetupState() }
+    val ui = rememberWizardUiMetrics()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        val pending = pendingAttachCode
-        pendingAttachCode = null
-        if (pending != null && hasBleScanPermissions(context)) {
-            startAttach(pending)
+    ) { results ->
+        val granted = results.values.all { it }
+        val pending = state.onPermissionResult(granted)
+        if (pending != null) {
+            startAttach(scope, state, context, pending)
         }
     }
 
     fun requestPermissionsAndAttach(rawCode: String) {
-        val normalized = normalizeOnboardingInput(rawCode)
-        lastOnboardingCode = normalized
-        if (!canAttach(normalized)) {
-            return
-        }
+        val normalized = ICanHealthConstants.normalizeOnboardingDeviceSn(rawCode)
+        if (!state.isAttachable(normalized) { it }) return
         if (!hasBleScanPermissions(context)) {
             val required = requiredBleScanPermissions()
             if (required.isNotEmpty()) {
-                pendingAttachCode = normalized
+                // Stash the code on the state so the launcher callback can
+                // re-enter startAttach with it after the user responds.
+                state.requestPermissionsThenAttach(normalized) { it }
                 permissionLauncher.launch(required)
                 return
             }
         }
-        startAttach(normalized)
+        startAttach(scope, state, context, normalized)
     }
 
     val launchFullscreenScan = rememberUnifiedQrScanLauncher(
@@ -151,26 +123,25 @@ fun ICanHealthSetupWizard(
     )
 
     BackHandler {
-        when {
-            showManualEntry -> showManualEntry = false
-            currentStep == ICanHealthSetupStep.ONBOARDING -> onDismiss()
-            else -> currentStep = ICanHealthSetupStep.ONBOARDING
+        when (state.onBack()) {
+            BackOutcome.Consumed -> Unit
+            BackOutcome.Dismiss -> onDismiss()
         }
     }
 
-    LaunchedEffect(currentStep) {
-        if (currentStep == ICanHealthSetupStep.SUCCESS) {
+    LaunchedEffect(state.currentStep) {
+        if (state.currentStep == ICanHealthSetupStep.SUCCESS) {
             delay(SENSOR_SETUP_SUCCESS_AUTO_ADVANCE_MS)
             onComplete()
         }
     }
 
-    if (showManualEntry) {
+    if (state.showManualEntry) {
         ICanHealthManualEntryDialog(
-            initialValue = lastOnboardingCode,
-            onDismiss = { showManualEntry = false },
+            initialValue = state.lastOnboardingCode,
+            onDismiss = { state.dismissManualEntry() },
             onConfirm = { normalized ->
-                showManualEntry = false
+                state.dismissManualEntry()
                 requestPermissionsAndAttach(normalized)
             }
         )
@@ -182,47 +153,107 @@ fun ICanHealthSetupWizard(
                 title = { Text(stringResource(R.string.icanhealth_sensor)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cancel))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cancel)
+                        )
                     }
-                }
+                },
+                // Material3 1.4 expressive spec expects an explicit
+                // colors= on TopAppBar so the top app bar surface
+                // resolves via the new color scheme without depending on
+                // the implicit default. This also dodges the R8-static
+                // NPE that bit the old style.
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
-        AnimatedContent(
-            targetState = currentStep,
-            modifier = Modifier.padding(padding),
-            label = "ICanHealthWizard"
-        ) { step ->
-            when (step) {
-                ICanHealthSetupStep.ONBOARDING -> ICanHealthOnboardingStep(
-                    ui = ui,
-                    onNavigateToReadiness = onNavigateToReadiness,
-                    onInlineScanResult = ::requestPermissionsAndAttach,
-                    onLaunchFullscreenScan = launchFullscreenScan,
-                    onShowManualEntry = { showManualEntry = true }
-                )
-
-                ICanHealthSetupStep.CONNECTING -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    SensorSetupConnectingScreen(
+        // `key(currentStep)` is the new-Material-3-Expressive pattern for
+        // stepping a state-machine UI: it forces a fresh composition
+        // subtree per step so the AnimatedContent + onComplete LaunchedEffect
+        // lifecycle is independent across steps. Without this, the same
+        // composable identities get reused and the recompose path can hit
+        // a static-singleton read on the wrong step.
+        key(state.currentStep) {
+            AnimatedContent(
+                targetState = state.currentStep,
+                modifier = Modifier.padding(padding),
+                transitionSpec = {
+                    val enter = fadeIn(animationSpec = tween(durationMillis = 220))
+                    val exit = fadeOut(animationSpec = tween(durationMillis = 180))
+                    enter togetherWith exit
+                },
+                contentKey = { it },
+                label = "ICanHealthWizard",
+            ) { step ->
+                when (step) {
+                    ICanHealthSetupStep.ONBOARDING -> ICanHealthOnboardingStep(
                         ui = ui,
-                        sensorLabel = selectedSensorLabel.ifBlank { null }
+                        onNavigateToReadiness = onNavigateToReadiness,
+                        onInlineScanResult = ::requestPermissionsAndAttach,
+                        onLaunchFullscreenScan = launchFullscreenScan,
+                        onShowManualEntry = { state.openManualEntry() }
                     )
-                }
 
-                ICanHealthSetupStep.SUCCESS -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    SensorSetupSuccessScreen(
-                        ui = ui,
-                        sensorLabel = selectedSensorLabel.ifBlank { null }
-                    )
+                    ICanHealthSetupStep.CONNECTING -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SensorSetupConnectingScreen(
+                            ui = ui,
+                            sensorLabel = state.selectedSensorLabel.ifBlank { null }
+                        )
+                    }
+
+                    ICanHealthSetupStep.SUCCESS -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SensorSetupSuccessScreen(
+                            ui = ui,
+                            sensorLabel = state.selectedSensorLabel.ifBlank { null }
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+private fun startAttach(
+    scope: kotlinx.coroutines.CoroutineScope,
+    state: ICanHealthSetupState,
+    context: android.content.Context,
+    normalizedOnboardingCode: String,
+) {
+    val outcome = state.startAttach(normalizedOnboardingCode) { it }
+    if (outcome is ICanHealthAttachOutcome.InvalidCode) return
+    scope.launch {
+        val result = try {
+            ICanHealthRegistry.addSensor(
+                context,
+                displayName = null,
+                address = "",
+                aesKeyAscii = null,
+                onboardingDeviceSnOrCode = normalizedOnboardingCode,
+                authUserId = null,
+            )
+            ICanHealthAttachResult.Added(normalizedOnboardingCode)
+        } catch (t: Throwable) {
+            Log.e(TAG, "Failed to add iCanHealth sensor: ${t.message}")
+            Toast.makeText(
+                context,
+                context.getString(R.string.nobluetooth),
+                Toast.LENGTH_LONG
+            ).show()
+            ICanHealthAttachResult.Failed(t)
+        }
+        state.markAttached(result)
     }
 }
 
@@ -283,11 +314,14 @@ private fun ICanHealthManualEntryDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    var value by remember(initialValue) { mutableStateOf(initialValue) }
+    var value by remember(initialValue) {
+        mutableStateOf(initialValue)
+    }
     val normalized = remember(value) {
         ICanHealthConstants.normalizeOnboardingDeviceSn(value)
     }
-    val isValid = normalized.length in 8..13
+    val isValid = normalized.length in
+        ICanHealthSetupState.MIN_ATTACH_CODE_LEN..ICanHealthSetupState.MAX_ATTACH_CODE_LEN
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -304,7 +338,7 @@ private fun ICanHealthManualEntryDialog(
                     supportingText = {
                         Text(stringResource(R.string.serial_number_supporting, ICAN_HEALTH_ONBOARDING_EXAMPLE))
                     },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                     singleLine = true,
                     isError = value.isNotBlank() && !isValid,
                     modifier = Modifier.fillMaxWidth()
