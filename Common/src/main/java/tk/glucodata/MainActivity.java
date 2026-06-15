@@ -478,6 +478,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         super.onCreate(savedInstanceState);
         thisone = this;
 
+        warmUpBarcodeScanner();
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             Log.i(LOG_ID, "sdk 21 or larger");
         } else {
@@ -542,6 +544,50 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             } catch (Exception e) {
                 Log.e(LOG_ID, "Failed to init Compose UI: " + e);
             }
+        }
+    }
+
+    // Warm the ML Kit BarcodeScanning static holder on the main thread, before
+    // any wizard/Compose measure pass can reach it. The standalone ML Kit barcode
+    // scanner (com.google.mlkit:barcode-scanning) statically delegates to
+    // play-services-mlkit-barcode-scanning on the first BarcodeScanning.getClient
+    // call; calling it from a Compose `remember { }` block that is also being
+    // measured can race with the static initializer and NPE on the `zzi` field of
+    // the internal `zzg` holder (see FINDINGS / agent rule for the
+    // "standalone-MLKit initialization race"). Calling once here, in onCreate,
+    // and closing immediately, makes the static `zzg.INSTANCE` non-null and its
+    // `zza` field set, so subsequent wizard calls see a fully-initialized
+    // scanner. Reflective on purpose: the mlkit classes are not on the classpath
+    // of every flavor (no-google/wear), and a hard import would break those.
+    private void warmUpBarcodeScanner() {
+        try {
+            Class<?> scanningCls = Class.forName("com.google.mlkit.vision.barcode.BarcodeScanning");
+            Class<?> optionsCls = Class.forName("com.google.mlkit.vision.barcode.BarcodeScannerOptions");
+            Class<?> optionsBuilderCls = Class.forName("com.google.mlkit.vision.barcode.BarcodeScannerOptions$Builder");
+            Class<?> barcodeCls = Class.forName("com.google.mlkit.vision.barcode.common.Barcode");
+            Object options = optionsBuilderCls.getMethod("build").invoke(
+                optionsBuilderCls.getMethod("setBarcodeFormats", int[].class).invoke(
+                    optionsBuilderCls.getConstructor().newInstance(),
+                    new Object[]{ new int[]{
+                        barcodeCls.getField("FORMAT_QR_CODE").getInt(null),
+                        barcodeCls.getField("FORMAT_DATA_MATRIX").getInt(null)
+                    } }
+                )
+            );
+            Object scanner = scanningCls.getMethod("getClient", optionsCls).invoke(null, options);
+            try {
+                scanner.getClass().getMethod("close").invoke(scanner);
+            } catch (Throwable closeEx) {
+                // best-effort
+            }
+            Log.i(LOG_ID, "ML Kit barcode scanner warmed up");
+        } catch (ClassNotFoundException e) {
+            // mlkit not on classpath for this flavor; nothing to do
+            Log.i(LOG_ID, "ML Kit barcode scanner not present on classpath; skipping warm-up");
+        } catch (Throwable t) {
+            // Any init failure must not break app startup. The wizard's own
+            // runCatching will surface this to the user as a scanner error.
+            Log.w(LOG_ID, "ML Kit barcode scanner warm-up failed: " + t);
         }
     }
 
