@@ -89,8 +89,8 @@ android {
         //compileSdk 36
         applicationId "cloud.glucodroid"
 
-         versionName '0.2.4.5'
-        versionCode 8245
+         versionName '0.2.4.6'
+        versionCode 8246
 //    multiDexEnabled true
 
         buildConfigField 'String', 'BUILD_TIME', 'new java.text.SimpleDateFormat("HH:mm:ss dd-MMM-yyyy").format(new java.util.Date(' + System.currentTimeMillis() + 'L))'
