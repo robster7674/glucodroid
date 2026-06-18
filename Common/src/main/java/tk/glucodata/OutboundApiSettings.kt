@@ -129,7 +129,7 @@ object OutboundApiSettings {
             if (normalizedPreset() == PRESET_GLUCODROID_CLOUD) {
                 val subdomain = url.trim()
                 if (subdomain.isBlank()) return ""
-                return "https://$subdomain.glucodroid.cloud/api/v1/ingest?token=${Uri.encode(token.trim())}"
+                return "https://$subdomain.glucodroid.cloud/api/v1/entries?token=${Uri.encode(token.trim())}"
             }
             val trimmed = url.trim()
             val replacementToken = if (normalizedPreset() == PRESET_TELEGRAM_BOT) {
