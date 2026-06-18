@@ -2046,7 +2046,7 @@ Pressing OK will generate a connection on this phone and display a QR code that 
     <string name="outbound_api_preset_glucodroid_cloud" translatable="false">glucodroid.cloud</string>
     <string name="outbound_api_preset_glucodroid_cloud_desc" translatable="false">Stream readings to your glucodroid.cloud account.</string>
     <string name="outbound_api_glucodroid_subdomain" translatable="false">Subdomain</string>
-    <string name="outbound_api_glucodroid_ingest_token" translatable="false">Ingest token</string>
+    <string name="outbound_api_glucodroid_ingest_token" translatable="false">API secret</string>
     <string name="outbound_api_preset_custom_json_desc">POST normalized glucose JSON to any endpoint.</string>
     <string name="outbound_api_preset_telegram_desc">Send text with the Telegram Bot API. The URL can point to a relay.</string>
     <string name="outbound_api_preset_gluco_watch_vk_desc">Send compact GV text through VK community messages.</string>
