@@ -261,6 +261,9 @@ public boolean scanStarter()  {
 ScheduledFuture<?> scanFuture=null,timeoutFuture=null;
 
 private static final int  scaninterval=60000;
+private static final int scanstartmaxwait=300000;
+private int currentwait=scaninterval;
+private boolean scanpending=false;
 public void stopScan(boolean retry) {
     if(doLog) {Log.d(LOG_ID,"Stop scanning "+(retry?"retry":"don't retry"));};
      if(scanFuture!=null) {
@@ -276,7 +279,7 @@ public void stopScan(boolean retry) {
         scanStopper();
         if(retry) {
            if(bluetoothIsEnabled()) {
-                scanStarter( scaninterval);
+                scanStarter( currentwait);
                 }
             }
         }
@@ -289,20 +292,35 @@ final private Runnable mScanTimeoutRunnable = () -> {
 
 private static final int scantimeout = 390000;
 final private Runnable scanRunnable = new Runnable() {
-   @Override 
+   @Override
    public void run() {
        if(doLog) {Log.i(LOG_ID,"scanRunnable");};;
+       synchronized(MeterScanner.this) {
+           if(mScanning||scanpending) {
+               if(doLog) {Log.d(LOG_ID,"scanRunnable: already active/pending, skip");};
+               return;
+           }
+           scanpending=true;
+       }
        if(scanStarter()) {
                mScanning = true;
+               synchronized(MeterScanner.this) {
+                   scanpending=false;
+                   currentwait=scaninterval;
+               }
                 timeoutFuture=Applic.scheduler.schedule(mScanTimeoutRunnable, scantimeout, TimeUnit.MILLISECONDS);
               }
         else {
-              if(doLog) {Log.d(LOG_ID,"Start scan failed");};
+              synchronized(MeterScanner.this) {
+                  scanpending=false;
+                  currentwait=Math.min(currentwait*2,scanstartmaxwait);
+              }
+              if(doLog) {Log.d(LOG_ID,"Start scan failed; next wait="+currentwait);};
               return;
              }
      }
 
- };
+  };
 public     boolean scanStarter(long delayMillis) {
     scanFuture=Applic.scheduler.schedule(scanRunnable, delayMillis, TimeUnit.MILLISECONDS);
     return false;
