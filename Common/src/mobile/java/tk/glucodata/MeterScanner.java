@@ -199,7 +199,7 @@ private void addDevice(BluetoothDevice device) {
               if(errorCode != SCAN_FAILED_ALREADY_STARTED) {
                 stopScan(false);
                 if(errorCode != SCAN_FAILED_FEATURE_UNSUPPORTED) {
-                   scanStarter(scaninterval) ;
+                   scanStarter(currentwait) ;
                    }
                   }
                  }
@@ -262,8 +262,8 @@ ScheduledFuture<?> scanFuture=null,timeoutFuture=null;
 
 private static final int  scaninterval=60000;
 private static final int scanstartmaxwait=300000;
-private int currentwait=scaninterval;
-private boolean scanpending=false;
+private volatile int currentwait=scaninterval;
+private volatile boolean scanpending=false;
 public void stopScan(boolean retry) {
     if(doLog) {Log.d(LOG_ID,"Stop scanning "+(retry?"retry":"don't retry"));};
      if(scanFuture!=null) {
@@ -303,8 +303,8 @@ final private Runnable scanRunnable = new Runnable() {
            scanpending=true;
        }
        if(scanStarter()) {
-               mScanning = true;
                synchronized(MeterScanner.this) {
+                   mScanning=true;
                    scanpending=false;
                    currentwait=scaninterval;
                }
