@@ -287,18 +287,34 @@ jobs:
 
           logcat_files = glob.glob("ftl-results/**/logcat*", recursive=True)
 
+           # Build PID map for cloud.glucodroid process(es) from lines that explicitly
+          # mention the package, so we can also match tag-only BluetoothLeScanner
+          # lines emitted by the same PIDs.
+          pid_re    = re.compile(r'^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d+\s+(\d+)\s+\d+')
+          pkg_re    = re.compile(r'cloud\.glucodroid(\.debug)?')
           ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
-          ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
+          ble_stop  = re.compile(r'stopScan|ScannerUnregistered')
+          app_pids  = set()
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if pkg_re.search(line):
+                      m = pid_re.match(line)
+                      if m: app_pids.add(m.group(1))
+
           ble_starts, ble_stops = [], []
           for lf in logcat_files:
               for line in open(lf, errors='replace'):
-                  if 'cloud.glucodroid' not in line and 'BluetoothLeScanner' not in line and 'bt_stack' not in line:
+                  pid = (pid_re.match(line) or [None,None])[1]
+                  is_app = pid and pid in app_pids
+                  is_ble = 'BluetoothLeScanner' in line or 'bt_stack' in line
+                  if not (is_app or (is_ble and pkg_re.search(line))):
                       continue
                   if ble_start.search(line):
                       ble_starts.append(line.rstrip())
                   elif ble_stop.search(line):
                       ble_stops.append(line.rstrip())
 
+          lines.append(f"_Tracked PIDs: {sorted(app_pids) or 'none'}_\n")
           lines.append("### BLE Scan Lifecycle")
           lines.append(f"- Scanner registered: **{len(ble_starts)}**  stopped: **{len(ble_stops)}**")
           if len(ble_starts) > len(ble_stops) + 1:
@@ -572,18 +588,52 @@ jobs:
                   lines.append("- ✅ No jank detected")
 
           # ── BLE scan lifecycle ────────────────────────────────────────────
+          # Build PID set from any logcat line mentioning cloud.glucodroid so we
+          # can detect tag-only BluetoothLeScanner lines from the same process(es).
+          pid_re    = re.compile(r'^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d+\s+(\d+)\s+\d+')
+          pkg_re    = re.compile(r'cloud\.glucodroid(\.debug)?')
           ble_start = re.compile(r'onScannerRegistered.*scannerId=(\d+)', re.I)
-          ble_stop  = re.compile(r'stopScan|ScannerUnregistered', re.I)
+          ble_stop  = re.compile(r'stopScan|ScannerUnregistered')
+          app_pids  = set()
+          for lf in logcat_files:
+              for line in open(lf, errors='replace'):
+                  if pkg_re.search(line):
+                      m = pid_re.match(line)
+                      if m: app_pids.add(m.group(1))
+
+          def _is_app_line(line):
+              m = pid_re.match(line)
+              return m and m.group(1) in app_pids
+
           ble_starts = [line.rstrip() for lf in logcat_files
                         for line in open(lf, errors='replace')
-                        if ble_start.search(line) and 'cloud.glucodroid' in line]
+                        if _is_app_line(line) and ble_start.search(line)]
           ble_stops  = [line.rstrip() for lf in logcat_files
                         for line in open(lf, errors='replace')
-                        if ble_stop.search(line) and 'cloud.glucodroid' in line]
+                        if _is_app_line(line) and ble_stop.search(line)]
           lines.append(f"\n### BLE Scan Lifecycle")
+          lines.append(f"_Tracked PIDs: {sorted(app_pids) or 'none'}_")
           lines.append(f"- Registered: **{len(ble_starts)}**  stopped: **{len(ble_stops)}**")
           if len(ble_starts) > len(ble_stops) + 1:
               lines.append(f"- ⚠️ {len(ble_starts)-len(ble_stops)} unmatched start(s)")
+              # Surface the worst scan-restart bursts so they're actionable.
+              from datetime import datetime
+              _ts_re = re.compile(r'^(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)')
+              def _ts(s):
+                  m = _ts_re.match(s)
+                  if not m: return None
+                  try: return datetime.strptime(m.group(1), '%m-%d %H:%M:%S.%f')
+                  except ValueError: return None
+              _starts = [(t, l) for l in ble_starts if (t := _ts(l)) is not None]
+              if len(_starts) >= 3:
+                  _starts.sort()
+                  _gaps = [(_starts[i+1][0]-_starts[i][0]).total_seconds() for i in range(len(_starts)-1)]
+                  _short = [g for g in _gaps if g < 60]
+                  if len(_short) >= 3:
+                      lines.append(f"- ⚠️ {len(_short)}/{len(_gaps)} scan restarts fired <60s apart — likely redundant startScan calls")
+                      lines.append("<details><summary>Start timestamps</summary>\n\n```")
+                      lines.extend(f"{t.strftime('%H:%M:%S.%f')[:-3]}" for t, _ in _starts[:30])
+                      lines.append("```\n</details>")
 
           # ── App AlarmManager calls ─────────────────────────────────────────
           if power_only:
