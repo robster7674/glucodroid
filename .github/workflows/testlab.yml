@@ -616,24 +616,27 @@ jobs:
           lines.append(f"- Registered: **{len(ble_starts)}**  stopped: **{len(ble_stops)}**")
           if len(ble_starts) > len(ble_stops) + 1:
               lines.append(f"- ⚠️ {len(ble_starts)-len(ble_stops)} unmatched start(s)")
-              # Surface the worst scan-restart bursts so they're actionable.
-              from datetime import datetime
-              _ts_re = re.compile(r'^(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)')
-              def _ts(s):
-                  m = _ts_re.match(s)
-                  if not m: return None
-                  try: return datetime.strptime(m.group(1), '%m-%d %H:%M:%S.%f')
-                  except ValueError: return None
-              _starts = [(t, l) for l in ble_starts if (t := _ts(l)) is not None]
-              if len(_starts) >= 3:
-                  _starts.sort()
-                  _gaps = [(_starts[i+1][0]-_starts[i][0]).total_seconds() for i in range(len(_starts)-1)]
-                  _short = [g for g in _gaps if g < 60]
-                  if len(_short) >= 3:
-                      lines.append(f"- ⚠️ {len(_short)}/{len(_gaps)} scan restarts fired <60s apart — likely redundant startScan calls")
-                      lines.append("<details><summary>Start timestamps</summary>\n\n```")
-                      lines.extend(f"{t.strftime('%H:%M:%S.%f')[:-3]}" for t, _ in _starts[:30])
-                      lines.append("```\n</details>")
+
+          # Surface the worst scan-restart bursts so they're actionable. Computed
+          # independently of the matched/unmatched check so a balanced but rapid
+          # cycle (e.g. many short start/stop pairs) is not silently hidden.
+          from datetime import datetime
+          _ts_re = re.compile(r'^(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)')
+          def _ts(s):
+              m = _ts_re.match(s)
+              if not m: return None
+              try: return datetime.strptime(m.group(1), '%m-%d %H:%M:%S.%f')
+              except ValueError: return None
+          _starts = [(t, l) for l in ble_starts if (t := _ts(l)) is not None]
+          if len(_starts) >= 3:
+              _starts.sort()
+              _gaps = [(_starts[i+1][0]-_starts[i][0]).total_seconds() for i in range(len(_starts)-1)]
+              _short = [g for g in _gaps if g < 60]
+              if len(_short) >= 2:
+                  lines.append(f"- ⚠️ {len(_short)}/{len(_gaps)} scan restarts fired <60s apart — likely redundant startScan calls")
+                  lines.append("<details><summary>Start timestamps</summary>\n\n```")
+                  lines.extend(f"{t.strftime('%H:%M:%S.%f')[:-3]}" for t, _ in _starts[:30])
+                  lines.append("```\n</details>")
 
           # ── App AlarmManager calls ─────────────────────────────────────────
           if power_only:
