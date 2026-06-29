@@ -52,7 +52,7 @@ class MeterScanner  {
    List<BluetoothDevice> devices=new ArrayList<BluetoothDevice>();
    List<String> deviceNames=new ArrayList<String>();
    private static final String LOG_ID="MeterScanner";
-   private boolean mScanning=false;
+   private volatile boolean mScanning=false;
    private BluetoothLeScanner mBluetoothLeScanner=null;
    boolean knowName=true;
    MeterScanner() {
